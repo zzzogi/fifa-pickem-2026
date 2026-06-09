@@ -1,10 +1,7 @@
-// src/app/layout.tsx
+// app/layout.tsx
 import type { Metadata } from "next";
-import { Anton, Archivo_Narrow, Inter } from "next/font/google";
+import { Anton, Archivo_Narrow } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
-
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const anton = Anton({
   subsets: ["latin"],
@@ -25,9 +22,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" className={cn("font-sans", inter.variable)}>
+    <html lang="en">
       <body className={`${anton.variable} ${archivoNarrow.variable}`}>
         {children}
       </body>

@@ -1,0 +1,120 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────────────────────
+// AUTH.JS REQUIRED TABLES
+// ─────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─────────────────────────────────────────
+// APP TABLES
+// ─────────────────────────────────────────
+
+model User {
+  id          String   @id @default(cuid())
+  name        String?
+  email       String?  @unique
+  emailVerified DateTime?
+  image       String?
+  totalPoints Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+  picks    Pick[]
+}
+
+model Match {
+  id                  String   @id @default(cuid())
+  footballDataMatchId Int      @unique
+  utcDate             DateTime
+  status              String   // TIMED | INPLAY | PAUSED | FINISHED
+  matchday            Int?
+  stage               String?
+  group               String?
+
+  homeTeamId    Int
+  homeTeamName  String
+  homeTeamCode  String?
+  homeTeamCrest String?
+
+  awayTeamId    Int
+  awayTeamName  String
+  awayTeamCode  String?
+  awayTeamCrest String?
+
+  homeScore   Int?
+  awayScore   Int?
+  winner      String? // HOME_TEAM | AWAY_TEAM | DRAW
+
+  lastUpdated DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  picks Pick[]
+}
+
+model Pick {
+  id                  String   @id @default(cuid())
+  userId              String
+  matchId             String
+
+  predictedHomeScore  Int
+  predictedAwayScore  Int
+  pointsAwarded       Int      @default(0)
+  isCorrectWinner     Boolean  @default(false)
+  isExactScore        Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, matchId])
+}
