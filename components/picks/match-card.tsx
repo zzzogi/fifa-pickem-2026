@@ -11,18 +11,18 @@ interface UserPick {
 }
 
 interface MatchCardProps {
-  matchId: string; // DB id
-  homeTeam: string;
-  homeTeamCode: string;
-  homeTeamCrest?: string;
-  awayTeam: string;
-  awayTeamCode: string;
-  awayTeamCrest?: string;
+  matchId: string;
+  homeTeam: string | null; // ← nullable
+  homeTeamCode: string | null; // ← nullable
+  homeTeamCrest?: string | null;
+  awayTeam: string | null; // ← nullable
+  awayTeamCode: string | null; // ← nullable
+  awayTeamCrest?: string | null;
   kickoffTime: Date;
   status: string;
   stage: string;
   group?: string | null;
-  homeScore?: number | null; // actual result
+  homeScore?: number | null;
   awayScore?: number | null;
   userPick?: UserPick;
 }
@@ -79,6 +79,56 @@ function PointsBadge({ pick }: { pick: UserPick }) {
   );
 }
 
+// ← Component mới thay thế inline team display
+function TeamDisplay({
+  name,
+  code,
+  crest,
+}: {
+  name: string | null;
+  code: string | null;
+  crest?: string | null;
+}) {
+  const isTBD = !name;
+
+  return (
+    <div className="flex flex-col items-center gap-2 text-center">
+      {crest && !isTBD ? (
+        <Image
+          src={crest}
+          alt={name ?? "TBD"}
+          width={48}
+          height={48}
+          className="object-contain"
+          loading="lazy"
+        />
+      ) : (
+        <div
+          className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold"
+          style={{
+            background: isTBD ? "var(--surface-high)" : "var(--surface-muted)",
+            color: "var(--outline)",
+            fontFamily: "var(--font-display)",
+            border: isTBD ? "2px dashed var(--outline-variant)" : "none",
+          }}
+        >
+          {isTBD ? "?" : code}
+        </div>
+      )}
+      <span
+        className="text-base font-bold leading-tight"
+        style={{
+          fontFamily: "var(--font-display)",
+          letterSpacing: "0.02em",
+          color: isTBD ? "var(--outline)" : "var(--foreground)",
+        }}
+      >
+        {isTBD ? "TBD" : code || name}
+      </span>
+    </div>
+  );
+}
+
 export default function MatchCard({
   matchId,
   homeTeam,
@@ -105,6 +155,7 @@ export default function MatchCard({
 
   const isFinished = status === "FINISHED";
   const isLive = status === "IN_PLAY" || status === "PAUSED";
+  const isTBD = !homeTeam || !awayTeam; // ← thêm dòng này
 
   return (
     <div
@@ -128,38 +179,12 @@ export default function MatchCard({
 
       {/* Teams */}
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-        {/* Home team */}
-        <div className="flex flex-col items-center gap-2 text-center">
-          {homeTeamCrest ? (
-            <Image
-              src={homeTeamCrest}
-              alt={homeTeam}
-              width={48}
-              height={48}
-              className="object-contain"
-              loading="lazy"
-            />
-          ) : (
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold"
-              style={{
-                background: "var(--surface-muted)",
-                fontFamily: "var(--font-display)",
-              }}
-            >
-              {homeTeamCode}
-            </div>
-          )}
-          <span
-            className="text-base font-bold leading-tight"
-            style={{
-              fontFamily: "var(--font-display)",
-              letterSpacing: "0.02em",
-            }}
-          >
-            {homeTeamCode || homeTeam}
-          </span>
-        </div>
+        {/* Home team ← dùng TeamDisplay thay inline */}
+        <TeamDisplay
+          name={homeTeam}
+          code={homeTeamCode}
+          crest={homeTeamCrest}
+        />
 
         {/* Score / VS */}
         <div className="text-center min-w-[60px]">
@@ -184,46 +209,21 @@ export default function MatchCard({
           )}
         </div>
 
-        {/* Away team */}
-        <div className="flex flex-col items-center gap-2 text-center">
-          {awayTeamCrest ? (
-            <Image
-              src={awayTeamCrest}
-              alt={awayTeam}
-              width={48}
-              height={48}
-              className="object-contain"
-              loading="lazy"
-            />
-          ) : (
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold"
-              style={{
-                background: "var(--surface-muted)",
-                fontFamily: "var(--font-display)",
-              }}
-            >
-              {awayTeamCode}
-            </div>
-          )}
-          <span
-            className="text-base font-bold leading-tight"
-            style={{
-              fontFamily: "var(--font-display)",
-              letterSpacing: "0.02em",
-            }}
-          >
-            {awayTeamCode || awayTeam}
-          </span>
-        </div>
+        {/* Away team ← dùng TeamDisplay thay inline */}
+        <TeamDisplay
+          name={awayTeam}
+          code={awayTeamCode}
+          crest={awayTeamCrest}
+        />
       </div>
 
-      {/* Pick input */}
+      {/* Pick input ← thêm isTBD */}
       <PickInput
         matchId={matchId}
         kickoffTime={kickoffTime}
         initialHome={userPick?.predictedHomeScore}
         initialAway={userPick?.predictedAwayScore}
+        isTBD={isTBD}
       />
     </div>
   );

@@ -8,6 +8,7 @@ interface PickInputProps {
   kickoffTime: Date;
   initialHome?: number;
   initialAway?: number;
+  isTBD?: boolean;
 }
 
 export default function PickInput({
@@ -15,6 +16,7 @@ export default function PickInput({
   kickoffTime,
   initialHome,
   initialAway,
+  isTBD,
 }: PickInputProps) {
   const [home, setHome] = useState<string>(initialHome?.toString() ?? "");
   const [away, setAway] = useState<string>(initialAway?.toString() ?? "");
@@ -24,6 +26,23 @@ export default function PickInput({
   const [isPending, startTransition] = useTransition();
 
   const isLocked = new Date() >= kickoffTime;
+
+  if (isTBD) {
+    return (
+      <div className="mt-4">
+        <span
+          className="text-xs uppercase tracking-wide"
+          style={{
+            color: "var(--outline)",
+            fontFamily: "var(--font-body)",
+            fontWeight: 700,
+          }}
+        >
+          ⏳ Teams TBD — picks open after draw
+        </span>
+      </div>
+    );
+  }
 
   async function handleSave() {
     const h = parseInt(home);

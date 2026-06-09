@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/sync-matches",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/calculate-points",
+      "schedule": "*/15 * * * *"
+    }
+  ]
+}

@@ -72,18 +72,12 @@ export default async function MatchesList({ userId }: MatchesListProps) {
                 <MatchCard
                   key={match.id}
                   matchId={match.id}
-                  homeTeam={match.homeTeamName}
-                  homeTeamCode={
-                    match.homeTeamCode ??
-                    match.homeTeamName.slice(0, 3).toUpperCase()
-                  }
-                  homeTeamCrest={match.homeTeamCrest ?? undefined}
-                  awayTeam={match.awayTeamName}
-                  awayTeamCode={
-                    match.awayTeamCode ??
-                    match.awayTeamName.slice(0, 3).toUpperCase()
-                  }
-                  awayTeamCrest={match.awayTeamCrest ?? undefined}
+                  homeTeam={match.homeTeamName} // ← bỏ ?? fallback
+                  homeTeamCode={match.homeTeamCode} // ← bỏ ?? fallback
+                  homeTeamCrest={match.homeTeamCrest}
+                  awayTeam={match.awayTeamName} // ← bỏ ?? fallback
+                  awayTeamCode={match.awayTeamCode} // ← bỏ ?? fallback
+                  awayTeamCrest={match.awayTeamCrest}
                   kickoffTime={match.utcDate}
                   status={match.status}
                   stage={match.stage ?? ""}

@@ -15,19 +15,19 @@ export interface FootballMatch {
   stage: string;
   group: string | null;
   homeTeam: {
-    id: number;
-    name: string;
-    shortName: string;
-    tla: string;
-    crest: string;
-  };
+    id: number | null; // ← nullable
+    name: string | null; // ← nullable
+    shortName: string | null;
+    tla: string | null;
+    crest: string | null;
+  } | null; // ← cả object có thể null
   awayTeam: {
-    id: number;
-    name: string;
-    shortName: string;
-    tla: string;
-    crest: string;
-  };
+    id: number | null;
+    name: string | null;
+    shortName: string | null;
+    tla: string | null;
+    crest: string | null;
+  } | null;
   score: {
     winner: string | null;
     fullTime: { home: number | null; away: number | null };
