@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 import { Anton, Archivo_Narrow } from "next/font/google";
 import "./globals.css";
 
+// app/layout.tsx — thêm SessionProvider
+import AuthProvider from "@/providers/AuthProvider";
+
 const anton = Anton({
   subsets: ["latin"],
   weight: "400",
@@ -20,7 +23,7 @@ export const metadata: Metadata = {
   description: "Predict World Cup scores and compete on the leaderboard.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -28,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${anton.variable} ${archivoNarrow.variable}`}>
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
