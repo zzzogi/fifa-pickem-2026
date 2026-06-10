@@ -1,6 +1,9 @@
 // components/picks/match-card.tsx
 import Image from "next/image";
 import PickInput from "./pick-input";
+import PickDistributionBar from "./pick-distribution-bar";
+import { getCountryName } from "@/lib/team-names";
+import type { PickDistribution } from "@/lib/pick-distribution";
 
 interface UserPick {
   predictedHomeScore: number;
@@ -12,11 +15,11 @@ interface UserPick {
 
 interface MatchCardProps {
   matchId: string;
-  homeTeam: string | null; // ← nullable
-  homeTeamCode: string | null; // ← nullable
+  homeTeam: string | null;
+  homeTeamCode: string | null;
   homeTeamCrest?: string | null;
-  awayTeam: string | null; // ← nullable
-  awayTeamCode: string | null; // ← nullable
+  awayTeam: string | null;
+  awayTeamCode: string | null;
   awayTeamCrest?: string | null;
   kickoffTime: Date;
   status: string;
@@ -25,6 +28,7 @@ interface MatchCardProps {
   homeScore?: number | null;
   awayScore?: number | null;
   userPick?: UserPick;
+  distribution?: PickDistribution; // ← thêm prop mới
 }
 
 function StatusChip({ status }: { status: string }) {
@@ -43,7 +47,6 @@ function StatusChip({ status }: { status: string }) {
       color: "var(--outline)",
     },
   };
-
   const chip = config[status] ?? config.TIMED;
 
   return (
@@ -62,7 +65,6 @@ function StatusChip({ status }: { status: string }) {
 
 function PointsBadge({ pick }: { pick: UserPick }) {
   if (pick.pointsAwarded === 0 && !pick.isCorrectWinner) return null;
-
   return (
     <span
       className="text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-[4px]"
@@ -79,7 +81,7 @@ function PointsBadge({ pick }: { pick: UserPick }) {
   );
 }
 
-// ← Component mới thay thế inline team display
+// ← Component team mới — có thêm country name
 function TeamDisplay({
   name,
   code,
@@ -90,13 +92,14 @@ function TeamDisplay({
   crest?: string | null;
 }) {
   const isTBD = !name;
+  const countryName = getCountryName(code, name); // ← tên đầy đủ
 
   return (
-    <div className="flex flex-col items-center gap-2 text-center">
+    <div className="flex flex-col items-center gap-1.5 text-center">
       {crest && !isTBD ? (
         <Image
           src={crest}
-          alt={name ?? "TBD"}
+          alt={countryName}
           width={48}
           height={48}
           className="object-contain"
@@ -115,16 +118,34 @@ function TeamDisplay({
           {isTBD ? "?" : code}
         </div>
       )}
+
+      {/* Code ngắn — đậm */}
       <span
-        className="text-base font-bold leading-tight"
+        className="text-base font-bold leading-none"
         style={{
           fontFamily: "var(--font-display)",
           letterSpacing: "0.02em",
           color: isTBD ? "var(--outline)" : "var(--foreground)",
         }}
       >
-        {isTBD ? "TBD" : code || name}
+        {isTBD ? "TBD" : (code ?? name)}
       </span>
+
+      {/* Country name đầy đủ — nhỏ hơn, muted ← mới thêm */}
+      {!isTBD && (
+        <span
+          className="text-xs leading-none"
+          style={{
+            color: "var(--outline)",
+            fontFamily: "var(--font-body)",
+            maxWidth: "80px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {countryName}
+        </span>
+      )}
     </div>
   );
 }
@@ -144,6 +165,7 @@ export default function MatchCard({
   homeScore,
   awayScore,
   userPick,
+  distribution, // ← nhận prop mới
 }: MatchCardProps) {
   const kickoffLocal = new Date(kickoffTime).toLocaleString("en-GB", {
     day: "numeric",
@@ -155,7 +177,7 @@ export default function MatchCard({
 
   const isFinished = status === "FINISHED";
   const isLive = status === "IN_PLAY" || status === "PAUSED";
-  const isTBD = !homeTeam || !awayTeam; // ← thêm dòng này
+  const isTBD = !homeTeam || !awayTeam;
 
   return (
     <div
@@ -165,7 +187,7 @@ export default function MatchCard({
         borderWidth: isLive ? "2px" : undefined,
       }}
     >
-      {/* Header: status + time + stage */}
+      {/* Header */}
       <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
         <StatusChip status={status} />
         <span
@@ -179,7 +201,6 @@ export default function MatchCard({
 
       {/* Teams */}
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-        {/* Home team ← dùng TeamDisplay thay inline */}
         <TeamDisplay
           name={homeTeam}
           code={homeTeamCode}
@@ -209,7 +230,6 @@ export default function MatchCard({
           )}
         </div>
 
-        {/* Away team ← dùng TeamDisplay thay inline */}
         <TeamDisplay
           name={awayTeam}
           code={awayTeamCode}
@@ -217,7 +237,7 @@ export default function MatchCard({
         />
       </div>
 
-      {/* Pick input ← thêm isTBD */}
+      {/* Pick input */}
       <PickInput
         matchId={matchId}
         kickoffTime={kickoffTime}
@@ -225,6 +245,18 @@ export default function MatchCard({
         initialAway={userPick?.predictedAwayScore}
         isTBD={isTBD}
       />
+
+      {/* Distribution bar ← mới thêm */}
+      {distribution && (
+        <PickDistributionBar
+          homeCount={distribution.homeCount}
+          awayCount={distribution.awayCount}
+          drawCount={distribution.drawCount}
+          total={distribution.total}
+          homeTeamCode={homeTeamCode}
+          awayTeamCode={awayTeamCode}
+        />
+      )}
     </div>
   );
 }

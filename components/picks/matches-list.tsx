@@ -1,13 +1,13 @@
 // components/picks/matches-list.tsx
 import MatchCard from "./match-card";
 import prisma from "@/lib/prisma";
+import { getPickDistributions } from "@/lib/pick-distribution";
 
 interface MatchesListProps {
   userId: string;
 }
 
 export default async function MatchesList({ userId }: MatchesListProps) {
-  // Fetch matches từ DB (đã được sync bởi cron job)
   const matches = await prisma.match.findMany({
     orderBy: { utcDate: "asc" },
     include: {
@@ -33,6 +33,10 @@ export default async function MatchesList({ userId }: MatchesListProps) {
       </div>
     );
   }
+
+  // Fetch distribution cho tất cả matches 1 lần — tránh N+1 query
+  const matchIds = matches.map((m) => m.id);
+  const distributions = await getPickDistributions(matchIds); // ← thêm
 
   // Group theo ngày
   const grouped = matches.reduce<Record<string, typeof matches>>(
@@ -72,11 +76,11 @@ export default async function MatchesList({ userId }: MatchesListProps) {
                 <MatchCard
                   key={match.id}
                   matchId={match.id}
-                  homeTeam={match.homeTeamName} // ← bỏ ?? fallback
-                  homeTeamCode={match.homeTeamCode} // ← bỏ ?? fallback
+                  homeTeam={match.homeTeamName}
+                  homeTeamCode={match.homeTeamCode}
                   homeTeamCrest={match.homeTeamCrest}
-                  awayTeam={match.awayTeamName} // ← bỏ ?? fallback
-                  awayTeamCode={match.awayTeamCode} // ← bỏ ?? fallback
+                  awayTeam={match.awayTeamName}
+                  awayTeamCode={match.awayTeamCode}
                   awayTeamCrest={match.awayTeamCrest}
                   kickoffTime={match.utcDate}
                   status={match.status}
@@ -84,6 +88,7 @@ export default async function MatchesList({ userId }: MatchesListProps) {
                   group={match.group}
                   homeScore={match.homeScore}
                   awayScore={match.awayScore}
+                  distribution={distributions.get(match.id)} // ← thêm
                   userPick={
                     pick
                       ? {
