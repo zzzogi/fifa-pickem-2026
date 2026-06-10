@@ -67,6 +67,7 @@ export default async function LeaderboardTable({
             {entries.map((entry, index) => (
               <LeaderboardRow
                 key={entry.id}
+                id={entry.id}
                 rank={entry.rank}
                 name={entry.name}
                 image={entry.image}

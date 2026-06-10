@@ -1,8 +1,10 @@
 // components/leaderboard/leaderboard-row.tsx
 import Image from "next/image";
 import FireBadge from "./fire-badge";
+import Link from "next/link";
 
 interface LeaderboardRowProps {
+  id: string;
   rank: number;
   name: string | null;
   image: string | null;
@@ -38,6 +40,7 @@ function RankBadge({ rank }: { rank: number }) {
 }
 
 export default function LeaderboardRow({
+  id,
   rank,
   name,
   image,
@@ -92,27 +95,30 @@ export default function LeaderboardRow({
           )}
 
           <div className="flex items-center gap-2 min-w-0">
-            <span
-              className="text-sm truncate max-w-[120px]"
-              style={{
-                fontFamily: "var(--font-body)",
-                fontWeight: isCurrentUser ? 700 : 400,
-                color: isCurrentUser ? "var(--primary)" : "var(--foreground)",
-              }}
+            <Link
+              href={`/profile/${id}`}
+              className="flex items-center gap-2 min-w-0 group"
             >
-              {name ?? "Anonymous"}
-              {isCurrentUser && (
-                <span
-                  className="ml-1 text-xs uppercase tracking-wide"
-                  style={{ color: "var(--outline)" }}
-                >
-                  (You)
-                </span>
-              )}
-            </span>
-
-            {/* ← Fire badge hiện khi streak >= 3 */}
-            <FireBadge streak={currentStreak} />
+              <span
+                className="text-sm truncate max-w-[120px] group-hover:underline"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontWeight: isCurrentUser ? 700 : 400,
+                  color: isCurrentUser ? "var(--primary)" : "var(--foreground)",
+                }}
+              >
+                {name ?? "Anonymous"}
+                {isCurrentUser && (
+                  <span
+                    className="ml-1 text-xs uppercase tracking-wide"
+                    style={{ color: "var(--outline)" }}
+                  >
+                    (You)
+                  </span>
+                )}
+              </span>
+              <FireBadge streak={currentStreak} />
+            </Link>
           </div>
         </div>
       </td>

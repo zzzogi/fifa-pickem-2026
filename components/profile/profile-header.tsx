@@ -1,0 +1,147 @@
+// components/profile/profile-header.tsx
+import Image from "next/image";
+import FireBadge from "@/components/leaderboard/fire-badge";
+import type { ProfileData } from "@/lib/profile";
+
+export default function ProfileHeader({
+  profile,
+  isCurrentUser,
+}: {
+  profile: ProfileData;
+  isCurrentUser: boolean;
+}) {
+  const stats = [
+    { label: "Points", value: profile.totalPoints.toString() },
+    {
+      label: "Accuracy",
+      value: profile.totalPicks > 0 ? `${profile.accuracy}%` : "—",
+    },
+    { label: "Correct", value: profile.correctPicks.toString() },
+    { label: "Exact", value: profile.exactScores.toString() },
+    { label: "Best Streak", value: `${profile.maxStreak}🔥` },
+    { label: "Bonus Pts", value: `+${profile.streakPoints}` },
+  ];
+
+  return (
+    <div className="card-sports p-6 mb-6">
+      {/* Top: avatar + tên + rank */}
+      <div className="flex items-start gap-4 mb-6">
+        {profile.image ? (
+          <Image
+            src={profile.image}
+            alt={profile.name ?? "Player"}
+            width={72}
+            height={72}
+            className="rounded-full flex-shrink-0"
+          />
+        ) : (
+          <div
+            className="w-18 h-18 rounded-full flex items-center justify-center text-2xl font-bold flex-shrink-0"
+            style={{
+              width: 72,
+              height: 72,
+              background: "var(--surface-muted)",
+              color: "var(--outline)",
+              fontFamily: "var(--font-display)",
+            }}
+          >
+            {profile.name?.charAt(0).toUpperCase() ?? "?"}
+          </div>
+        )}
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <h2
+              className="text-2xl leading-none"
+              style={{
+                fontFamily: "var(--font-display)",
+                letterSpacing: "0.02em",
+              }}
+            >
+              {profile.name ?? "Anonymous"}
+            </h2>
+            {isCurrentUser && (
+              <span
+                className="text-xs uppercase tracking-wide px-2 py-0.5 rounded-[4px]"
+                style={{
+                  background: "var(--primary-soft)",
+                  color: "var(--primary)",
+                  fontFamily: "var(--font-body)",
+                  fontWeight: 700,
+                }}
+              >
+                You
+              </span>
+            )}
+          </div>
+
+          {/* Rank + streak */}
+          <div className="flex items-center gap-3 flex-wrap">
+            {profile.rank > 0 && (
+              <span
+                className="text-sm"
+                style={{
+                  color: "var(--outline)",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                Rank{" "}
+                <strong
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    color: "var(--foreground)",
+                  }}
+                >
+                  #{profile.rank}
+                </strong>
+              </span>
+            )}
+            {/* Streak hiện tại */}
+            {profile.currentStreak >= 3 && (
+              <div className="flex items-center gap-1">
+                <span
+                  className="text-xs uppercase tracking-wide"
+                  style={{
+                    color: "var(--outline)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  On fire
+                </span>
+                <FireBadge streak={profile.currentStreak} />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Stats grid */}
+      <div className="grid grid-cols-3 gap-3 md:grid-cols-6">
+        {stats.map((s) => (
+          <div
+            key={s.label}
+            className="text-center p-3 rounded-[4px]"
+            style={{ background: "var(--surface-soft)" }}
+          >
+            <p
+              className="text-xs uppercase tracking-widest mb-1"
+              style={{
+                color: "var(--outline)",
+                fontFamily: "var(--font-body)",
+                fontWeight: 700,
+              }}
+            >
+              {s.label}
+            </p>
+            <p
+              className="text-xl leading-none"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              {s.value}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
