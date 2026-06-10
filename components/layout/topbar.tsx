@@ -10,7 +10,7 @@ const pageTitles: Record<string, string> = {
   "/stats": "Thống kê",
 };
 
-export default function Topbar({ userName }: { userName?: string | null }) {
+export default function Topbar() {
   const pathname = usePathname();
 
   // Match theo prefix

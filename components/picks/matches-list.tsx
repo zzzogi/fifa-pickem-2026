@@ -1,14 +1,11 @@
 // components/picks/matches-list.tsx
-import MatchCard from "./match-card";
-import prisma from "@/lib/prisma";
-import { getPickDistributions } from "@/lib/pick-distribution";
 import { authOptions } from "@/auth";
+import { getPickDistributions } from "@/lib/pick-distribution";
+import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-interface MatchesListProps {
-  userId: string;
-}
+import MatchCard from "./match-card";
 
-export default async function MatchesList({ userId }: MatchesListProps) {
+export default async function MatchesList() {
   const session = await getServerSession(authOptions);
   const isGuest = !session?.user;
 

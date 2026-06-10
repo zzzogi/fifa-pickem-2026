@@ -4,7 +4,6 @@ import MobileNav from "@/components/layout/mobile-nav";
 import Sidebar from "@/components/layout/sidebar";
 import Topbar from "@/components/layout/topbar";
 import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
   children,
@@ -17,7 +16,7 @@ export default async function DashboardLayout({
   return (
     <div className="app-shell min-h-screen">
       <Sidebar />
-      <Topbar userName={user?.name} />
+      <Topbar />
 
       <main>
         <div className="lg:pl-[var(--sidebar-width)]">

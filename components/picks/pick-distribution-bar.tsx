@@ -2,7 +2,6 @@
 
 interface PickDistributionBarProps {
   homeCount: number;
-  awayCount: number;
   drawCount: number;
   total: number;
   homeTeamCode: string | null;
@@ -11,7 +10,6 @@ interface PickDistributionBarProps {
 
 export default function PickDistributionBar({
   homeCount,
-  awayCount,
   drawCount,
   total,
   homeTeamCode,

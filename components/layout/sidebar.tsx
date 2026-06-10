@@ -35,7 +35,7 @@ export default function Sidebar() {
           className="text-white text-2xl leading-none"
           style={{ fontFamily: "var(--font-display)", letterSpacing: "0.02em" }}
         >
-          PICK'EM
+          PICK&apos;EM
         </h1>
       </div>
 

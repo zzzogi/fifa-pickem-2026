@@ -254,7 +254,6 @@ export default function MatchCard({
       {distribution && (
         <PickDistributionBar
           homeCount={distribution.homeCount}
-          awayCount={distribution.awayCount}
           drawCount={distribution.drawCount}
           total={distribution.total}
           homeTeamCode={homeTeamCode}
