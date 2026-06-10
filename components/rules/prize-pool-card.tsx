@@ -28,7 +28,7 @@ const prizes = [
   {
     rank: "Most Exact",
     medal: "⚡",
-    reward: "Special Prize",
+    reward: "200,000 VNĐ",
     bg: "var(--primary)",
     color: "white",
     desc: "Player with the highest number of exact score predictions",
@@ -72,7 +72,7 @@ export default function PrizePoolCard() {
             className="text-xl leading-none"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            800,000 VNĐ
+            1,000,000 VNĐ
           </p>
         </div>
       </div>
@@ -99,7 +99,7 @@ export default function PrizePoolCard() {
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-baseline gap-2 mb-0.5 flex-wrap">
+              <div className="flex flex-col items-baseline gap-1 mb-2 ">
                 <span
                   className="text-sm uppercase tracking-wide font-bold"
                   style={{

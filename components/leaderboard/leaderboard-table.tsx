@@ -1,16 +1,16 @@
 // components/leaderboard/leaderboard-table.tsx
-import { getLeaderboard } from "@/lib/leaderboard";
+import { getLeaderboard, LeaderboardEntry } from "@/lib/leaderboard";
 import LeaderboardRow from "./leaderboard-row";
 
 interface LeaderboardTableProps {
   currentUserId: string;
+  entries: LeaderboardEntry[];
 }
 
 export default async function LeaderboardTable({
+  entries,
   currentUserId,
 }: LeaderboardTableProps) {
-  const entries = await getLeaderboard();
-
   if (entries.length === 0) {
     return (
       <div className="card-sports p-12 text-center">

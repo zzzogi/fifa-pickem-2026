@@ -58,7 +58,7 @@ export default function HowToCard() {
               position: "relative",
             }}
           >
-            {/* Circle số */}
+            {/* Circle — step 01 dùng màu primary đậm hơn */}
             <div
               className="absolute flex items-center justify-center rounded-full text-sm font-bold flex-shrink-0"
               style={{
@@ -66,31 +66,54 @@ export default function HowToCard() {
                 height: 32,
                 left: -16,
                 top: 0,
-                background: "var(--primary)",
-                color: "white",
+                background:
+                  index === 0 ? "var(--primary)" : "var(--surface-high)",
+                color: index === 0 ? "white" : "var(--outline)",
                 fontFamily: "var(--font-display)",
                 fontSize: "0.9rem",
+                // Glow cho step 1
+                boxShadow:
+                  index === 0
+                    ? "0 0 0 4px oklch(from var(--primary) l c h / 0.2)"
+                    : "none",
               }}
             >
               {step.number}
             </div>
 
             <div className="pt-0.5">
-              <h3
-                className="text-base font-bold mb-1"
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontWeight: 700,
-                  color: "var(--foreground)",
-                }}
-              >
-                {step.title}
-              </h3>
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <h3
+                  className="text-base font-bold"
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontWeight: 700,
+                    color: "var(--foreground)",
+                  }}
+                >
+                  {step.title}
+                </h3>
+
+                {/* Badge "Start here" cho step 01 */}
+                {index === 0 && (
+                  <span
+                    className="text-xs px-2 py-0.5 rounded-[4px] font-bold uppercase tracking-wide"
+                    style={{
+                      background: "var(--primary)",
+                      color: "white",
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    Start here
+                  </span>
+                )}
+              </div>
+
               <p
                 className="text-sm"
                 style={{
-                  fontFamily: "var(--font-body)",
                   color: "var(--outline)",
+                  fontFamily: "var(--font-body)",
                   lineHeight: 1.6,
                 }}
               >

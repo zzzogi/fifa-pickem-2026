@@ -29,6 +29,7 @@ interface MatchCardProps {
   awayScore?: number | null;
   userPick?: UserPick;
   distribution?: PickDistribution; // ← thêm prop mới
+  isGuest?: boolean;
 }
 
 function StatusChip({ status }: { status: string }) {
@@ -166,6 +167,7 @@ export default function MatchCard({
   awayScore,
   userPick,
   distribution, // ← nhận prop mới
+  isGuest = false,
 }: MatchCardProps) {
   const kickoffLocal = new Date(kickoffTime).toLocaleString("en-GB", {
     day: "numeric",
@@ -244,6 +246,7 @@ export default function MatchCard({
         initialHome={userPick?.predictedHomeScore}
         initialAway={userPick?.predictedAwayScore}
         isTBD={isTBD}
+        isGuest={isGuest}
       />
 
       {/* Distribution bar ← mới thêm */}

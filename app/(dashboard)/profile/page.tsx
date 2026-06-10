@@ -1,12 +1,10 @@
-// app/page.tsx
+// app/(dashboard)/profile/page.tsx
 import { authOptions } from "@/auth";
-import HomeHero from "@/components/home/home-hero";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
-export default async function HomePage() {
+export default async function MyProfilePage() {
   const session = await getServerSession(authOptions);
-  if (session?.user) redirect("/picks");
-
-  return <HomeHero />;
+  if (!session?.user?.id) redirect("/");
+  redirect(`/profile/${session.user.id}`);
 }

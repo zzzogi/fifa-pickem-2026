@@ -1,28 +1,23 @@
 // app/(dashboard)/leaderboard/page.tsx
 import { authOptions } from "@/auth";
-import { redirect } from "next/navigation";
-import { Suspense } from "react";
+import GuestBlur from "@/components/auth/guest-blur";
 import LeaderboardTable from "@/components/leaderboard/leaderboard-table";
-import LeaderboardLoading from "./loading";
+import { getLeaderboard } from "@/lib/leaderboard";
 import { getServerSession } from "next-auth";
 
 export default async function LeaderboardPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/");
+  const isGuest = !session?.user;
+  const entries = await getLeaderboard();
 
   return (
     <div>
-      {/* Page header */}
       <div className="mb-6">
         <p
-          className="text-xs uppercase tracking-widest mb-1"
-          style={{
-            color: "var(--outline)",
-            fontFamily: "var(--font-body)",
-            fontWeight: 700,
-          }}
+          className="text-xs uppercase tracking-widest mb-1 font-bold"
+          style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
         >
-          World Cup 2026
+          FIFA World Cup 2026
         </p>
         <h1
           className="text-4xl"
@@ -32,9 +27,15 @@ export default async function LeaderboardPage() {
         </h1>
       </div>
 
-      <Suspense fallback={<LeaderboardLoading />}>
-        <LeaderboardTable currentUserId={session.user.id} />
-      </Suspense>
+      {/* Guest: blur toàn bộ bảng */}
+      {isGuest ? (
+        <GuestBlur
+          title="Sign in to view the Leaderboard"
+          description="See how you stack up against other predictors."
+        />
+      ) : (
+        <LeaderboardTable entries={entries} currentUserId={session.user.id} />
+      )}
     </div>
   );
 }

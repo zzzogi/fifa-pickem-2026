@@ -16,6 +16,7 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const user = session?.user;
 
   return (
     <aside
@@ -65,28 +66,33 @@ export default function Sidebar() {
 
       {/* User + signout */}
       <div className="px-3 py-4 border-t border-white/10">
-        <div className="flex items-center gap-3 px-3 py-2 mb-2">
-          {session?.user?.image && (
-            <Image
-              src={session.user.image}
-              alt={session.user.name ?? "User"}
-              width={32}
-              height={32}
-              className="rounded-full"
-            />
-          )}
-          <div className="flex-1 min-w-0">
-            <p
-              className="text-white text-sm font-semibold truncate"
-              style={{ fontFamily: "var(--font-body)" }}
-            >
-              {session?.user?.name ?? "Player"}
-            </p>
-            <p className="text-white/50 text-xs truncate">
-              {session?.user?.email}
-            </p>
+        <Link
+          href={`/profile/${user?.id}`}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-[4px] transition group hover:opacity-80"
+        >
+          <div className="flex items-center gap-3 px-3 py-2 mb-2">
+            {session?.user?.image && (
+              <Image
+                src={session.user.image}
+                alt={session.user.name ?? "User"}
+                width={32}
+                height={32}
+                className="rounded-full"
+              />
+            )}
+            <div className="flex-1 min-w-0">
+              <p
+                className="text-white text-sm font-semibold truncate"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                {session?.user?.name ?? "Player"}
+              </p>
+              <p className="text-white/50 text-xs truncate">
+                {session?.user?.email}
+              </p>
+            </div>
           </div>
-        </div>
+        </Link>
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
           className="w-full rounded-[4px] px-3 py-2 text-left text-sm uppercase tracking-wide text-white/60 transition hover:bg-white/10 hover:text-white"

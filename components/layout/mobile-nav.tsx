@@ -2,7 +2,14 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
+
+interface MobileNavProps {
+  userId?: string; // ← truyền từ layout
+  userImage?: string;
+  userName?: string;
+}
 
 const navItems = [
   {
@@ -73,26 +80,32 @@ const navItems = [
   },
 ];
 
-export default function MobileNav() {
+export default function MobileNav({
+  userId,
+  userImage,
+  userName,
+}: MobileNavProps) {
   const pathname = usePathname();
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 flex lg:hidden border-t"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center"
       style={{
         background: "var(--secondary)",
-        borderColor: "rgba(255,255,255,0.1)",
+        borderTop: "1px solid var(--outline-variant)",
+        paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >
+      {/* Regular nav items */}
       {navItems.map((item) => {
         const isActive = pathname.startsWith(item.href);
         return (
           <Link
             key={item.href}
             href={item.href}
-            className="flex flex-1 flex-col items-center justify-center gap-1 py-3 transition-colors"
+            className="flex-1 flex flex-col items-center gap-1 py-3 transition"
             style={{
-              color: isActive ? "white" : "rgba(255,255,255,0.5)",
+              color: isActive ? "var(--primary)" : "rgba(255,255,255,0.5)",
               borderTop: isActive
                 ? "2px solid var(--primary)"
                 : "2px solid transparent",
@@ -100,14 +113,58 @@ export default function MobileNav() {
           >
             {item.icon}
             <span
-              className="text-xs uppercase tracking-wide"
-              style={{ fontFamily: "var(--font-body)", fontWeight: 700 }}
+              className="text-xs uppercase tracking-wide font-bold"
+              style={{ fontFamily: "var(--font-body)" }}
             >
               {item.label}
             </span>
           </Link>
         );
       })}
+
+      {/* Tab "Me" với avatar ← mới */}
+      {userId && (
+        <Link
+          href={`/profile/${userId}`}
+          className="flex-1 flex flex-col items-center gap-1 py-3 transition"
+          style={{
+            color: pathname.startsWith("/profile")
+              ? "var(--primary)"
+              : "rgba(255,255,255,0.5)",
+            borderTop: pathname.startsWith("/profile")
+              ? "2px solid var(--primary)"
+              : "2px solid transparent",
+          }}
+        >
+          {userImage ? (
+            <Image
+              src={userImage}
+              alt={userName ?? "Me"}
+              width={20}
+              height={20}
+              className="rounded-full"
+            />
+          ) : (
+            <svg
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          )}
+          <span
+            className="text-xs uppercase tracking-wide font-bold"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            Me
+          </span>
+        </Link>
+      )}
     </nav>
   );
 }

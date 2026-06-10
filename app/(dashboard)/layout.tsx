@@ -12,13 +12,12 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
-
-  if (!session) redirect("/");
+  const user = session?.user;
 
   return (
     <div className="app-shell min-h-screen">
       <Sidebar />
-      <Topbar userName={session.user?.name} />
+      <Topbar userName={user?.name} />
 
       <main>
         <div className="lg:pl-[var(--sidebar-width)]">
@@ -26,7 +25,11 @@ export default async function DashboardLayout({
         </div>
       </main>
 
-      <MobileNav />
+      <MobileNav
+        userId={user?.id}
+        userImage={user?.image ?? undefined}
+        userName={user?.name ?? undefined}
+      />
     </div>
   );
 }

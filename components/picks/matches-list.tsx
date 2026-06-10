@@ -2,19 +2,22 @@
 import MatchCard from "./match-card";
 import prisma from "@/lib/prisma";
 import { getPickDistributions } from "@/lib/pick-distribution";
-
+import { authOptions } from "@/auth";
+import { getServerSession } from "next-auth";
 interface MatchesListProps {
   userId: string;
 }
 
 export default async function MatchesList({ userId }: MatchesListProps) {
+  const session = await getServerSession(authOptions);
+  const isGuest = !session?.user;
+
   const matches = await prisma.match.findMany({
     orderBy: { utcDate: "asc" },
     include: {
-      picks: {
-        where: { userId },
-        take: 1,
-      },
+      picks: isGuest
+        ? false // ← guest: không query picks
+        : { where: { userId: session!.user!.id }, take: 1 },
     },
   });
 
@@ -89,6 +92,7 @@ export default async function MatchesList({ userId }: MatchesListProps) {
                   homeScore={match.homeScore}
                   awayScore={match.awayScore}
                   distribution={distributions.get(match.id)} // ← thêm
+                  isGuest={isGuest}
                   userPick={
                     pick
                       ? {

@@ -1,6 +1,6 @@
 // app/(dashboard)/profile/[userId]/page.tsx
 import { authOptions } from "@/auth";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { getPublicProfile } from "@/lib/profile";
 import ProfileHeader from "@/components/profile/profile-header";
@@ -15,6 +15,10 @@ export default async function ProfilePage({
 }) {
   const { userId } = await params;
   const session = await getServerSession(authOptions);
+
+  if (!session?.user) {
+    redirect(`/api/auth/signin?callbackUrl=/profile/${userId}`);
+  }
 
   const profile = await getPublicProfile(userId);
   if (!profile) notFound();
