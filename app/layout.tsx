@@ -34,27 +34,27 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "FIFA Pick'em 2026",
+    title: "FIFA Pick'em 2026 — Dự đoán World Cup, Leo Bảng Xếp Hạng", // 50-60 chars
     description:
       "Dự đoán tỉ số giải đấu FIFA World Cup 2026, nhận điểm thưởng, giữ chuỗi và tranh đấu trên bảng xếp hạng.",
     url: "/",
-    siteName: "FIFA Pick'em 2026",
+    siteName: "FIFA Pick'em 2026", // ← thêm cái này, fix "site name missing"
     type: "website",
     images: [
       {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "FIFA Pick'em 2026",
+        url: "/og-image.png",
+        width: 1120, // ← phải đúng kích thước thật của file
+        height: 630, // ← phải đúng kích thước thật của file
+        alt: "FIFA Pick'em 2026 — Dự đoán World Cup, Leo Bảng Xếp Hạng",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "FIFA Pick'em 2026",
+    title: "FIFA Pick'em 2026 — Dự đoán World Cup, Leo Bảng Xếp Hạng",
     description:
       "Dự đoán tỉ số giải đấu FIFA World Cup 2026, nhận điểm thưởng, giữ chuỗi và tranh đấu trên bảng xếp hạng.",
-    images: ["/og-image.jpg"],
+    images: ["/og-image.png"],
   },
 };
 
