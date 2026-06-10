@@ -13,7 +13,7 @@ function PickResultBadge({ pick }: { pick: ProfilePick }) {
           fontFamily: "var(--font-body)",
         }}
       >
-        Pending
+        Sắp diễn ra
       </span>
     );
   }
@@ -28,7 +28,7 @@ function PickResultBadge({ pick }: { pick: ProfilePick }) {
           fontFamily: "var(--font-body)",
         }}
       >
-        ⚡ Exact +{pick.pointsAwarded}pts
+        ⚡ Đúng tỉ số +{pick.pointsAwarded} điểm
       </span>
     );
   }
@@ -43,7 +43,7 @@ function PickResultBadge({ pick }: { pick: ProfilePick }) {
           fontFamily: "var(--font-body)",
         }}
       >
-        ✓ Winner +{pick.pointsAwarded}pts
+        ✓ Dự đoán đúng +{pick.pointsAwarded} điểm
       </span>
     );
   }
@@ -58,7 +58,7 @@ function PickResultBadge({ pick }: { pick: ProfilePick }) {
         opacity: 0.8,
       }}
     >
-      ✗ Wrong
+      ✗ Dự đoán sai
     </span>
   );
 }
@@ -121,10 +121,10 @@ export default function ProfilePicksList({ picks }: { picks: ProfilePick[] }) {
           className="text-3xl mb-2"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          NO PICKS YET
+          Chưa có dự đoán nào
         </p>
         <p style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}>
-          This player hasn't made any predictions yet.
+          Người chơi này chưa đưa ra dự đoán nào.
         </p>
       </div>
     );
@@ -143,7 +143,7 @@ export default function ProfilePicksList({ picks }: { picks: ProfilePick[] }) {
               borderColor: "var(--outline-variant)",
             }}
           >
-            Upcoming Picks ({pendingPicks.length})
+            Những trận sắp diễn ra ({pendingPicks.length})
           </h3>
           <div
             className="card-sports divide-y"
@@ -167,7 +167,7 @@ export default function ProfilePicksList({ picks }: { picks: ProfilePick[] }) {
               borderColor: "var(--outline-variant)",
             }}
           >
-            Results ({scoredPicks.length})
+            Kết quả ({scoredPicks.length})
           </h3>
           <div
             className="card-sports divide-y"
@@ -186,7 +186,7 @@ export default function ProfilePicksList({ picks }: { picks: ProfilePick[] }) {
 function PickRow({ pick }: { pick: ProfilePick }) {
   const { match } = pick;
 
-  const matchDate = new Date(match.utcDate).toLocaleDateString("en-GB", {
+  const matchDate = new Date(match.utcDate).toLocaleDateString("vi-VN", {
     day: "numeric",
     month: "short",
     timeZone: "Asia/Ho_Chi_Minh",
@@ -220,7 +220,7 @@ function PickRow({ pick }: { pick: ProfilePick }) {
               color: "var(--outline)",
             }}
           >
-            {pick.predictedHomeScore}–{pick.predictedAwayScore}
+            {pick.predictedHomeScore}-{pick.predictedAwayScore}
           </span>
         </div>
 
@@ -243,7 +243,7 @@ function PickRow({ pick }: { pick: ProfilePick }) {
               fontFamily: "var(--font-body)",
             }}
           >
-            Result: {match.homeScore}–{match.awayScore}
+            Kết quả: {match.homeScore}–{match.awayScore}
           </div>
         )}
 

@@ -29,11 +29,14 @@ export default async function LeaderboardTable({
 
   const headerCells = [
     { label: "#", className: "pl-4 pr-2 w-12" },
-    { label: "Player", className: "px-2" },
-    { label: "Points", className: "px-3 text-right" },
-    { label: "Correct", className: "px-3 text-right hidden sm:table-cell" },
+    { label: "Người chơi", className: "px-2" },
+    { label: "Điểm", className: "px-3 text-right" },
     {
-      label: "Accuracy",
+      label: "Đã đoán đúng",
+      className: "px-3 text-right hidden sm:table-cell",
+    },
+    {
+      label: "Tỉ lệ chính xác",
       className: "pl-3 pr-4 text-right hidden sm:table-cell",
     },
   ];
@@ -129,8 +132,10 @@ function CurrentUserFooter({
             #{me.rank}
           </strong>
         </span>
-        <span style={{ color: "var(--outline)" }}>{me.totalPoints} pts</span>
-        <span style={{ color: "var(--outline)" }}>{me.accuracy}% accuracy</span>
+        <span style={{ color: "var(--outline)" }}>{me.totalPoints} điểm</span>
+        <span style={{ color: "var(--outline)" }}>
+          {me.accuracy}% chuẩn xác
+        </span>
       </div>
     </div>
   );

@@ -28,10 +28,10 @@ export default async function MatchesList({ userId }: MatchesListProps) {
           className="text-4xl mb-3"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          NO MATCHES YET
+          Chưa có trận đấu nào sắp tới
         </p>
         <p style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}>
-          Match schedule will appear once synced from Football Data API.
+          Các trận đấu sẽ được cập nhật vào thời gian sớm nhất.
         </p>
       </div>
     );
@@ -44,7 +44,7 @@ export default async function MatchesList({ userId }: MatchesListProps) {
   // Group theo ngày
   const grouped = matches.reduce<Record<string, typeof matches>>(
     (acc, match) => {
-      const day = new Date(match.utcDate).toLocaleDateString("en-GB", {
+      const day = new Date(match.utcDate).toLocaleDateString("vi-VN", {
         weekday: "long",
         day: "numeric",
         month: "long",

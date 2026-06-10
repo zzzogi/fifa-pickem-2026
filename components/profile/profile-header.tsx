@@ -11,15 +11,15 @@ export default function ProfileHeader({
   isCurrentUser: boolean;
 }) {
   const stats = [
-    { label: "Points", value: profile.totalPoints.toString() },
+    { label: "Điểm", value: profile.totalPoints.toString() },
     {
-      label: "Accuracy",
+      label: "Độ chính xác",
       value: profile.totalPicks > 0 ? `${profile.accuracy}%` : "—",
     },
-    { label: "Correct", value: profile.correctPicks.toString() },
-    { label: "Exact", value: profile.exactScores.toString() },
-    { label: "Best Streak", value: `${profile.maxStreak}🔥` },
-    { label: "Bonus Pts", value: `+${profile.streakPoints}` },
+    { label: "Dự đoán đúng", value: profile.correctPicks.toString() },
+    { label: "Dự đoán chính xác tỉ số", value: profile.exactScores.toString() },
+    { label: "Chuỗi dài nhất", value: `${profile.maxStreak}🔥` },
+    { label: "Điểm cộng đã nhận", value: `+${profile.streakPoints}` },
   ];
 
   return (
@@ -85,7 +85,7 @@ export default function ProfileHeader({
                   fontFamily: "var(--font-body)",
                 }}
               >
-                Rank{" "}
+                Thứ hạng{" "}
                 <strong
                   style={{
                     fontFamily: "var(--font-display)",
@@ -106,7 +106,7 @@ export default function ProfileHeader({
                     fontFamily: "var(--font-body)",
                   }}
                 >
-                  On fire
+                  Đang cháy
                 </span>
                 <FireBadge streak={profile.currentStreak} />
               </div>

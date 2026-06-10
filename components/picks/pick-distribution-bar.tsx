@@ -27,7 +27,7 @@ export default function PickDistributionBar({
           className="text-xs uppercase tracking-wide text-center"
           style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
         >
-          No picks yet — be the first!
+          Chưa ai dự đoán - Hãy là người đầu tiên!
         </p>
       </div>
     );
@@ -49,21 +49,21 @@ export default function PickDistributionBar({
           className="text-xs font-bold uppercase tracking-wide"
           style={{ color: "var(--foreground)", fontFamily: "var(--font-body)" }}
         >
-          {homeTeamCode ?? "Home"} {homePct}%
+          {homeTeamCode ?? "Đội nhà"} {homePct}%
         </span>
         {drawPct > 0 && (
           <span
             className="text-xs uppercase tracking-wide"
             style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
           >
-            Draw {drawPct}%
+            Hoà {drawPct}%
           </span>
         )}
         <span
           className="text-xs font-bold uppercase tracking-wide"
           style={{ color: "var(--foreground)", fontFamily: "var(--font-body)" }}
         >
-          {awayPct}% {awayTeamCode ?? "Away"}
+          {awayPct}% {awayTeamCode ?? "Đội khách"}
         </span>
       </div>
 
@@ -109,7 +109,7 @@ export default function PickDistributionBar({
         className="text-xs mt-1.5 text-center"
         style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
       >
-        {total} {total === 1 ? "pick" : "picks"} submitted
+        {total} dự đoán.
       </p>
     </div>
   );

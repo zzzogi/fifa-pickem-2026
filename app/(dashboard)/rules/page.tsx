@@ -6,7 +6,7 @@ import PrizePoolCard from "@/components/rules/prize-pool-card";
 export default function RulesPage() {
   return (
     <div>
-      {/* Page header */}
+      {/* Tiêu đề trang */}
       <div className="mb-6">
         <p
           className="text-xs uppercase tracking-widest mb-1"
@@ -16,7 +16,7 @@ export default function RulesPage() {
             fontWeight: 700,
           }}
         >
-          FIFA World Cup 2026
+          FIFA WORLD CUP 2026
         </p>
         <h1
           className="text-4xl"
@@ -25,11 +25,11 @@ export default function RulesPage() {
             letterSpacing: "0.02em",
           }}
         >
-          RULES & PRIZES
+          THỂ LỆ & GIẢI THƯỞNG
         </h1>
       </div>
 
-      {/* Intro banner */}
+      {/* Banner giới thiệu */}
       <div
         className="rounded-[4px] p-5 mb-6 flex items-start gap-4"
         style={{
@@ -48,7 +48,7 @@ export default function RulesPage() {
               letterSpacing: "0.02em",
             }}
           >
-            FIFA WORLD CUP 2026 PICK'EM
+            FIFA WORLD CUP 2026 PICK&apos;EM
           </h2>
           <p
             className="text-sm"
@@ -58,14 +58,16 @@ export default function RulesPage() {
               lineHeight: 1.6,
             }}
           >
-            Predict the score of every World Cup match. Earn points for correct
-            results and exact scores. Build streaks to multiply your points. The
-            best predictor takes the prize.
+            Dự đoán tỷ số của tất cả các trận đấu tại FIFA World Cup 2026. Nhận
+            điểm khi dự đoán đúng kết quả hoặc đúng tỷ số chính xác. Tích lũy
+            điểm qua từng trận đấu và cạnh tranh với những người chơi khác trên
+            bảng xếp hạng. Người có số điểm cao nhất khi giải đấu kết thúc sẽ
+            giành chiến thắng.
           </p>
         </div>
       </div>
 
-      {/* Content grid — 1 cột mobile, 2 cột desktop */}
+      {/* Nội dung */}
       <div className="space-y-6 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
         <div className="space-y-6">
           <HowToCard />

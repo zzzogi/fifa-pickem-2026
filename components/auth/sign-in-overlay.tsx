@@ -71,7 +71,7 @@ export default function SignInOverlay({
               fontFamily: "var(--font-body)",
             }}
           >
-            Sign in with Google
+            Đăng nhập với Google
           </button>
         </form>
       </div>

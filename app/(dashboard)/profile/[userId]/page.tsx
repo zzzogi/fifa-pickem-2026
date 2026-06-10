@@ -38,7 +38,7 @@ export default async function ProfilePage({
             fontWeight: 700,
           }}
         >
-          ← Leaderboard
+          ← Bảng xếp hạng
         </a>
       </div>
 
@@ -50,7 +50,7 @@ export default async function ProfilePage({
             className="text-xs uppercase tracking-widest font-bold"
             style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
           >
-            All Picks
+            Tất cả picks
           </h3>
         </div>
 

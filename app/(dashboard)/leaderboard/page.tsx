@@ -23,7 +23,7 @@ export default async function LeaderboardPage() {
           className="text-4xl"
           style={{ fontFamily: "var(--font-display)", letterSpacing: "0.02em" }}
         >
-          LEADERBOARD
+          BẢNG XẾP HẠNG
         </h1>
       </div>
 

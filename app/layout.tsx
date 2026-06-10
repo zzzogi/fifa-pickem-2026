@@ -20,7 +20,7 @@ const archivoNarrow = Archivo_Narrow({
 
 export const metadata: Metadata = {
   title: "FIFA Pick'em 2026",
-  description: "Predict World Cup scores and compete on the leaderboard.",
+  description: "Dự đoán tỉ số World Cup và tranh đấu trên bảng xếp hạng.",
 };
 
 export default async function RootLayout({

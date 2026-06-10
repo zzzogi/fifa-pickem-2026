@@ -91,7 +91,7 @@ export default function HomeHero() {
                 lineHeight: 1.6,
               }}
             >
-              Predict scores, earn points, and climb the leaderboard.
+              Dự đoán tỉ số, nhận điểm, và leo hạng.
             </p>
 
             <LoginButton />
@@ -105,7 +105,7 @@ export default function HomeHero() {
                 color: "var(--outline)",
               }}
             >
-              View rules & prize pool
+              Xem thể lệ & giải thưởng
             </button>
           </div>
         </div>

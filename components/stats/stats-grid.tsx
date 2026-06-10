@@ -5,36 +5,36 @@ import type { UserStats } from "@/lib/stats";
 export default function StatsGrid({ stats }: { stats: UserStats }) {
   const cards = [
     {
-      label: "Total Points",
+      label: "Tổng Điểm",
       value: stats.totalPoints,
-      description: "Points earned from correct predictions",
+      description: "Điểm nhận được từ các dự đoán chính xác",
       highlight: true,
     },
     {
-      label: "Total Picks",
+      label: "Tổng Dự Đoán",
       value: stats.totalPicks,
-      description: "Matches you've predicted",
+      description: "Số trận đấu bạn đã dự đoán",
       highlight: false,
     },
     {
-      label: "Correct Picks",
+      label: "Dự Đoán Đúng",
       value: stats.correctPicks,
-      description: "Correct winner or draw predictions",
+      description: "Dự đoán đúng đội thắng hoặc kết quả hòa",
       highlight: false,
     },
     {
-      label: "Exact Scores",
+      label: "Đúng Tỷ Số",
       value: stats.exactScores,
-      description: "Perfect score predictions (+3 pts each)",
+      description: "Dự đoán chính xác tỷ số (+3 điểm mỗi trận)",
       highlight: false,
     },
     {
-      label: "Accuracy",
+      label: "Độ Chính Xác",
       value: stats.totalPicks > 0 ? `${stats.accuracy}%` : "—",
       description:
         stats.totalPicks > 0
-          ? `${stats.correctPicks} correct out of ${stats.totalPicks} picks`
-          : "Make some picks to see your accuracy",
+          ? `${stats.correctPicks} dự đoán đúng trên tổng ${stats.totalPicks} dự đoán`
+          : "Hãy dự đoán một vài trận để xem độ chính xác",
       highlight: false,
     },
   ];

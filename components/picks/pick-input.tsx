@@ -41,7 +41,7 @@ export default function PickInput({
             fontWeight: 700,
           }}
         >
-          ⏳ Teams TBD — picks open after draw
+          ⏳ TBD — dự đoán sau khi vòng trước hoàn thành.
         </span>
       </div>
     );
@@ -65,7 +65,7 @@ export default function PickInput({
               fontFamily: "var(--font-display)",
             }}
           >
-            –
+            -
           </span>
           <div
             className="w-14 h-10 rounded-[4px] border"
@@ -81,7 +81,7 @@ export default function PickInput({
         </div>
 
         {/* Compact overlay */}
-        <SignInOverlay title="Sign in to pick" compact />
+        <SignInOverlay title="Đăng nhập để dự đoán" compact />
       </div>
     );
   }
@@ -128,14 +128,14 @@ export default function PickInput({
           }}
         >
           {initialHome !== undefined && initialAway !== undefined
-            ? `Your pick: ${initialHome} – ${initialAway}`
-            : "No pick submitted"}
+            ? `Dự đoán của bạn: ${initialHome} – ${initialAway}`
+            : "Chưa có dự đoán nào"}
         </div>
         <span
           className="text-xs uppercase tracking-wide"
           style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
         >
-          Locked
+          Khoá dự đoán
         </span>
       </div>
     );

@@ -16,20 +16,20 @@ function getFireTier(streak: number): {
     return {
       emoji: "🔥",
       color: "#f97316",
-      label: `${streak}`,
+      label: `Chuỗi ${streak}`,
       glow: "rgba(249,115,22,0.4)",
     };
   if (streak < 8)
     return {
       emoji: "🔥🔥",
       color: "#ef4444",
-      label: `${streak}`,
+      label: `Chuỗi ${streak} - Huyền thoại 🎖️ `,
       glow: "rgba(239,68,68,0.5)",
     };
   return {
     emoji: "🔥🔥🔥",
     color: "#dc2626",
-    label: `${streak}`,
+    label: `Chuỗi ${streak} - Nhà tiên tri 🔮`,
     glow: "rgba(220,38,38,0.6)",
   };
 }

@@ -83,7 +83,7 @@ export default function GuestBlur({ title, description }: GuestBlurProps) {
                 fontSize: "var(--text-sm)",
               }}
             >
-              Sign in with Google
+              Đăng nhập với Google
             </button>
           </form>
         </div>

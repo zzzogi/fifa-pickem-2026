@@ -2,45 +2,45 @@
 
 const prizes = [
   {
-    rank: "1st",
+    rank: "Hạng Nhất",
     medal: "🥇",
-    reward: "500,000 VNĐ",
+    reward: "500.000 VNĐ",
     bg: "#d19900",
     color: "white",
-    desc: "Top of the leaderboard when the World Cup final whistle blows",
+    desc: "Dẫn đầu bảng xếp hạng khi trận chung kết World Cup khép lại",
   },
   {
-    rank: "2nd",
+    rank: "Hạng Nhì",
     medal: "🥈",
-    reward: "200,000 VNĐ",
+    reward: "200.000 VNĐ",
     bg: "#8e706c",
     color: "white",
-    desc: "Second place at the end of the tournament",
+    desc: "Xếp thứ hai khi giải đấu kết thúc",
   },
   {
-    rank: "3rd",
+    rank: "Hạng Ba",
     medal: "🥉",
-    reward: "100,000 VNĐ",
+    reward: "100.000 VNĐ",
     bg: "#964219",
     color: "white",
-    desc: "Third place at the end of the tournament",
+    desc: "Xếp thứ ba khi giải đấu kết thúc",
   },
   {
-    rank: "Most Exact",
+    rank: "Dự Đoán Chính Xác Nhất",
     medal: "⚡",
-    reward: "200,000 VNĐ",
+    reward: "200.000 VNĐ",
     bg: "var(--primary)",
     color: "white",
-    desc: "Player with the highest number of exact score predictions",
+    desc: "Người chơi có số lần dự đoán đúng tỷ số chính xác nhiều nhất",
   },
 ];
 
 const rules = [
-  "Rankings are final as of the FIFA World Cup 2026 Final match result.",
-  "Tiebreakers: Total Points → Correct Picks → Exact Scores.",
-  "Prizes are distributed within 7 days after the tournament ends.",
-  "Participants must have submitted at least 10 picks to be eligible.",
-  "The organizer reserves the right to disqualify any participant found cheating.",
+  "Bảng xếp hạng được chốt theo kết quả trận Chung kết FIFA World Cup 2026.",
+  "Thứ tự ưu tiên khi bằng điểm: Tổng điểm → Số dự đoán đúng kết quả → Số dự đoán đúng tỷ số.",
+  "Giải thưởng sẽ được trao trong vòng 7 ngày sau khi giải đấu kết thúc.",
+  "Người chơi phải gửi ít nhất 10 dự đoán để đủ điều kiện nhận thưởng.",
+  "Ban tổ chức có quyền loại bỏ bất kỳ người chơi nào có hành vi gian lận.",
 ];
 
 export default function PrizePoolCard() {
@@ -51,9 +51,10 @@ export default function PrizePoolCard() {
           className="text-2xl"
           style={{ fontFamily: "var(--font-display)", letterSpacing: "0.02em" }}
         >
-          PRIZE POOL
+          CƠ CẤU GIẢI THƯỞNG
         </h2>
-        {/* Total pool badge */}
+
+        {/* Tổng giải thưởng */}
         <div
           className="px-4 py-2 rounded-[4px]"
           style={{ background: "var(--primary)", color: "white" }}
@@ -66,18 +67,18 @@ export default function PrizePoolCard() {
               opacity: 0.8,
             }}
           >
-            Total Pool
+            Tổng giá trị giải thưởng
           </p>
           <p
             className="text-xl leading-none"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            1,000,000 VNĐ
+            1.000.000 VNĐ
           </p>
         </div>
       </div>
 
-      {/* Prize cards */}
+      {/* Danh sách giải thưởng */}
       <div className="grid gap-3 sm:grid-cols-2 mb-6">
         {prizes.map((prize) => (
           <div
@@ -88,7 +89,7 @@ export default function PrizePoolCard() {
               border: "1px solid var(--outline-variant)",
             }}
           >
-            {/* Medal + rank */}
+            {/* Huy chương */}
             <div
               className="flex-shrink-0 w-12 h-12 rounded-[4px] flex flex-col items-center justify-center"
               style={{ background: prize.bg }}
@@ -99,7 +100,7 @@ export default function PrizePoolCard() {
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex flex-col items-baseline gap-1 mb-2 ">
+              <div className="flex flex-col items-baseline gap-1 mb-2">
                 <span
                   className="text-sm uppercase tracking-wide font-bold"
                   style={{
@@ -109,6 +110,7 @@ export default function PrizePoolCard() {
                 >
                   {prize.rank}
                 </span>
+
                 <span
                   className="text-xl leading-none"
                   style={{
@@ -119,6 +121,7 @@ export default function PrizePoolCard() {
                   {prize.reward}
                 </span>
               </div>
+
               <p
                 className="text-xs"
                 style={{
@@ -134,7 +137,7 @@ export default function PrizePoolCard() {
         ))}
       </div>
 
-      {/* Prize rules */}
+      {/* Điều khoản giải thưởng */}
       <div
         className="p-4 rounded-[4px]"
         style={{
@@ -146,8 +149,9 @@ export default function PrizePoolCard() {
           className="text-xs uppercase tracking-widest mb-3 font-bold"
           style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
         >
-          Terms & Conditions
+          Điều khoản & Thể lệ
         </h3>
+
         <ul className="space-y-2">
           {rules.map((rule, i) => (
             <li

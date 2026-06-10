@@ -3,33 +3,33 @@
 const steps = [
   {
     number: "01",
-    title: "Sign In",
-    desc: "Log in with your Google account. No registration needed — one click and you're in.",
+    title: "Đăng nhập",
+    desc: "Đăng nhập bằng tài khoản Google của bạn. Bắt đầu ngay với chỉ một cú nhấp.",
   },
   {
     number: "02",
-    title: "Find a Match",
-    desc: 'Head to "My Picks" and browse the World Cup schedule. All 104 matches are listed.',
+    title: "Chọn trận đấu",
+    desc: 'Truy cập mục "Dự đoán của tôi" và xem lịch thi đấu World Cup. Tất cả 104 trận đấu đều được hiển thị tại đây.',
   },
   {
     number: "03",
-    title: "Submit Your Prediction",
-    desc: "Enter the score you think will happen — home goals and away goals. Hit Save Pick.",
+    title: "Gửi dự đoán",
+    desc: "Nhập tỷ số mà bạn dự đoán sẽ xảy ra — số bàn thắng của đội chủ nhà và đội khách. Sau đó nhấn Lưu dự đoán.",
   },
   {
     number: "04",
-    title: "Lock In Before Kickoff",
-    desc: "You can edit your pick anytime before the match starts. Once the whistle blows, picks are locked.",
+    title: "Chốt dự đoán trước giờ bóng lăn",
+    desc: "Bạn có thể chỉnh sửa dự đoán bất kỳ lúc nào trước khi trận đấu bắt đầu. Khi trọng tài thổi còi khai cuộc, dự đoán sẽ bị khóa.",
   },
   {
     number: "05",
-    title: "Earn Points Automatically",
-    desc: "After the final whistle, points are calculated automatically. No need to do anything.",
+    title: "Nhận điểm tự động",
+    desc: "Sau khi trận đấu kết thúc, điểm số sẽ được tính tự động. Bạn không cần thực hiện thêm thao tác nào.",
   },
   {
     number: "06",
-    title: "Climb the Leaderboard",
-    desc: "Check the leaderboard to see where you rank against everyone else. May the best predictor win.",
+    title: "Leo bảng xếp hạng",
+    desc: "Theo dõi bảng xếp hạng để xem vị trí của bạn so với những người chơi khác. Chúc bạn trở thành nhà dự đoán xuất sắc nhất.",
   },
 ];
 
@@ -40,7 +40,7 @@ export default function HowToCard() {
         className="text-2xl mb-6"
         style={{ fontFamily: "var(--font-display)", letterSpacing: "0.02em" }}
       >
-        HOW TO PLAY
+        CÁCH THAM GIA
       </h2>
 
       <div className="space-y-0">
@@ -58,7 +58,7 @@ export default function HowToCard() {
               position: "relative",
             }}
           >
-            {/* Circle — step 01 dùng màu primary đậm hơn */}
+            {/* Vòng tròn — bước 01 sử dụng màu primary nổi bật hơn */}
             <div
               className="absolute flex items-center justify-center rounded-full text-sm font-bold flex-shrink-0"
               style={{
@@ -71,7 +71,6 @@ export default function HowToCard() {
                 color: index === 0 ? "white" : "var(--outline)",
                 fontFamily: "var(--font-display)",
                 fontSize: "0.9rem",
-                // Glow cho step 1
                 boxShadow:
                   index === 0
                     ? "0 0 0 4px oklch(from var(--primary) l c h / 0.2)"
@@ -94,7 +93,7 @@ export default function HowToCard() {
                   {step.title}
                 </h3>
 
-                {/* Badge "Start here" cho step 01 */}
+                {/* Nhãn "Bắt đầu tại đây" cho bước 01 */}
                 {index === 0 && (
                   <span
                     className="text-xs px-2 py-0.5 rounded-[4px] font-bold uppercase tracking-wide"
@@ -104,7 +103,7 @@ export default function HowToCard() {
                       fontFamily: "var(--font-body)",
                     }}
                   >
-                    Start here
+                    Bắt đầu tại đây
                   </span>
                 )}
               </div>

@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 
 const pageTitles: Record<string, string> = {
-  "/picks": "My Picks",
-  "/leaderboard": "Leaderboard",
-  "/stats": "Stats",
+  "/picks": "Dự đoán của tôi",
+  "/leaderboard": "Bảng xếp hạng",
+  "/stats": "Thống kê",
 };
 
 export default function Topbar({ userName }: { userName?: string | null }) {
@@ -38,7 +38,7 @@ export default function Topbar({ userName }: { userName?: string | null }) {
         className="text-white/60 text-xs uppercase tracking-wide transition hover:text-white"
         style={{ fontFamily: "var(--font-body)" }}
       >
-        Sign Out
+        Đăng xuất
       </button>
     </header>
   );

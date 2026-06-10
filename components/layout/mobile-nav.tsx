@@ -14,7 +14,7 @@ interface MobileNavProps {
 const navItems = [
   {
     href: "/picks",
-    label: "Picks",
+    label: "Dự đoán",
     icon: (
       <svg
         width="20"
@@ -31,7 +31,7 @@ const navItems = [
   },
   {
     href: "/leaderboard",
-    label: "Board",
+    label: "Bảng xếp hạng",
     icon: (
       <svg
         width="20"
@@ -47,7 +47,7 @@ const navItems = [
   },
   {
     href: "/stats",
-    label: "Stats",
+    label: "Thống kê",
     icon: (
       <svg
         width="20"
@@ -64,7 +64,7 @@ const navItems = [
   },
   {
     href: "/rules",
-    label: "Rules",
+    label: "Thể lệ",
     icon: (
       <svg
         width="20"
@@ -161,7 +161,7 @@ export default function MobileNav({
             className="text-xs uppercase tracking-wide font-bold"
             style={{ fontFamily: "var(--font-body)" }}
           >
-            Me
+            Tôi
           </span>
         </Link>
       )}

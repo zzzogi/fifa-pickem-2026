@@ -3,7 +3,7 @@ import Image from "next/image";
 import FireBadge from "@/components/leaderboard/fire-badge";
 import type { TournamentStats } from "@/lib/tournament-stats";
 
-// Reusable stat card
+// Card thống kê tái sử dụng được
 function StatCard({
   label,
   value,
@@ -55,7 +55,7 @@ function StatCard({
   );
 }
 
-// Mini bar
+// Thanh tỉ lệ mini
 function MiniBar({
   homePct,
   drawPct,
@@ -78,7 +78,7 @@ function MiniBar({
         <span className="font-bold">
           {homeCode} {homePct}%
         </span>
-        {drawPct > 0 && <span>Draw {drawPct}%</span>}
+        {drawPct > 0 && <span>Hòa {drawPct}%</span>}
         <span className="font-bold">
           {awayPct}% {awayCode}
         </span>
@@ -115,7 +115,7 @@ export default function TournamentStatsView({
 }) {
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Tiêu đề */}
       <div>
         <p
           className="text-xs uppercase tracking-widest mb-1 font-bold"
@@ -127,102 +127,109 @@ export default function TournamentStatsView({
           className="text-4xl"
           style={{ fontFamily: "var(--font-display)", letterSpacing: "0.02em" }}
         >
-          TOURNAMENT STATS
+          THỐNG KÊ GIẢI ĐẤU
         </h1>
       </div>
 
-      {/* Match overview */}
+      {/* Tổng quan trận đấu */}
       <section>
         <h2
           className="text-xs uppercase tracking-widest mb-3 font-bold"
           style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
         >
-          Match Overview
+          Tổng Quan Trận Đấu
         </h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard
-            label="Total Matches"
+            label="Tổng Số Trận"
             value={stats.totalMatches.toString()}
           />
           <StatCard
-            label="Finished"
+            label="Đã Kết Thúc"
             value={stats.finishedMatches.toString()}
             accent
           />
-          <StatCard label="Upcoming" value={stats.upcomingMatches.toString()} />
           <StatCard
-            label="Live Now"
+            label="Sắp Diễn Ra"
+            value={stats.upcomingMatches.toString()}
+          />
+          <StatCard
+            label="Đang Diễn Ra"
             value={stats.liveMatches.toString()}
-            sub={stats.liveMatches > 0 ? "🔴 In progress" : "No live matches"}
+            sub={
+              stats.liveMatches > 0
+                ? "🔴 Đang thi đấu"
+                : "Không có trận nào đang diễn ra"
+            }
           />
         </div>
       </section>
 
-      {/* Goals */}
+      {/* Bàn thắng */}
       {stats.finishedMatches > 0 && (
         <section>
           <h2
             className="text-xs uppercase tracking-widest mb-3 font-bold"
             style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
           >
-            Goals
+            Bàn Thắng
           </h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <StatCard
-              label="Total Goals"
+              label="Tổng Bàn Thắng"
               value={stats.totalGoalsScored.toString()}
-              sub={`Across ${stats.finishedMatches} matches`}
+              sub={`Qua ${stats.finishedMatches} trận`}
             />
             <StatCard
-              label="Avg per Match"
+              label="Trung Bình / Trận"
               value={stats.avgGoalsPerMatch.toFixed(1)}
             />
             {stats.highestScoringMatch && (
               <StatCard
-                label="Most Goals in a Match"
+                label="Trận Nhiều Bàn Nhất"
                 value={`${stats.highestScoringMatch.homeScore}–${stats.highestScoringMatch.awayScore}`}
-                sub={`${stats.highestScoringMatch.homeTeamCode} vs ${stats.highestScoringMatch.awayTeamCode} (${stats.highestScoringMatch.totalGoals} goals)`}
+                sub={`${stats.highestScoringMatch.homeTeamCode} vs ${stats.highestScoringMatch.awayTeamCode} (${stats.highestScoringMatch.totalGoals} bàn)`}
               />
             )}
           </div>
         </section>
       )}
 
-      {/* Community picks */}
+      {/* Dự đoán cộng đồng */}
       <section>
         <h2
           className="text-xs uppercase tracking-widest mb-3 font-bold"
           style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
         >
-          Community Picks
+          Dự Đoán Cộng Đồng
         </h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard
-            label="Total Picks"
+            label="Tổng Lượt Dự Đoán"
             value={stats.totalPicks.toLocaleString()}
           />
-          <StatCard label="Players" value={stats.totalPlayers.toString()} />
+          <StatCard label="Người Chơi" value={stats.totalPlayers.toString()} />
           <StatCard
-            label="Avg Picks / Player"
+            label="Trung Bình / Người"
             value={stats.avgPicksPerPlayer.toString()}
           />
           <StatCard
-            label="Community Accuracy"
+            label="Độ Chính Xác Cộng Đồng"
             value={`${stats.serverAccuracy}%`}
-            sub={`${stats.serverExactRate}% exact scores`}
+            sub={`${stats.serverExactRate}% tỉ số chính xác`}
             accent
           />
         </div>
       </section>
 
-      {/* Most picked matches */}
+      {/* Trận được dự đoán nhiều nhất */}
       {stats.mostPickedMatches.length > 0 && (
         <section>
           <h2
             className="text-xs uppercase tracking-widest mb-3 font-bold"
             style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
           >
-            Most Predicted Matches
+            Trận Được Dự Đoán Nhiều Nhất
           </h2>
           <div
             className="card-sports divide-y"
@@ -232,7 +239,7 @@ export default function TournamentStatsView({
               <div key={m.matchId} className="p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    {/* Home crest */}
+                    {/* Huy hiệu đội nhà */}
                     {m.homeTeamCrest ? (
                       <Image
                         src={m.homeTeamCrest}
@@ -271,6 +278,7 @@ export default function TournamentStatsView({
                     >
                       {m.awayTeamCode}
                     </span>
+                    {/* Huy hiệu đội khách */}
                     {m.awayTeamCrest ? (
                       <Image
                         src={m.awayTeamCrest}
@@ -299,7 +307,7 @@ export default function TournamentStatsView({
                       fontFamily: "var(--font-body)",
                     }}
                   >
-                    {m.totalPicks} picks
+                    {m.totalPicks} lượt dự đoán
                   </span>
                 </div>
                 <MiniBar
@@ -315,9 +323,9 @@ export default function TournamentStatsView({
         </section>
       )}
 
-      {/* Top scorers + Top streaks — 2 cột */}
+      {/* Vua phá lưới & Chuỗi thắng — 2 cột */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Top scorers */}
+        {/* Vua phá lưới (điểm cao nhất) */}
         {stats.topScorers.length > 0 && (
           <section>
             <h2
@@ -327,7 +335,7 @@ export default function TournamentStatsView({
                 fontFamily: "var(--font-body)",
               }}
             >
-              Top Scorers
+              Bảng Điểm Cao Nhất
             </h2>
             <div
               className="card-sports divide-y"
@@ -373,7 +381,7 @@ export default function TournamentStatsView({
                       className="text-sm font-bold truncate"
                       style={{ fontFamily: "var(--font-body)" }}
                     >
-                      {user.name ?? "Anonymous"}
+                      {user.name ?? "Ẩn danh"}
                     </span>
                     <FireBadge streak={user.currentStreak} />
                   </div>
@@ -381,7 +389,7 @@ export default function TournamentStatsView({
                     className="text-xl tabular-nums flex-shrink-0"
                     style={{ fontFamily: "var(--font-display)" }}
                   >
-                    {user.totalPoints}pts
+                    {user.totalPoints}đ
                   </span>
                 </a>
               ))}
@@ -389,7 +397,7 @@ export default function TournamentStatsView({
           </section>
         )}
 
-        {/* Top streaks */}
+        {/* Chuỗi thắng cao nhất */}
         {stats.topStreaks.length > 0 && (
           <section>
             <h2
@@ -399,7 +407,7 @@ export default function TournamentStatsView({
                 fontFamily: "var(--font-body)",
               }}
             >
-              Hottest Streaks 🔥
+              Chuỗi Thắng Nóng Nhất 🔥
             </h2>
             <div
               className="card-sports divide-y"
@@ -435,7 +443,7 @@ export default function TournamentStatsView({
                     className="text-sm font-bold flex-1 truncate"
                     style={{ fontFamily: "var(--font-body)" }}
                   >
-                    {user.name ?? "Anonymous"}
+                    {user.name ?? "Ẩn danh"}
                   </span>
                   <FireBadge streak={user.currentStreak} />
                   <span

@@ -7,10 +7,10 @@ import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 
 const navItems = [
-  { href: "/picks", label: "My Picks" },
-  { href: "/leaderboard", label: "Leaderboard" },
-  { href: "/stats", label: "Stats" },
-  { href: "/rules", label: "Rules" },
+  { href: "/picks", label: "Dự đoán" },
+  { href: "/leaderboard", label: "Bảng xếp hạng" },
+  { href: "/stats", label: "Thống kê" },
+  { href: "/rules", label: "Thể lệ" },
 ];
 
 export default function Sidebar() {
@@ -98,7 +98,7 @@ export default function Sidebar() {
           className="w-full rounded-[4px] px-3 py-2 text-left text-sm uppercase tracking-wide text-white/60 transition hover:bg-white/10 hover:text-white"
           style={{ fontFamily: "var(--font-body)", fontWeight: 700 }}
         >
-          Sign Out
+          Đăng xuất
         </button>
       </div>
     </aside>

@@ -1,4 +1,3 @@
-// components/home/rules-prize-modal.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -9,21 +8,21 @@ interface RulesPrizeModalProps {
 }
 
 const prizes = [
-  { rank: "1st", reward: "500,000 VNĐ", icon: "🥇" },
-  { rank: "2nd", reward: "200,000 VNĐ", icon: "🥈" },
-  { rank: "3rd", reward: "100,000 VNĐ", icon: "🥉" },
-  { rank: "Most Exact", reward: "Special Prize", icon: "⚡" },
+  { rank: "Giải Nhất", reward: "500,000 VNĐ", icon: "🥇" },
+  { rank: "Giải Nhì", reward: "200,000 VNĐ", icon: "🥈" },
+  { rank: "Giải Ba", reward: "100,000 VNĐ", icon: "🥉" },
+  { rank: "Chính Xác Nhất", reward: "200,000 VNĐ", icon: "⚡" },
 ];
 
 const scoring = [
-  { label: "Exact score", points: "+3" },
-  { label: "Correct winner", points: "+1" },
-  { label: "Wrong pick", points: "0" },
+  { label: "Chính xác tỷ số", points: "+3" },
+  { label: "Đoán đúng đội thắng/hòa", points: "+1" },
+  { label: "Dự đoán sai", points: "0" },
 ];
 
 const streaks = [
-  { streak: "3–4", bonus: "+1", fire: "🔥" },
-  { streak: "5–7", bonus: "+2", fire: "🔥🔥" },
+  { streak: "3-4", bonus: "+1", fire: "🔥" },
+  { streak: "5-7", bonus: "+2", fire: "🔥🔥" },
   { streak: "8+", bonus: "+3", fire: "🔥🔥🔥" },
 ];
 
@@ -100,7 +99,7 @@ export default function RulesPrizeModal({
                 letterSpacing: "0.02em",
               }}
             >
-              RULES & PRIZE POOL
+              THỂ LỆ & CƠ CẤU GIẢI THƯỞNG
             </h2>
           </div>
 
@@ -128,17 +127,17 @@ export default function RulesPrizeModal({
                 fontWeight: 700,
               }}
             >
-              How to play
+              Cách chơi
             </h3>
 
             <div className="grid gap-3">
               {[
-                "Sign in with Google to join the game.",
-                "Go to My Picks and predict the score of each match.",
-                "You can edit your pick until kickoff.",
-                "After kickoff, picks are locked automatically.",
-                "Points are awarded after matches finish.",
-                "Build streaks and climb the leaderboard.",
+                "Đăng nhập bằng Google để tham gia trò chơi.",
+                'Vào mục "Lựa chọn của tôi" và dự đoán tỷ số của từng trận đấu.',
+                "Bạn có thể thay đổi dự đoán của mình cho đến trước khi trận đấu bắt đầu.",
+                "Sau khi trận đấu bắt đầu, các dự đoán sẽ tự động được khóa lại.",
+                "Điểm số sẽ được cập nhật sau khi trận đấu kết thúc.",
+                "Tạo chuỗi thắng liên tiếp và leo tháp bảng xếp hạng.",
               ].map((item, index) => (
                 <div
                   key={item}
@@ -187,7 +186,7 @@ export default function RulesPrizeModal({
                 fontWeight: 700,
               }}
             >
-              Scoring
+              Cách tính điểm
             </h3>
 
             <div
@@ -198,10 +197,10 @@ export default function RulesPrizeModal({
                 <thead>
                   <tr style={{ background: "var(--secondary)" }}>
                     <th className="px-4 py-3 text-left text-xs uppercase tracking-widest text-white">
-                      Type
+                      Kết quả
                     </th>
                     <th className="px-4 py-3 text-right text-xs uppercase tracking-widest text-white">
-                      Points
+                      Điểm số
                     </th>
                   </tr>
                 </thead>
@@ -252,7 +251,7 @@ export default function RulesPrizeModal({
                 fontWeight: 700,
               }}
             >
-              Streak bonus
+              Thưởng chuỗi thắng
             </h3>
 
             <div className="grid gap-3 sm:grid-cols-3">
@@ -274,7 +273,7 @@ export default function RulesPrizeModal({
                       fontWeight: 700,
                     }}
                   >
-                    Streak {item.streak}
+                    Chuỗi {item.streak}
                   </p>
                   <p
                     className="text-2xl"
@@ -301,7 +300,7 @@ export default function RulesPrizeModal({
                   fontWeight: 700,
                 }}
               >
-                Prize pool
+                Giải thưởng
               </h3>
 
               <span
@@ -313,7 +312,7 @@ export default function RulesPrizeModal({
                   fontWeight: 700,
                 }}
               >
-                Total 800,000 VNĐ
+                Tổng giải: 1,000,000 VNĐ
               </span>
             </div>
 

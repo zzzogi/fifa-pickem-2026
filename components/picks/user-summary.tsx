@@ -16,10 +16,10 @@ export default function UserSummary({
   totalPicks,
 }: UserSummaryProps) {
   const stats = [
-    { label: "Rank", value: rank ? `#${rank}` : "—" },
-    { label: "Points", value: totalPoints.toString() },
-    { label: "Accuracy", value: `${accuracy}%` },
-    { label: "Picks", value: `${correctPicks}/${totalPicks}` },
+    { label: "Xếp hạng", value: rank ? `#${rank}` : "—" },
+    { label: "Điểm", value: totalPoints.toString() },
+    { label: "Độ chính xác", value: `${accuracy}%` },
+    { label: "Đã dự đoán", value: `${correctPicks}/${totalPicks}` },
   ];
 
   return (

@@ -34,16 +34,16 @@ interface MatchCardProps {
 
 function StatusChip({ status }: { status: string }) {
   const config: Record<string, { label: string; bg: string; color: string }> = {
-    IN_PLAY: { label: "Live", bg: "var(--live)", color: "white" },
-    PAUSED: { label: "HT", bg: "var(--live)", color: "white" },
-    FINISHED: { label: "Final", bg: "var(--outline)", color: "white" },
+    IN_PLAY: { label: "Đang trực tiếp", bg: "var(--live)", color: "white" },
+    PAUSED: { label: "Nghỉ giữa hiệp", bg: "var(--live)", color: "white" },
+    FINISHED: { label: "Đã kết thúc", bg: "var(--outline)", color: "white" },
     TIMED: {
-      label: "Upcoming",
+      label: "Sắp diễn ra",
       bg: "var(--surface-high)",
       color: "var(--outline)",
     },
     SCHEDULED: {
-      label: "Upcoming",
+      label: "Sắp diễn ra",
       bg: "var(--surface-high)",
       color: "var(--outline)",
     },
@@ -77,7 +77,8 @@ function PointsBadge({ pick }: { pick: UserPick }) {
         fontFamily: "var(--font-body)",
       }}
     >
-      {pick.isExactScore ? "⚡ Exact" : "✓ Winner"} +{pick.pointsAwarded}pts
+      {pick.isExactScore ? "⚡ Đúng đội thắng và tỉ số" : "✓ Đúng đội thắng"} +
+      {pick.pointsAwarded} điểm
     </span>
   );
 }
@@ -169,7 +170,7 @@ export default function MatchCard({
   distribution, // ← nhận prop mới
   isGuest = false,
 }: MatchCardProps) {
-  const kickoffLocal = new Date(kickoffTime).toLocaleString("en-GB", {
+  const kickoffLocal = new Date(kickoffTime).toLocaleString("vi-VN", {
     day: "numeric",
     month: "short",
     hour: "2-digit",
@@ -196,7 +197,7 @@ export default function MatchCard({
           className="text-xs text-neutral-500 uppercase tracking-wide"
           style={{ fontFamily: "var(--font-body)" }}
         >
-          {group ?? stage} · {kickoffLocal} ICT
+          {group ?? stage} · {kickoffLocal}
         </span>
         {userPick && <PointsBadge pick={userPick} />}
       </div>
