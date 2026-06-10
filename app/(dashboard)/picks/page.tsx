@@ -44,7 +44,7 @@ export default async function PicksPage() {
       />
 
       <Suspense fallback={<PicksLoading />}>
-        <MatchesList userId={session.user.id} />
+        <MatchesList />
       </Suspense>
     </div>
   );
