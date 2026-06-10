@@ -18,10 +18,10 @@ export default async function LeaderboardTable({
           className="text-4xl mb-3"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          NO PLAYERS YET
+          CHƯA CÓ NGƯỜI CHƠI NÀO
         </p>
         <p style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}>
-          Be the first to make picks and claim the top spot.
+          Hãy là người dự đoán đầu tiên để chạm tới vinh quang.
         </p>
       </div>
     );
@@ -119,7 +119,7 @@ function CurrentUserFooter({
         className="text-sm uppercase tracking-wide"
         style={{ fontFamily: "var(--font-body)", fontWeight: 700 }}
       >
-        Your rank
+        Thứ hạng của bạn
       </span>
       <div
         className="flex items-center gap-6 tabular-nums text-sm"
@@ -134,7 +134,7 @@ function CurrentUserFooter({
         </span>
         <span style={{ color: "var(--outline)" }}>{me.totalPoints} điểm</span>
         <span style={{ color: "var(--outline)" }}>
-          {me.accuracy}% chuẩn xác
+          Độ chuẩn xác {me.accuracy}%
         </span>
       </div>
     </div>

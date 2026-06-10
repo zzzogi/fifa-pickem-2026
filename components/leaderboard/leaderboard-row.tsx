@@ -107,13 +107,13 @@ export default function LeaderboardRow({
                   color: isCurrentUser ? "var(--primary)" : "var(--foreground)",
                 }}
               >
-                {name ?? "Anonymous"}
+                {name ?? "Người chơi ẩn danh"}
                 {isCurrentUser && (
                   <span
                     className="ml-1 text-xs uppercase tracking-wide"
                     style={{ color: "var(--outline)" }}
                   >
-                    (You)
+                    &#40;Bạn&#41;
                   </span>
                 )}
               </span>
