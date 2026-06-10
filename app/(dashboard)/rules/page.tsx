@@ -5,6 +5,23 @@ import PrizePoolCard from "@/components/rules/prize-pool-card";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/auth";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Thể lệ & Giải thưởng",
+  description:
+    "Thể lệ của trò chơi FIFA Pick'em 2026, cách tính điểm, cách nhận điểm thưởng từ chuỗi, và chi tiết về tổng giải thưởng.",
+  alternates: {
+    canonical: "/rules",
+  },
+  openGraph: {
+    title: "Thể lệ & Giải thưởng | FIFA Pick'em 2026",
+    description:
+      "Thể lệ của trò chơi FIFA Pick'em 2026, cách tính điểm, cách nhận điểm thưởng từ chuỗi, và chi tiết về tổng giải thưởng.",
+    url: "/rules",
+    images: ["/og-image.png"],
+  },
+};
 
 export default async function RulesPage() {
   const session = await getServerSession(authOptions);

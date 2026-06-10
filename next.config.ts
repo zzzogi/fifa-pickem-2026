@@ -27,11 +27,36 @@ const securityHeaders = [
     value:
       "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-ancestors 'none';",
   },
+  {
+    key: "x-xss-protection",
+    value: "0",
+  },
+  {
+    key: "cross-origin-opener-policy",
+    value: "same-origin",
+  },
+  {
+    key: "cross-origin-resource-policy",
+    value: "same-origin",
+  },
+  {
+    key: "cross-origin-embedder-policy",
+    value: "require-corp",
+  },
 ];
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["lh3.googleusercontent.com", "crests.football-data.org"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "crests.football-data.org",
+      },
+    ],
   },
   async headers() {
     return [
