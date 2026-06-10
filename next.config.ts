@@ -22,12 +22,6 @@ const securityHeaders = [
     value: "camera=(), microphone=(), geolocation=()", // deny unless explicitly needed
   },
   {
-    key: "Content-Security-Policy",
-    // Start with a strict policy, loosen only what your app actually needs
-    value:
-      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-ancestors 'none';",
-  },
-  {
     key: "x-xss-protection",
     value: "0",
   },
@@ -38,10 +32,6 @@ const securityHeaders = [
   {
     key: "cross-origin-resource-policy",
     value: "same-origin",
-  },
-  {
-    key: "cross-origin-embedder-policy",
-    value: "require-corp",
   },
 ];
 
