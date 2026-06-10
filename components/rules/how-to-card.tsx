@@ -1,5 +1,4 @@
 // components/rules/how-to-card.tsx
-
 const steps = [
   {
     number: "01",

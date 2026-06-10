@@ -1,14 +1,13 @@
 // app/(dashboard)/leaderboard/page.tsx
 import { authOptions } from "@/auth";
-import GuestBlur from "@/components/auth/guest-blur";
 import LeaderboardTable from "@/components/leaderboard/leaderboard-table";
-import { getLeaderboard } from "@/lib/leaderboard";
 import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
 export default async function LeaderboardPage() {
   const session = await getServerSession(authOptions);
-  const isGuest = !session?.user;
-  const entries = await getLeaderboard();
+
+  if (!session?.user?.id) redirect("/");
 
   return (
     <div>
@@ -27,15 +26,7 @@ export default async function LeaderboardPage() {
         </h1>
       </div>
 
-      {/* Guest: blur toàn bộ bảng */}
-      {isGuest ? (
-        <GuestBlur
-          title="Sign in to view the Leaderboard"
-          description="See how you stack up against other predictors."
-        />
-      ) : (
-        <LeaderboardTable entries={entries} currentUserId={session.user.id} />
-      )}
+      <LeaderboardTable currentUserId={session.user.id} />
     </div>
   );
 }

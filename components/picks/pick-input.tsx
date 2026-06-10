@@ -2,7 +2,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import SignInOverlay from "@/components/auth/sign-in-overlay";
 
 interface PickInputProps {
   matchId: string;
@@ -10,7 +9,6 @@ interface PickInputProps {
   initialHome?: number;
   initialAway?: number;
   isTBD?: boolean;
-  isGuest?: boolean;
 }
 
 export default function PickInput({
@@ -19,7 +17,6 @@ export default function PickInput({
   initialHome,
   initialAway,
   isTBD = false,
-  isGuest = false,
 }: PickInputProps) {
   const [home, setHome] = useState<string>(initialHome?.toString() ?? "");
   const [away, setAway] = useState<string>(initialAway?.toString() ?? "");
@@ -41,47 +38,8 @@ export default function PickInput({
             fontWeight: 700,
           }}
         >
-          ⏳ TBD — dự đoán sau khi vòng trước hoàn thành.
+          ⏳ TBD — dự đoán khi vòng trước đã kết thúc.
         </span>
-      </div>
-    );
-  }
-
-  if (isGuest) {
-    return (
-      <div className="relative mt-4">
-        {/* Inputs mờ làm nền */}
-        <div className="flex items-center gap-2 opacity-30 pointer-events-none select-none">
-          <div
-            className="w-14 h-10 rounded-[4px] border"
-            style={{
-              borderColor: "var(--outline-variant)",
-              background: "var(--surface)",
-            }}
-          />
-          <span
-            style={{
-              color: "var(--outline)",
-              fontFamily: "var(--font-display)",
-            }}
-          >
-            -
-          </span>
-          <div
-            className="w-14 h-10 rounded-[4px] border"
-            style={{
-              borderColor: "var(--outline-variant)",
-              background: "var(--surface)",
-            }}
-          />
-          <div
-            className="h-10 w-24 rounded-[4px]"
-            style={{ background: "var(--primary)", opacity: 0.4 }}
-          />
-        </div>
-
-        {/* Compact overlay */}
-        <SignInOverlay title="Đăng nhập để dự đoán" compact />
       </div>
     );
   }
@@ -143,7 +101,6 @@ export default function PickInput({
 
   return (
     <div className="flex items-center gap-2 mt-4 flex-wrap">
-      {/* Home score */}
       <input
         type="number"
         min={0}
@@ -163,10 +120,9 @@ export default function PickInput({
       <span
         style={{ color: "var(--outline)", fontFamily: "var(--font-display)" }}
       >
-        –
+        -
       </span>
 
-      {/* Away score */}
       <input
         type="number"
         min={0}
@@ -183,7 +139,6 @@ export default function PickInput({
         }}
       />
 
-      {/* Save button */}
       <button
         onClick={handleSave}
         disabled={isPending || status === "saving"}
@@ -200,12 +155,12 @@ export default function PickInput({
         }}
       >
         {status === "saving"
-          ? "Saving…"
+          ? "Đang lưu.."
           : status === "saved"
-            ? "✓ Saved"
+            ? "✓ Đã lưu"
             : status === "error"
-              ? "Error"
-              : "Save Pick"}
+              ? "Lỗi"
+              : "Lưu"}
       </button>
     </div>
   );

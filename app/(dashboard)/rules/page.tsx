@@ -2,8 +2,14 @@
 import HowToCard from "@/components/rules/how-to-card";
 import ScoringTable from "@/components/rules/scoring-table";
 import PrizePoolCard from "@/components/rules/prize-pool-card";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/auth";
 
-export default function RulesPage() {
+export default async function RulesPage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) redirect("/");
+
   return (
     <div>
       {/* Tiêu đề trang */}

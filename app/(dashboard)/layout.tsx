@@ -4,6 +4,7 @@ import MobileNav from "@/components/layout/mobile-nav";
 import Sidebar from "@/components/layout/sidebar";
 import Topbar from "@/components/layout/topbar";
 import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
   children,
@@ -11,7 +12,11 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
-  const user = session?.user;
+  if (!session?.user) {
+    redirect("/");
+  }
+
+  const user = session.user;
 
   return (
     <div className="app-shell min-h-screen">
