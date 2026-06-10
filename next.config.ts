@@ -25,6 +25,14 @@ const securityHeaders = [
     key: "x-xss-protection",
     value: "0",
   },
+  {
+    key: "cross-origin-opener-policy",
+    value: "same-origin",
+  },
+  {
+    key: "cross-origin-resource-policy",
+    value: "same-origin",
+  },
 ];
 
 const nextConfig: NextConfig = {
