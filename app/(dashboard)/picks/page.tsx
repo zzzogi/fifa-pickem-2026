@@ -31,7 +31,7 @@ export default async function PicksPage() {
           className="text-4xl"
           style={{ fontFamily: "var(--font-display)", letterSpacing: "0.02em" }}
         >
-          MY PICKS
+          DỰ ĐOÁN TỶ SỐ
         </h1>
       </div>
 

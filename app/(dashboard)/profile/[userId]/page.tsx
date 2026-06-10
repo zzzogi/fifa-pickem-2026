@@ -50,7 +50,7 @@ export default async function ProfilePage({
             className="text-xs uppercase tracking-widest font-bold"
             style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
           >
-            Tất cả picks
+            Tất cả dự đoán
           </h3>
         </div>
 
