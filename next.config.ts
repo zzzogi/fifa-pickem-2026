@@ -25,14 +25,6 @@ const securityHeaders = [
     key: "x-xss-protection",
     value: "0",
   },
-  {
-    key: "cross-origin-opener-policy",
-    value: "same-origin",
-  },
-  {
-    key: "cross-origin-resource-policy",
-    value: "same-origin",
-  },
 ];
 
 const nextConfig: NextConfig = {
@@ -51,7 +43,9 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/(.*)", // apply to every route
+        // Chỉ apply cho pages, không apply cho file tĩnh
+        source:
+          "/((?!.*\\.(?:jpg|jpeg|png|gif|webp|svg|ico|woff|woff2|ttf|otf)).*)",
         headers: securityHeaders,
       },
     ];
