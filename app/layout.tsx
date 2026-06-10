@@ -24,7 +24,7 @@ const archivoNarrow = Archivo_Narrow({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "FIFA Pick'em 2026",
+    default: "FIFA Pick'em 2026 — Dự đoán World Cup, Leo Bảng Xếp Hạng",
     template: "%s | FIFA Pick'em 2026",
   },
   description:
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/og-image.png",
-        width: 1120, // ← phải đúng kích thước thật của file
+        width: 1200, // ← phải đúng kích thước thật của file
         height: 630, // ← phải đúng kích thước thật của file
         alt: "FIFA Pick'em 2026 — Dự đoán World Cup, Leo Bảng Xếp Hạng",
       },

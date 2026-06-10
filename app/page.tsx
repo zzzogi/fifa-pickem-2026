@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "FIFA Pick'em 2026",
+  title: "FIFA Pick'em 2026 — Dự đoán World Cup, Leo Bảng Xếp Hạng",
   alternates: {
     canonical: "/",
   },
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/og-image.png",
-        width: 1120, // ← phải đúng kích thước thật của file
+        width: 1200, // ← phải đúng kích thước thật của file
         height: 630, // ← phải đúng kích thước thật của file
         alt: "FIFA Pick'em 2026 — Dự đoán World Cup, Leo Bảng Xếp Hạng",
       },
