@@ -7,7 +7,7 @@ import "./globals.css";
 import AuthProvider from "@/providers/AuthProvider";
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://your-domain.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://fifa-pickem-2026.vercel.app";
 
 const anton = Anton({
   subsets: ["latin"],

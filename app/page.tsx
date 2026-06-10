@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Trang chủ",
+  title: "FIFA Pick'em 2026",
   alternates: {
     canonical: "/",
   },
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     description:
       "Dự đoán tỉ số giải đấu FIFA World Cup 2026, nhận điểm thưởng, giữ chuỗi và tranh đấu trên bảng xếp hạng.",
     url: "/",
-    images: ["/og-image.png"],
+    images: ["/og-image.jpg"],
   },
 };
 
