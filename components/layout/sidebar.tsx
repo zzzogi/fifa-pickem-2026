@@ -10,6 +10,7 @@ const navItems = [
   { href: "/picks", label: "My Picks" },
   { href: "/leaderboard", label: "Leaderboard" },
   { href: "/stats", label: "Stats" },
+  { href: "/rules", label: "Rules" },
 ];
 
 export default function Sidebar() {
