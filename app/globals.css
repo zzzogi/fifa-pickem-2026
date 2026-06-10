@@ -88,3 +88,25 @@ h4 {
   height: 1em;
   margin-bottom: 0.5rem;
 }
+
+@keyframes fire-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes fire-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 6px rgba(249, 115, 22, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(249, 115, 22, 0.7);
+  }
+}

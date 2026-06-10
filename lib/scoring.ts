@@ -1,5 +1,3 @@
-// lib/scoring.ts
-
 export interface ScoringInput {
   predictedHome: number;
   predictedAway: number;
@@ -19,7 +17,6 @@ export function calculatePickScore({
   actualHome,
   actualAway,
 }: ScoringInput): ScoringResult {
-  // Exact score — dự đoán đúng cả 2 tỉ số
   const isExactScore =
     predictedHome === actualHome && predictedAway === actualAway;
 
@@ -27,7 +24,6 @@ export function calculatePickScore({
     return { pointsAwarded: 3, isExactScore: true, isCorrectWinner: true };
   }
 
-  // Xác định winner thực tế
   const actualWinner =
     actualHome > actualAway
       ? "HOME"
@@ -35,7 +31,6 @@ export function calculatePickScore({
         ? "AWAY"
         : "DRAW";
 
-  // Xác định winner dự đoán
   const predictedWinner =
     predictedHome > predictedAway
       ? "HOME"
@@ -50,4 +45,24 @@ export function calculatePickScore({
     isExactScore: false,
     isCorrectWinner,
   };
+}
+
+// ── Streak bonus ──────────────────────────────────────────
+// Streak 3–4:  +1 bonus mỗi pick đúng
+// Streak 5–7:  +2 bonus mỗi pick đúng
+// Streak 8+:   +3 bonus mỗi pick đúng
+
+export function calculateStreakBonus(streak: number): number {
+  if (streak < 3) return 0;
+  if (streak < 5) return 1;
+  if (streak < 8) return 2;
+  return 3;
+}
+
+// Trả về streak mới sau 1 pick
+export function updateStreak(
+  currentStreak: number,
+  isCorrectWinner: boolean,
+): number {
+  return isCorrectWinner ? currentStreak + 1 : 0;
 }

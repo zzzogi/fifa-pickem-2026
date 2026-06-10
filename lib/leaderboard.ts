@@ -11,6 +11,9 @@ export interface LeaderboardEntry {
   totalPicks: number;
   accuracy: number;
   rank: number;
+  currentStreak: number; // ← thêm
+  maxStreak: number; // ← thêm
+  streakPoints: number; // ← thêm
 }
 
 export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
@@ -20,6 +23,9 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
       name: true,
       image: true,
       totalPoints: true,
+      currentStreak: true, // ← thêm
+      maxStreak: true, // ← thêm
+      streakPoints: true, // ← thêm
       picks: {
         select: {
           isCorrectWinner: true,
@@ -29,7 +35,6 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
     },
   });
 
-  // Tính toán stats cho từng user
   const computed = users.map((user) => {
     const totalPicks = user.picks.length;
     const correctPicks = user.picks.filter((p) => p.isCorrectWinner).length;
@@ -42,6 +47,9 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
       name: user.name,
       image: user.image,
       totalPoints: user.totalPoints,
+      currentStreak: user.currentStreak,
+      maxStreak: user.maxStreak,
+      streakPoints: user.streakPoints,
       correctPicks,
       exactScores,
       totalPicks,
@@ -49,7 +57,6 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
     };
   });
 
-  // Sort theo tiebreaker: Points → Correct Picks → Exact Scores
   computed.sort((a, b) => {
     if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
     if (b.correctPicks !== a.correctPicks)
@@ -57,7 +64,6 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
     return b.exactScores - a.exactScores;
   });
 
-  // Gán rank — những user điểm bằng nhau hoàn toàn cùng rank
   let currentRank = 1;
   return computed.map((user, index) => {
     if (
@@ -68,7 +74,6 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
     ) {
       currentRank = index + 1;
     }
-
     return { ...user, rank: currentRank };
   });
 }

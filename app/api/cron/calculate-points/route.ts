@@ -2,18 +2,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyCronSecret } from "@/lib/cron-auth";
 import prisma from "@/lib/prisma";
-import { calculatePickScore } from "@/lib/scoring";
+import {
+  calculatePickScore,
+  calculateStreakBonus,
+  updateStreak,
+} from "@/lib/scoring";
 
 export async function POST(req: NextRequest) {
   const authError = verifyCronSecret(req);
   if (authError) return authError;
 
   try {
-    // Chỉ lấy picks CHƯA tính điểm (scoredAt = null)
-    // của các trận đã FINISHED và có score hợp lệ
+    // Lấy picks chưa tính điểm của trận FINISHED
     const unscoredPicks = await prisma.pick.findMany({
       where: {
-        scoredAt: null, // ← chưa tính điểm
+        scoredAt: null,
         match: {
           status: "FINISHED",
           homeScore: { not: null },
@@ -25,8 +28,12 @@ export async function POST(req: NextRequest) {
           select: {
             homeScore: true,
             awayScore: true,
+            utcDate: true,
           },
         },
+      },
+      orderBy: {
+        match: { utcDate: "asc" }, // ← quan trọng: sort theo thời gian
       },
     });
 
@@ -39,41 +46,84 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const affectedUserIds = new Set<string>();
+    // Group picks theo userId để tính streak per user
+    const picksByUser = unscoredPicks.reduce<
+      Record<string, typeof unscoredPicks>
+    >((acc, pick) => {
+      if (!acc[pick.userId]) acc[pick.userId] = [];
+      acc[pick.userId].push(pick);
+      return acc;
+    }, {});
 
-    // Score từng pick
-    for (const pick of unscoredPicks) {
-      const result = calculatePickScore({
-        predictedHome: pick.predictedHomeScore,
-        predictedAway: pick.predictedAwayScore,
-        actualHome: pick.match.homeScore!,
-        actualAway: pick.match.awayScore!,
-      });
+    const affectedUserIds = Object.keys(picksByUser);
 
-      await prisma.pick.update({
-        where: { id: pick.id },
-        data: {
-          pointsAwarded: result.pointsAwarded,
-          isExactScore: result.isExactScore,
-          isCorrectWinner: result.isCorrectWinner,
-          scoredAt: new Date(), // ← đánh dấu đã tính
-        },
-      });
-
-      affectedUserIds.add(pick.userId);
-    }
-
-    // Recalculate totalPoints cho users bị ảnh hưởng
     for (const userId of affectedUserIds) {
+      const userPicks = picksByUser[userId];
+
+      // Lấy streak hiện tại của user từ prisma
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { currentStreak: true, maxStreak: true },
+      });
+
+      let currentStreak = user?.currentStreak ?? 0;
+      let maxStreak = user?.maxStreak ?? 0;
+      let totalStreakBonus = 0;
+
+      // Score từng pick theo thứ tự thời gian
+      for (const pick of userPicks) {
+        const baseResult = calculatePickScore({
+          predictedHome: pick.predictedHomeScore,
+          predictedAway: pick.predictedAwayScore,
+          actualHome: pick.match.homeScore!,
+          actualAway: pick.match.awayScore!,
+        });
+
+        // Cập nhật streak
+        currentStreak = updateStreak(currentStreak, baseResult.isCorrectWinner);
+        if (currentStreak > maxStreak) maxStreak = currentStreak;
+
+        // Tính bonus dựa trên streak SAU khi update
+        const streakBonus = baseResult.isCorrectWinner
+          ? calculateStreakBonus(currentStreak)
+          : 0;
+
+        const totalPoints = baseResult.pointsAwarded + streakBonus;
+        totalStreakBonus += streakBonus;
+
+        await prisma.pick.update({
+          where: { id: pick.id },
+          data: {
+            pointsAwarded: totalPoints, // base + bonus gộp chung
+            isExactScore: baseResult.isExactScore,
+            isCorrectWinner: baseResult.isCorrectWinner,
+            scoredAt: new Date(),
+          },
+        });
+      }
+
+      // Recalculate totalPoints từ tất cả picks
       const aggregate = await prisma.pick.aggregate({
         where: { userId },
         _sum: { pointsAwarded: true },
       });
 
+      // Cộng thêm streakPoints riêng để track bonus
+      const currentStreakPoints =
+        (
+          await prisma.user.findUnique({
+            where: { id: userId },
+            select: { streakPoints: true },
+          })
+        )?.streakPoints ?? 0;
+
       await prisma.user.update({
         where: { id: userId },
         data: {
           totalPoints: aggregate._sum.pointsAwarded ?? 0,
+          currentStreak,
+          maxStreak,
+          streakPoints: currentStreakPoints + totalStreakBonus,
         },
       });
     }
@@ -81,7 +131,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       picksScored: unscoredPicks.length,
-      usersUpdated: affectedUserIds.size,
+      usersUpdated: affectedUserIds.length,
       calculatedAt: new Date().toISOString(),
     });
   } catch (error) {

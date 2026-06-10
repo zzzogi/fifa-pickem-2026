@@ -74,6 +74,7 @@ export default async function LeaderboardTable({
                 correctPicks={entry.correctPicks}
                 accuracy={entry.accuracy}
                 totalPicks={entry.totalPicks}
+                currentStreak={entry.currentStreak} // ← thêm dòng này
                 isCurrentUser={entry.id === currentUserId}
                 isEven={index % 2 === 0}
               />

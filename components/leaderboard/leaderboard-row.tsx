@@ -1,5 +1,6 @@
 // components/leaderboard/leaderboard-row.tsx
 import Image from "next/image";
+import FireBadge from "./fire-badge";
 
 interface LeaderboardRowProps {
   rank: number;
@@ -9,18 +10,17 @@ interface LeaderboardRowProps {
   correctPicks: number;
   accuracy: number;
   totalPicks: number;
+  currentStreak: number; // ← thêm
   isCurrentUser: boolean;
   isEven: boolean;
 }
 
 function RankBadge({ rank }: { rank: number }) {
-  // Top 3 có màu đặc biệt
   const style: Record<number, { bg: string; color: string }> = {
     1: { bg: "#d19900", color: "white" },
     2: { bg: "#8e706c", color: "white" },
     3: { bg: "#964219", color: "white" },
   };
-
   const s = style[rank];
 
   return (
@@ -45,6 +45,7 @@ export default function LeaderboardRow({
   correctPicks,
   accuracy,
   totalPicks,
+  currentStreak,
   isCurrentUser,
   isEven,
 }: LeaderboardRowProps) {
@@ -52,9 +53,9 @@ export default function LeaderboardRow({
     <tr
       style={{
         background: isCurrentUser
-          ? "var(--primary-soft)" // highlight current user
+          ? "var(--primary-soft)"
           : isEven
-            ? "var(--surface-soft)" // zebra striping
+            ? "var(--surface-soft)"
             : "var(--surface)",
         borderBottom: "1px solid var(--outline-variant)",
         fontWeight: isCurrentUser ? 700 : 400,
@@ -65,7 +66,7 @@ export default function LeaderboardRow({
         <RankBadge rank={rank} />
       </td>
 
-      {/* Avatar + Name */}
+      {/* Avatar + Name + Fire badge */}
       <td className="py-3 px-2">
         <div className="flex items-center gap-3">
           {image ? (
@@ -89,24 +90,30 @@ export default function LeaderboardRow({
               {name?.charAt(0).toUpperCase() ?? "?"}
             </div>
           )}
-          <span
-            className="text-sm truncate max-w-[140px]"
-            style={{
-              fontFamily: "var(--font-body)",
-              fontWeight: isCurrentUser ? 700 : 400,
-              color: isCurrentUser ? "var(--primary)" : "var(--foreground)",
-            }}
-          >
-            {name ?? "Anonymous"}
-            {isCurrentUser && (
-              <span
-                className="ml-2 text-xs uppercase tracking-wide"
-                style={{ color: "var(--outline)" }}
-              >
-                (You)
-              </span>
-            )}
-          </span>
+
+          <div className="flex items-center gap-2 min-w-0">
+            <span
+              className="text-sm truncate max-w-[120px]"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontWeight: isCurrentUser ? 700 : 400,
+                color: isCurrentUser ? "var(--primary)" : "var(--foreground)",
+              }}
+            >
+              {name ?? "Anonymous"}
+              {isCurrentUser && (
+                <span
+                  className="ml-1 text-xs uppercase tracking-wide"
+                  style={{ color: "var(--outline)" }}
+                >
+                  (You)
+                </span>
+              )}
+            </span>
+
+            {/* ← Fire badge hiện khi streak >= 3 */}
+            <FireBadge streak={currentStreak} />
+          </div>
         </div>
       </td>
 

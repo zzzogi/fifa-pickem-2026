@@ -55,14 +55,19 @@ model VerificationToken {
 // ─────────────────────────────────────────
 
 model User {
-  id          String   @id @default(cuid())
-  name        String?
-  email       String?  @unique
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
   emailVerified DateTime?
-  image       String?
-  totalPoints Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  image         String?
+  totalPoints   Int       @default(0)
+
+  currentStreak Int       @default(0)   // ← streak hiện tại
+  maxStreak     Int       @default(0)   // ← streak dài nhất từ trước đến nay
+  streakPoints  Int       @default(0)   // ← điểm bonus từ streak
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   accounts Account[]
   sessions Session[]
