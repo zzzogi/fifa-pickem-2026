@@ -31,7 +31,7 @@ const navItems = [
   },
   {
     href: "/leaderboard",
-    label: "Bảng xếp hạng",
+    label: "BXH",
     icon: (
       <svg
         width="20"
@@ -105,9 +105,9 @@ export default function MobileNav({
             href={item.href}
             className="flex-1 flex flex-col items-center gap-1 py-3 transition"
             style={{
-              color: isActive ? "var(--primary)" : "rgba(255,255,255,0.5)",
+              color: isActive ? "var(--primary-soft)" : "rgba(255,255,255,0.5)",
               borderTop: isActive
-                ? "2px solid var(--primary)"
+                ? "2px solid var(--primary-soft)"
                 : "2px solid transparent",
             }}
           >

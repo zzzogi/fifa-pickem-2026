@@ -25,7 +25,10 @@ export default async function DashboardLayout({
 
       <main>
         <div className="lg:pl-[var(--sidebar-width)]">
-          <div className="px-4 py-6 lg:px-8 lg:py-8">{children}</div>
+          {/* pb-20 = ~80px cho nav bar, cộng safe-area cho iPhone notch */}
+          <div className="px-4 py-6 lg:px-8 lg:py-8 pb-20 lg:pb-8">
+            {children}
+          </div>
         </div>
       </main>
 
