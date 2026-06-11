@@ -115,6 +115,7 @@ export default function PickInput({
           background: "var(--surface)",
           color: "var(--foreground)",
         }}
+        defaultValue={0}
       />
 
       <span
@@ -137,6 +138,7 @@ export default function PickInput({
           background: "var(--surface)",
           color: "var(--foreground)",
         }}
+        defaultValue={0}
       />
 
       <button
