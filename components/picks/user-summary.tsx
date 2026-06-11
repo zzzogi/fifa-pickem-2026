@@ -19,7 +19,7 @@ export default function UserSummary({
     { label: "Xếp hạng", value: rank ? `#${rank}` : "—" },
     { label: "Điểm", value: totalPoints.toString() },
     { label: "Độ chính xác", value: `${accuracy}%` },
-    { label: "Đã dự đoán", value: `${correctPicks}/${totalPicks}` },
+    { label: "Đã dự đoán đúng", value: `${correctPicks}/${totalPicks}` },
   ];
 
   return (

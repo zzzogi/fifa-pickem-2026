@@ -45,8 +45,8 @@ export default function PickInput({
   }
 
   async function handleSave() {
-    const h = parseInt(home);
-    const a = parseInt(away);
+    const h = home.trim() === "" ? 0 : parseInt(home, 10);
+    const a = away.trim() === "" ? 0 : parseInt(away, 10);
 
     if (isNaN(h) || isNaN(a) || h < 0 || a < 0) {
       setStatus("error");
@@ -64,6 +64,8 @@ export default function PickInput({
         });
 
         if (!res.ok) throw new Error();
+        setHome(h.toString());
+        setAway(a.toString());
         setStatus("saved");
         setTimeout(() => setStatus("idle"), 2000);
       } catch {
@@ -115,7 +117,6 @@ export default function PickInput({
           background: "var(--surface)",
           color: "var(--foreground)",
         }}
-        defaultValue={0}
       />
 
       <span
@@ -138,7 +139,6 @@ export default function PickInput({
           background: "var(--surface)",
           color: "var(--foreground)",
         }}
-        defaultValue={0}
       />
 
       <button
