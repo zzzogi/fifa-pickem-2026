@@ -4,6 +4,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { Coffee } from "lucide-react";
 
 interface MobileNavProps {
   userId?: string; // ← truyền từ layout
@@ -77,6 +78,11 @@ const navItems = [
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
       </svg>
     ),
+  },
+  {
+    href: "/support",
+    label: "Donate",
+    icon: <Coffee />,
   },
 ];
 

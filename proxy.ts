@@ -3,15 +3,19 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import type { JWT } from "next-auth/jwt";
 
+const isDev = process.env.NODE_ENV === "development";
+
 export default withAuth(
   function middleware(
     request: NextRequest & { nextauth: { token: JWT | null } },
   ) {
-    // CSP nonce logic
     const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
     const csp = [
       "default-src 'self'",
-      `script-src 'self' 'nonce-${nonce}'`,
+      // unsafe-eval chỉ cho dev, production vẫn strict
+      isDev
+        ? `script-src 'self' 'nonce-${nonce}' 'unsafe-eval'`
+        : `script-src 'self' 'nonce-${nonce}'`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self'",

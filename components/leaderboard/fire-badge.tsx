@@ -5,32 +5,70 @@ interface FireBadgeProps {
 }
 
 // Trả về tier dựa trên streak
-function getFireTier(streak: number): {
-  emoji: string;
-  color: string;
-  label: string;
-  glow: string;
-} | null {
+function getFireTier(streak: number) {
   if (streak < 3) return null;
+
   if (streak < 5)
     return {
       emoji: "🔥",
       color: "#f97316",
-      label: `Chuỗi ${streak}`,
+      label: `Chuỗi ${streak} - Thầy bói đầu làng`,
       glow: "rgba(249,115,22,0.4)",
     };
+
   if (streak < 8)
     return {
       emoji: "🔥🔥",
       color: "#ef4444",
-      label: `Chuỗi ${streak} - Huyền thoại 🎖️ `,
+      label: `Chuỗi ${streak} - Nhà tiên tri`,
       glow: "rgba(239,68,68,0.5)",
     };
+
+  if (streak < 12)
+    return {
+      emoji: "🔥🔥🔥",
+      color: "#dc2626",
+      label: `Chuỗi ${streak} - Kèo nào cũng vào`,
+      glow: "rgba(220,38,38,0.6)",
+    };
+
+  if (streak < 16)
+    return {
+      emoji: "⚡",
+      color: "#eab308",
+      label: `Chuỗi ${streak} - CHECK VAR!!!!`,
+      glow: "rgba(234,179,8,0.5)",
+    };
+
+  if (streak < 20)
+    return {
+      emoji: "⚡⚡",
+      color: "#facc15",
+      label: `Chuỗi ${streak} - Chuyên gia đọc vị`,
+      glow: "rgba(250,204,21,0.6)",
+    };
+
+  if (streak < 25)
+    return {
+      emoji: "👁️",
+      color: "#8b5cf6",
+      label: `Chuỗi ${streak} - Cỗ máy thời gian`,
+      glow: "rgba(139,92,246,0.6)",
+    };
+
+  if (streak < 30)
+    return {
+      emoji: "🛸",
+      color: "#6366f1",
+      label: `Chuỗi ${streak} - Người ngoài hành tinh`,
+      glow: "rgba(99,102,241,0.6)",
+    };
+
   return {
-    emoji: "🔥🔥🔥",
-    color: "#dc2626",
-    label: `Chuỗi ${streak} - Nhà tiên tri 🔮`,
-    glow: "rgba(220,38,38,0.6)",
+    emoji: "👑",
+    color: "#f59e0b",
+    label: `Chuỗi ${streak} - Chủ tịch FIFA`,
+    glow: "rgba(245,158,11,0.7)",
   };
 }
 

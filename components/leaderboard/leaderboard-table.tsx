@@ -1,5 +1,5 @@
 // components/leaderboard/leaderboard-table.tsx
-import { getLeaderboard, LeaderboardEntry } from "@/lib/leaderboard";
+import { getLeaderboard } from "@/lib/leaderboard";
 import LeaderboardRow from "./leaderboard-row";
 
 interface LeaderboardTableProps {
@@ -31,6 +31,10 @@ export default async function LeaderboardTable({
     { label: "#", className: "pl-4 pr-2 w-12" },
     { label: "Người chơi", className: "px-2" },
     { label: "Điểm", className: "px-3 text-right" },
+    {
+      label: "Đã dự đoán",
+      className: "px-3 text-right hidden sm:table-cell",
+    },
     {
       label: "Đã đoán đúng",
       className: "px-3 text-right hidden sm:table-cell",

@@ -63,23 +63,69 @@ function StatusChip({ status }: { status: string }) {
   );
 }
 
-function PointsBadge({ pick }: { pick: UserPick }) {
-  if (pick.pointsAwarded === 0 && !pick.isCorrectWinner) return null;
-  return (
-    <span
-      className="text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-[4px]"
-      style={{
-        background: pick.isExactScore
-          ? "var(--success)"
-          : "var(--surface-high)",
-        color: pick.isExactScore ? "white" : "var(--foreground)",
-        fontFamily: "var(--font-body)",
-      }}
-    >
-      {pick.isExactScore ? "⚡ Đúng đội thắng và tỉ số" : "✓ Đúng đội thắng"} +
-      {pick.pointsAwarded} điểm
-    </span>
-  );
+function PointsBadge({ pick, status }: { pick: UserPick; status: string }) {
+  const isMatchDone = status === "FINISHED";
+
+  // Trận chưa kết thúc — không hiện gì cả
+  if (!isMatchDone) {
+    return null;
+  }
+
+  // Trận đã kết thúc nhưng chưa tính điểm
+  if (pick.pointsAwarded === null) {
+    return null;
+  }
+
+  // Dự đoán sai
+  if (pick.pointsAwarded === 0) {
+    return (
+      <span
+        className="text-xs px-2 py-1 rounded-[4px] uppercase tracking-wide font-bold"
+        style={{
+          background: "var(--error)",
+          color: "white",
+          fontFamily: "var(--font-body)",
+          opacity: 0.8,
+        }}
+      >
+        ✗ Dự đoán sai
+      </span>
+    );
+  }
+
+  // Đúng tỉ số chính xác
+  if (pick.isExactScore) {
+    return (
+      <span
+        className="text-xs px-2 py-1 rounded-[4px] uppercase tracking-wide font-bold"
+        style={{
+          background: "var(--success)",
+          color: "white",
+          fontFamily: "var(--font-body)",
+        }}
+      >
+        ⚡ Đúng tỉ số +{pick.pointsAwarded} điểm
+      </span>
+    );
+  }
+
+  // Đúng đội thắng
+  if (pick.isCorrectWinner) {
+    return (
+      <span
+        className="text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-[4px]"
+        style={{
+          background: "var(--surface-high)",
+          color: "var(--foreground)",
+          fontFamily: "var(--font-body)",
+        }}
+      >
+        ✓ Đúng đội thắng +{pick.pointsAwarded} điểm
+      </span>
+    );
+  }
+
+  return null;
 }
 
 // ← Component team mới — có thêm country name
@@ -197,7 +243,7 @@ export default function MatchCard({
         >
           {group ?? stage} · {kickoffLocal}
         </span>
-        {userPick && <PointsBadge pick={userPick} />}
+        {userPick && <PointsBadge pick={userPick} status={status} />}
       </div>
 
       {/* Teams */}

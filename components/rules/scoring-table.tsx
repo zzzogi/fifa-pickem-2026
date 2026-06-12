@@ -42,28 +42,28 @@ export default function ScoringTable() {
               {[
                 {
                   prediction: "Đúng Tỷ Số",
-                  example: "Dự đoán 2–1, kết quả 2–1",
+                  example: "Dự đoán 2-1, kết quả 2-1",
                   result: "Khớp hoàn toàn",
                   points: "+3",
                   highlight: true,
                 },
                 {
                   prediction: "Đúng Đội Thắng",
-                  example: "Dự đoán 1–0, kết quả 2–1",
+                  example: "Dự đoán 1-0, kết quả 2-1",
                   result: "Đúng đội chiến thắng",
                   points: "+1",
                   highlight: false,
                 },
                 {
                   prediction: "Đúng Hòa",
-                  example: "Dự đoán 1–1, kết quả 0–0",
+                  example: "Dự đoán 1-1, kết quả 0-0",
                   result: "Đều dự đoán hòa",
                   points: "+1",
                   highlight: false,
                 },
                 {
                   prediction: "Sai",
-                  example: "Dự đoán 2–0, kết quả 0–1",
+                  example: "Dự đoán 2-0, kết quả 0-1",
                   result: "Sai đội thắng",
                   points: "0",
                   highlight: false,
@@ -164,21 +164,21 @@ export default function ScoringTable() {
             <tbody>
               {[
                 {
-                  streak: "1–2",
+                  streak: "1-2",
                   tier: "—",
                   bonus: "+0",
                   example: "1 điểm (đúng đội thắng)",
                   tierColor: "var(--outline)",
                 },
                 {
-                  streak: "3–4",
+                  streak: "3-4",
                   tier: "🔥",
                   bonus: "+1",
                   example: "2 điểm cho mỗi lần đoán đúng đội thắng",
                   tierColor: "#f97316",
                 },
                 {
-                  streak: "5–7",
+                  streak: "5-7",
                   tier: "🔥🔥",
                   bonus: "+2",
                   example: "3 điểm cho mỗi lần đoán đúng đội thắng",

@@ -11,6 +11,10 @@ const navItems = [
   { href: "/leaderboard", label: "Bảng xếp hạng" },
   { href: "/stats", label: "Thống kê" },
   { href: "/rules", label: "Thể lệ" },
+  {
+    href: "/support",
+    label: "Ủng hộ tác giả",
+  },
 ];
 
 export default function Sidebar() {

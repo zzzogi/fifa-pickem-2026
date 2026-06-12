@@ -135,6 +135,14 @@ export default function LeaderboardRow({
         {totalPoints}
       </td>
 
+      {/* Total Picks */}
+      <td
+        className="py-3 pl-3 pr-4 text-right tabular-nums text-sm hidden sm:table-cell"
+        style={{ fontFamily: "var(--font-body)", color: "var(--outline)" }}
+      >
+        {totalPicks} trận
+      </td>
+
       {/* Correct Picks */}
       <td
         className="py-3 px-3 text-right tabular-nums text-sm hidden sm:table-cell"
