@@ -7,13 +7,16 @@ import {
   calculateStreakBonus,
   updateStreak,
 } from "@/lib/scoring";
+import {
+  buildAchievementContext,
+  checkAndUnlockAchievements,
+} from "@/lib/achievements";
 
 export async function POST(req: NextRequest) {
   const authError = verifyCronSecret(req);
   if (authError) return authError;
 
   try {
-    // Lấy picks chưa tính điểm của trận FINISHED
     const unscoredPicks = await prisma.pick.findMany({
       where: {
         scoredAt: null,
@@ -33,7 +36,7 @@ export async function POST(req: NextRequest) {
         },
       },
       orderBy: {
-        match: { utcDate: "asc" }, // ← quan trọng: sort theo thời gian
+        match: { utcDate: "asc" },
       },
     });
 
@@ -46,7 +49,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Group picks theo userId để tính streak per user
     const picksByUser = unscoredPicks.reduce<
       Record<string, typeof unscoredPicks>
     >((acc, pick) => {
@@ -56,11 +58,11 @@ export async function POST(req: NextRequest) {
     }, {});
 
     const affectedUserIds = Object.keys(picksByUser);
+    const achievementsSummary: Record<string, string[]> = {};
 
     for (const userId of affectedUserIds) {
       const userPicks = picksByUser[userId];
 
-      // Lấy streak hiện tại của user từ prisma
       const user = await prisma.user.findUnique({
         where: { id: userId },
         select: { currentStreak: true, maxStreak: true },
@@ -70,7 +72,6 @@ export async function POST(req: NextRequest) {
       let maxStreak = user?.maxStreak ?? 0;
       let totalStreakBonus = 0;
 
-      // Score từng pick theo thứ tự thời gian
       for (const pick of userPicks) {
         const baseResult = calculatePickScore({
           predictedHome: pick.predictedHomeScore,
@@ -79,11 +80,9 @@ export async function POST(req: NextRequest) {
           actualAway: pick.match.awayScore!,
         });
 
-        // Cập nhật streak
         currentStreak = updateStreak(currentStreak, baseResult.isCorrectWinner);
         if (currentStreak > maxStreak) maxStreak = currentStreak;
 
-        // Tính bonus dựa trên streak SAU khi update
         const streakBonus = baseResult.isCorrectWinner
           ? calculateStreakBonus(currentStreak)
           : 0;
@@ -94,7 +93,7 @@ export async function POST(req: NextRequest) {
         await prisma.pick.update({
           where: { id: pick.id },
           data: {
-            pointsAwarded: totalPoints, // base + bonus gộp chung
+            pointsAwarded: totalPoints,
             isExactScore: baseResult.isExactScore,
             isCorrectWinner: baseResult.isCorrectWinner,
             scoredAt: new Date(),
@@ -102,13 +101,11 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // Recalculate totalPoints từ tất cả picks
       const aggregate = await prisma.pick.aggregate({
         where: { userId },
         _sum: { pointsAwarded: true },
       });
 
-      // Cộng thêm streakPoints riêng để track bonus
       const currentStreakPoints =
         (
           await prisma.user.findUnique({
@@ -126,6 +123,13 @@ export async function POST(req: NextRequest) {
           streakPoints: currentStreakPoints + totalStreakBonus,
         },
       });
+
+      // ── Achievement check sau khi đã update điểm & streak ──
+      const ctx = await buildAchievementContext(userId);
+      const newAchievements = await checkAndUnlockAchievements(ctx);
+      if (newAchievements.length > 0) {
+        achievementsSummary[userId] = newAchievements;
+      }
     }
 
     return NextResponse.json({
@@ -133,6 +137,7 @@ export async function POST(req: NextRequest) {
       picksScored: unscoredPicks.length,
       usersUpdated: affectedUserIds.length,
       calculatedAt: new Date().toISOString(),
+      achievements: achievementsSummary, // bonus info cho log
     });
   } catch (error) {
     console.error("calculate-points failed:", error);

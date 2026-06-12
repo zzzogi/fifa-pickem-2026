@@ -1,5 +1,6 @@
 // lib/profile.ts
 import prisma from "@/lib/prisma";
+import { ACHIEVEMENT_DEFS, type AchievementRarity } from "@/lib/achievements";
 
 export interface ProfileData {
   id: string;
@@ -15,6 +16,7 @@ export interface ProfileData {
   exactScores: number;
   accuracy: number;
   picks: ProfilePick[];
+  achievements: ProfileAchievement[];
 }
 
 export interface ProfilePick {
@@ -29,7 +31,7 @@ export interface ProfilePick {
     id: string;
     utcDate: Date;
     status: string;
-    stage: string | null; // ← đổi thành nullable
+    stage: string | null;
     group: string | null;
     homeTeamName: string | null;
     homeTeamCode: string | null;
@@ -41,6 +43,24 @@ export interface ProfilePick {
     awayScore: number | null;
   };
 }
+
+export interface ProfileAchievement {
+  key: string;
+  name: string;
+  description: string;
+  icon: string;
+  rarity: AchievementRarity;
+  unlockedAt: Date;
+}
+
+type RawUserAchievement = {
+  unlockedAt: Date;
+  achievement: {
+    key: string;
+    icon: string;
+    rarity: string;
+  };
+};
 
 export async function getPublicProfile(
   userId: string,
@@ -75,7 +95,15 @@ export async function getPublicProfile(
             },
           },
         },
-        orderBy: { match: { utcDate: "desc" } }, // mới nhất lên trước
+        orderBy: { match: { utcDate: "desc" } },
+      },
+      userAchievements: {
+        include: {
+          achievement: {
+            select: { key: true, icon: true, rarity: true },
+          },
+        },
+        orderBy: { unlockedAt: "desc" },
       },
     },
   });
@@ -88,13 +116,31 @@ export async function getPublicProfile(
   const accuracy =
     totalPicks > 0 ? Math.round((correctPicks / totalPicks) * 100) : 0;
 
-  // Tính rank
   const rank =
     user.totalPoints > 0
       ? (await prisma.user.count({
           where: { totalPoints: { gt: user.totalPoints } },
         })) + 1
       : null;
+
+  // ✅ Fix: type rõ trước khi map
+  const defMap = new Map(ACHIEVEMENT_DEFS.map((d) => [d.key, d]));
+  const rawAchievements = user.userAchievements as RawUserAchievement[];
+
+  const achievements: ProfileAchievement[] = rawAchievements
+    .map((ua): ProfileAchievement | null => {
+      const def = defMap.get(ua.achievement.key);
+      if (!def) return null;
+      return {
+        key: def.key,
+        name: def.name,
+        description: def.description,
+        icon: ua.achievement.icon,
+        rarity: ua.achievement.rarity as AchievementRarity,
+        unlockedAt: ua.unlockedAt,
+      };
+    })
+    .filter((a): a is ProfileAchievement => a !== null);
 
   return {
     id: user.id,
@@ -110,5 +156,6 @@ export async function getPublicProfile(
     exactScores,
     accuracy,
     picks: user.picks,
+    achievements,
   };
 }

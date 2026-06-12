@@ -2,6 +2,7 @@
 import { authOptions } from "@/auth";
 import ProfileHeader from "@/components/profile/profile-header";
 import ProfilePicksList from "@/components/profile/profile-picks-list";
+import AchievementsGrid from "@/components/profile/achievements-grid";
 import { getPublicProfile } from "@/lib/profile";
 import { getServerSession } from "next-auth";
 import { notFound, redirect } from "next/navigation";
@@ -44,6 +45,34 @@ export default async function ProfilePage({
 
       <Suspense fallback={<ProfileLoading />}>
         <ProfileHeader profile={profile} isCurrentUser={isCurrentUser} />
+
+        {/* Achievements Section */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3
+              className="text-xs uppercase tracking-widest font-bold"
+              style={{
+                color: "var(--outline)",
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              Thành tích
+            </h3>
+            {profile.achievements.length > 0 && (
+              <span
+                className="text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{
+                  background: "var(--surface-high)",
+                  color: "var(--outline)",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                {profile.achievements.length} đã mở khóa
+              </span>
+            )}
+          </div>
+          <AchievementsGrid achievements={profile.achievements} />
+        </div>
 
         <div className="mb-4">
           <h3
