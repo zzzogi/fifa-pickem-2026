@@ -53,15 +53,6 @@ export interface ProfileAchievement {
   unlockedAt: Date;
 }
 
-type RawUserAchievement = {
-  unlockedAt: Date;
-  achievement: {
-    key: string;
-    icon: string;
-    rarity: string;
-  };
-};
-
 export async function getPublicProfile(
   userId: string,
 ): Promise<ProfileData | null> {
@@ -97,7 +88,7 @@ export async function getPublicProfile(
         },
         orderBy: { match: { utcDate: "desc" } },
       },
-      userAchievements: {
+      achievements: {
         include: {
           achievement: {
             select: { key: true, icon: true, rarity: true },
@@ -123,12 +114,10 @@ export async function getPublicProfile(
         })) + 1
       : null;
 
-  // ✅ Fix: type rõ trước khi map
+  // Enrich achievements với name & description từ ACHIEVEMENT_DEFS
   const defMap = new Map(ACHIEVEMENT_DEFS.map((d) => [d.key, d]));
-  const rawAchievements = user.userAchievements as RawUserAchievement[];
-
-  const achievements: ProfileAchievement[] = rawAchievements
-    .map((ua): ProfileAchievement | null => {
+  const achievements: ProfileAchievement[] = user.achievements
+    .map((ua) => {
       const def = defMap.get(ua.achievement.key);
       if (!def) return null;
       return {
@@ -140,7 +129,7 @@ export async function getPublicProfile(
         unlockedAt: ua.unlockedAt,
       };
     })
-    .filter((a): a is ProfileAchievement => a !== null);
+    .filter(Boolean) as ProfileAchievement[];
 
   return {
     id: user.id,
