@@ -97,20 +97,10 @@ export default function ProfileHeader({
               </span>
             )}
             {/* Streak hiện tại */}
-            {profile.currentStreak >= 3 && (
-              <div className="flex items-center gap-1">
-                <span
-                  className="text-xs uppercase tracking-wide"
-                  style={{
-                    color: "var(--outline)",
-                    fontFamily: "var(--font-body)",
-                  }}
-                >
-                  Đang cháy
-                </span>
-                <FireBadge streak={profile.currentStreak} />
-              </div>
-            )}
+            <FireBadge
+              streak={profile.currentStreak}
+              isDev={profile.id === "cmq8d4yva0000k004rf5rqf4m"}
+            />
           </div>
         </div>
       </div>

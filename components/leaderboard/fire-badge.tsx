@@ -2,9 +2,10 @@
 
 interface FireBadgeProps {
   streak: number;
+  compact?: boolean; // true = chỉ hiện icon + số, dùng trên mobile
+  isDev?: boolean;
 }
 
-// Trả về tier dựa trên streak
 function getFireTier(streak: number) {
   if (streak < 3) return null;
 
@@ -72,8 +73,40 @@ function getFireTier(streak: number) {
   };
 }
 
-export default function FireBadge({ streak }: FireBadgeProps) {
+export default function FireBadge({
+  streak,
+  compact = false,
+  isDev = false,
+}: FireBadgeProps) {
   const tier = getFireTier(streak);
+  if (isDev) {
+    return (
+      <span
+        className="fire-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-xs font-bold"
+        style={{
+          background: `#93CAED`,
+          color: "#292f56",
+          border: `1px solid #1e4572`,
+          fontFamily: "var(--font-body)",
+          boxShadow: `0 0 8px #005c8b`,
+          animation: "fire-pulse 1.5s ease-in-out infinite",
+          whiteSpace: "nowrap",
+        }}
+      >
+        💻
+        {isDev && (
+          <span
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "0.85rem",
+            }}
+          >
+            Lập trình viên
+          </span>
+        )}
+      </span>
+    );
+  }
   if (!tier) return null;
 
   return (
@@ -86,12 +119,35 @@ export default function FireBadge({ streak }: FireBadgeProps) {
         fontFamily: "var(--font-body)",
         boxShadow: `0 0 8px ${tier.glow}`,
         animation: "fire-pulse 1.5s ease-in-out infinite",
+        whiteSpace: "nowrap",
       }}
     >
       {tier.emoji}
-      <span style={{ fontFamily: "var(--font-display)", fontSize: "0.85rem" }}>
-        {tier.label}
-      </span>
+      {!compact && (
+        <span
+          style={{ fontFamily: "var(--font-display)", fontSize: "0.85rem" }}
+        >
+          {tier.label}
+        </span>
+      )}
+      {compact && (
+        <span
+          style={{ fontFamily: "var(--font-display)", fontSize: "0.85rem" }}
+        >
+          {streak}
+        </span>
+      )}
+      {isDev && (
+        <span
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "0.85rem",
+            color: "#93CAED",
+          }}
+        >
+          Lâp trình viên
+        </span>
+      )}
     </span>
   );
 }

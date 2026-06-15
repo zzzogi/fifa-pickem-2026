@@ -26,9 +26,14 @@ function PickResultBadge({ pick }: { pick: ProfilePick }) {
           background: "var(--success)",
           color: "white",
           fontFamily: "var(--font-body)",
+          whiteSpace: "nowrap",
         }}
       >
-        ⚡ Đúng tỉ số +{pick.pointsAwarded} điểm
+        {/* Mobile: ⚡+điểm, desktop: full */}
+        <span className="sm:hidden">⚡ +{pick.pointsAwarded}</span>
+        <span className="hidden sm:inline">
+          ⚡ Đúng tỉ số +{pick.pointsAwarded} điểm
+        </span>
       </span>
     );
   }
@@ -41,9 +46,14 @@ function PickResultBadge({ pick }: { pick: ProfilePick }) {
           background: "var(--surface-high)",
           color: "var(--foreground)",
           fontFamily: "var(--font-body)",
+          whiteSpace: "nowrap",
         }}
       >
-        ✓ Dự đoán đúng +{pick.pointsAwarded} điểm
+        {/* Mobile: ✓+điểm, desktop: full */}
+        <span className="sm:hidden">✓ +{pick.pointsAwarded}</span>
+        <span className="hidden sm:inline">
+          ✓ Dự đoán đúng +{pick.pointsAwarded} điểm
+        </span>
       </span>
     );
   }
@@ -56,9 +66,12 @@ function PickResultBadge({ pick }: { pick: ProfilePick }) {
         color: "white",
         fontFamily: "var(--font-body)",
         opacity: 0.8,
+        whiteSpace: "nowrap",
       }}
     >
-      ✗ Dự đoán sai
+      {/* Mobile: icon only, desktop: full */}
+      <span className="sm:hidden">✗</span>
+      <span className="hidden sm:inline">✗ Dự đoán sai</span>
     </span>
   );
 }
@@ -105,7 +118,6 @@ function TeamInfo({
 }
 
 export default function ProfilePicksList({ picks }: { picks: ProfilePick[] }) {
-  // Chỉ hiện picks của trận đã FINISHED hoặc đang INPLAY
   const scoredPicks = picks.filter(
     (p) => p.match.status === "FINISHED" || p.scoredAt !== null,
   );
@@ -132,7 +144,6 @@ export default function ProfilePicksList({ picks }: { picks: ProfilePick[] }) {
 
   return (
     <div className="space-y-6">
-      {/* Pending picks */}
       {pendingPicks.length > 0 && (
         <section>
           <h3
@@ -156,7 +167,6 @@ export default function ProfilePicksList({ picks }: { picks: ProfilePick[] }) {
         </section>
       )}
 
-      {/* Scored picks */}
       {scoredPicks.length > 0 && (
         <section>
           <h3
@@ -194,35 +204,32 @@ function PickRow({ pick }: { pick: ProfilePick }) {
 
   return (
     <div
-      className="px-4 py-3 flex items-center gap-3 flex-wrap"
+      className="px-4 py-3 flex items-center gap-2"
       style={{
         background: pick.isExactScore
-          ? "rgba(67,122,34,0.05)" // xanh nhạt cho exact
+          ? "rgba(67,122,34,0.05)"
           : pick.scoredAt && !pick.isCorrectWinner
-            ? "rgba(186,26,26,0.04)" // đỏ nhạt cho sai
+            ? "rgba(186,26,26,0.04)"
             : "transparent",
       }}
     >
-      {/* Teams + predicted score */}
-      <div className="flex items-center gap-2 flex-1 min-w-0">
+      {/* Teams + predicted score — flex-1 để chiếm không gian còn lại */}
+      <div className="flex items-center gap-1.5 flex-1 min-w-0">
         <TeamInfo
           name={match.homeTeamName}
           code={match.homeTeamCode}
           crest={match.homeTeamCrest}
         />
 
-        {/* Predicted score */}
-        <div className="flex items-center gap-1 px-2">
-          <span
-            className="text-sm tabular-nums"
-            style={{
-              fontFamily: "var(--font-display)",
-              color: "var(--outline)",
-            }}
-          >
-            {pick.predictedHomeScore}-{pick.predictedAwayScore}
-          </span>
-        </div>
+        <span
+          className="text-sm tabular-nums px-1 flex-shrink-0"
+          style={{
+            fontFamily: "var(--font-display)",
+            color: "var(--outline)",
+          }}
+        >
+          {pick.predictedHomeScore}-{pick.predictedAwayScore}
+        </span>
 
         <TeamInfo
           name={match.awayTeamName}
@@ -231,24 +238,31 @@ function PickRow({ pick }: { pick: ProfilePick }) {
         />
       </div>
 
-      {/* Actual result nếu đã FINISHED */}
+      {/* Actual score — mobile: chỉ tỉ số, desktop: giữ nguyên */}
       {match.status === "FINISHED" &&
         match.homeScore !== null &&
         match.awayScore !== null && (
           <div
-            className="text-xs px-2 py-1 rounded-[4px] tabular-nums"
+            className="text-xs px-2 py-1 rounded-[4px] tabular-nums flex-shrink-0"
             style={{
               background: "var(--surface-high)",
               color: "var(--outline)",
               fontFamily: "var(--font-body)",
             }}
           >
-            Kết quả: {match.homeScore}–{match.awayScore}
+            {/* Mobile: tỉ số only */}
+            <span className="sm:hidden">
+              {match.homeScore}-{match.awayScore}
+            </span>
+            {/* Desktop: có chữ "Kết quả" */}
+            <span className="hidden sm:inline">
+              Kết quả: {match.homeScore}-{match.awayScore}
+            </span>
           </div>
         )}
 
       {/* Date + badge */}
-      <div className="flex items-center gap-2 ml-auto">
+      <div className="flex items-center gap-2 flex-shrink-0">
         <span
           className="text-xs hidden sm:block"
           style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}

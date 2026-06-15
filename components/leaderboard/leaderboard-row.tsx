@@ -2,6 +2,7 @@
 import Image from "next/image";
 import FireBadge from "./fire-badge";
 import Link from "next/link";
+import { isMobileDevice } from "@/lib/device";
 
 interface LeaderboardRowProps {
   id: string;
@@ -39,7 +40,7 @@ function RankBadge({ rank }: { rank: number }) {
   );
 }
 
-export default function LeaderboardRow({
+export default async function LeaderboardRow({
   id,
   rank,
   name,
@@ -52,6 +53,7 @@ export default function LeaderboardRow({
   isCurrentUser,
   isEven,
 }: LeaderboardRowProps) {
+  const isMobile = await isMobileDevice();
   return (
     <tr
       style={{
@@ -117,7 +119,11 @@ export default function LeaderboardRow({
                   </span>
                 )}
               </span>
-              <FireBadge streak={currentStreak} />
+              <FireBadge
+                streak={currentStreak}
+                isDev={id === "cmq8d4yva0000k004rf5rqf4m"}
+                compact={isMobile}
+              />
             </Link>
           </div>
         </div>
