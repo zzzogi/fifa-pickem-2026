@@ -111,33 +111,126 @@ function buildEmailHtml(data: DailySummaryEmailData): string {
 
         <!-- ── HERO HEADER ── -->
         <tr>
-          <td style="border-radius:8px 8px 0 0;overflow:hidden;position:relative;padding:0;">
-            <table width="100%" cellpadding="0" cellspacing="0"
-              style="background-image:url('${headerBg}');background-size:cover;background-position:center;border-radius:8px 8px 0 0;min-height:200px;">
-              <tr>
-                <!-- Left: Logo + title -->
-                <td style="padding:28px 24px;vertical-align:bottom;width:60%;">
-                  <img src="${logo}" alt="World Cup 2026" width="48" height="48"
-                    style="display:block;margin-bottom:12px;" />
-                  <p style="margin:0;color:rgba(255,255,255,0.7);font-size:11px;text-transform:uppercase;letter-spacing:0.12em;font-weight:600;">
-                    FIFA WORLD CUP 2026
-                  </p>
-                  <h1 style="margin:4px 0 0;color:#ffffff;font-size:36px;font-weight:900;letter-spacing:0.02em;line-height:1;">
-                    PICK'EM
-                  </h1>
-                  <p style="margin:8px 0 0;color:rgba(255,255,255,0.6);font-size:13px;">
-                    Bản cập nhật của bạn hôm nay
-                  </p>
-                </td>
-                <!-- Right: Hero player image -->
-                <td style="padding:0;vertical-align:bottom;width:40%;text-align:right;">
-                  <img src="${heroPlayer}" alt="" width="160"
-                    style="display:block;margin-left:auto;max-height:200px;object-fit:contain;object-position:bottom;" />
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
+  <td
+    style="
+      border-radius:8px 8px 0 0;
+      overflow:hidden;
+      padding:0;
+    "
+  >
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="
+        background-image:url('${headerBg}');
+        background-size:cover;
+        background-position:center;
+        border-radius:8px 8px 0 0;
+        min-height:220px;
+      "
+    >
+      <tr>
+        <!-- Left: Logo + Title -->
+        <td
+          style="
+            padding:28px 24px;
+            vertical-align:bottom;
+            width:60%;
+          "
+        >
+          <!-- Dark glass card -->
+          <div
+            style="
+              display:inline-block;
+              background:rgba(0,0,0,0.45);
+              border:1px solid rgba(255,255,255,0.15);
+              border-radius:16px;
+              padding:18px 20px;
+              max-width:320px;
+            "
+          >
+            <img
+              src="${logo}"
+              alt="World Cup 2026"
+              width="48"
+              height="48"
+              style="
+                display:block;
+                margin-bottom:12px;
+              "
+            />
+
+            <p
+              style="
+                margin:0;
+                color:#ffffff;
+                font-size:11px;
+                text-transform:uppercase;
+                letter-spacing:0.14em;
+                font-weight:700;
+                text-shadow:0 2px 6px rgba(0,0,0,.6);
+              "
+            >
+              FIFA WORLD CUP 2026
+            </p>
+
+            <h1
+              style="
+                margin:6px 0 0;
+                color:#ffffff;
+                font-size:38px;
+                font-weight:900;
+                letter-spacing:0.03em;
+                line-height:1;
+                text-shadow:
+                  0 2px 8px rgba(0,0,0,.6),
+                  0 4px 16px rgba(0,0,0,.5);
+              "
+            >
+              PICK'EM
+            </h1>
+
+            <p
+              style="
+                margin:10px 0 0;
+                color:#f5f5f5;
+                font-size:13px;
+                line-height:1.4;
+                text-shadow:0 2px 6px rgba(0,0,0,.6);
+              "
+            >
+              Update nào bạn ơi!
+            </p>
+          </div>
+        </td>
+
+        <!-- Right: Hero Player -->
+        <td
+          style="
+            padding:0;
+            vertical-align:bottom;
+            width:40%;
+            text-align:right;
+          "
+        >
+          <img
+            src="${heroPlayer}"
+            alt=""
+            width="180"
+            style="
+              display:block;
+              margin-left:auto;
+              max-height:220px;
+              object-fit:contain;
+              object-position:bottom;
+            "
+          />
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
 
         <!-- ── GREETING BANNER ── -->
         <tr>
@@ -158,7 +251,7 @@ function buildEmailHtml(data: DailySummaryEmailData): string {
                   <p style="margin:0 0 4px;font-size:28px;font-weight:900;color:#22c55e;">
                     ${data.correctToday}
                   </p>
-                  <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;">
+                  <p style="margin:0;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;">
                     ✅ Đúng
                   </p>
                 </td>
@@ -167,7 +260,7 @@ function buildEmailHtml(data: DailySummaryEmailData): string {
                   <p style="margin:0 0 4px;font-size:28px;font-weight:900;color:#ef4444;">
                     ${data.wrongToday}
                   </p>
-                  <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;">
+                  <p style="margin:0;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;">
                     ❌ Sai
                   </p>
                 </td>
@@ -176,7 +269,7 @@ function buildEmailHtml(data: DailySummaryEmailData): string {
                   <p style="margin:0 0 4px;font-size:28px;font-weight:900;color:#f59e0b;">
                     #${data.rank}
                   </p>
-                  <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;">
+                  <p style="margin:0;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;">
                     🥇 Hạng
                   </p>
                 </td>
@@ -236,13 +329,13 @@ function buildEmailHtml(data: DailySummaryEmailData): string {
                 <td style="padding-right:12px;">
                   <a href="${picksUrl}"
                     style="display:inline-block;background:#1d4ed8;color:#ffffff;font-size:13px;font-weight:700;text-decoration:none;padding:12px 20px;border-radius:4px;text-transform:uppercase;letter-spacing:0.06em;">
-                    👉 Gửi dự đoán ngay
+                    👉 Dự đoán ngay
                   </a>
                 </td>
                 <td>
                   <a href="${leaderboardUrl}"
                     style="display:inline-block;background:#1e3a5f;color:#ffffff;font-size:13px;font-weight:700;text-decoration:none;padding:12px 20px;border-radius:4px;text-transform:uppercase;letter-spacing:0.06em;">
-                    🏆 Xem bảng xếp hạng
+                    🏆 Bảng xếp hạng
                   </a>
                 </td>
               </tr>
