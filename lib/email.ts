@@ -34,7 +34,7 @@ function buildEmailHtml(data: DailySummaryEmailData): string {
   const picksUrl = `${appUrl}/picks`;
   const leaderboardUrl = `${appUrl}/leaderboard`;
 
-  const headerBg = `${appUrl}/header-bg.jpg`;
+  const headerBg = `${appUrl}/header-bg.png`;
   const heroPlayer = `${appUrl}/hero-player.png`;
   const logo = `${appUrl}/icon-wc-2026.png`;
 
