@@ -5,11 +5,31 @@ import { fetchWorldCupMatches } from "@/lib/football-api";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
-  const authError = verifyCronSecret(req);
-  if (authError) return authError;
-
   try {
-    const matches = await fetchWorldCupMatches();
+    const authError = verifyCronSecret(req);
+    if (authError) return authError;
+
+    let matches = [];
+
+    try {
+      matches = await fetchWorldCupMatches();
+      if (!Array.isArray(matches)) {
+        console.error("Invalid matches payload", matches);
+
+        return NextResponse.json({
+          success: false,
+          error: "Invalid matches payload",
+        });
+      }
+    } catch (e) {
+      console.error("Football API failed:", e);
+
+      return NextResponse.json({
+        success: false,
+        source: "football-api",
+        skipped: true,
+      });
+    }
 
     let upserted = 0;
     let errors = 0;
@@ -83,13 +103,15 @@ export async function POST(req: NextRequest) {
       total: matches.length,
       upserted,
       errors,
+      errorRate: `${errors}/${matches.length}`,
       syncedAt: new Date().toISOString(),
     });
-  } catch (error) {
-    console.error("sync-matches failed:", error);
-    return NextResponse.json(
-      { success: false, error: "Sync failed" },
-      { status: 500 },
-    );
+  } catch (e) {
+    console.error("Unexpected cron error:", e);
+
+    return NextResponse.json({
+      success: false,
+      unexpected: true,
+    });
   }
 }
