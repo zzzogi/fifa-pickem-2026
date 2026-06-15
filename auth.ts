@@ -3,6 +3,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import { randomBytes } from "crypto";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -20,12 +21,24 @@ export const authOptions: NextAuthOptions = {
     maxAge: 24 * 60 * 60,
   },
 
+  // ← Thêm block này
+  events: {
+    async createUser({ user }) {
+      if (!user.id) return;
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          unsubscribeToken: randomBytes(32).toString("hex"),
+        },
+      });
+    },
+  },
+
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
       }
-
       return token;
     },
 
@@ -33,7 +46,6 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
       }
-
       return session;
     },
   },

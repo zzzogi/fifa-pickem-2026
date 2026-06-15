@@ -13,7 +13,7 @@ const navItems = [
   { href: "/rules", label: "Thể lệ" },
   {
     href: "/support",
-    label: "Ủng hộ tác giả",
+    label: "Ủng hộ tôi",
   },
 ];
 

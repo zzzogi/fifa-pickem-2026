@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: "Ủng hộ tác giả | FIFA Pick'em 2026",
-  description: "Nếu bạn thấy app vui, hãy ủng hộ tác giả một ly cà phê ☕",
+  title: "Ủng hộ tôi | FIFA Pick'em 2026",
+  description: "Nếu bạn thấy app vui, hãy Ủng hộ tôi một ly cà phê ☕",
 };
 
 export default function SupportPage() {
@@ -23,7 +23,7 @@ export default function SupportPage() {
           className="text-3xl mb-2"
           style={{ fontFamily: "var(--font-display)", color: "var(--primary)" }}
         >
-          ỦNG HỘ TÁC GIẢ
+          ỦNG HỘ TÔI
         </h1>
         <p
           className="text-sm mb-6"
@@ -34,7 +34,7 @@ export default function SupportPage() {
           }}
         >
           App này được làm trong lúc rảnh rỗi, hoàn toàn miễn phí.{"\n"}
-          Nếu bạn thấy vui và thú vị, hãy ủng hộ tác giả một ly cà phê nhé ☕
+          Nếu bạn thấy vui và thú vị, hãy Ủng hộ tôi một ly cà phê nhé ☕
         </p>
 
         {/* QR Code — đặt file vào public/qr-momo.png */}

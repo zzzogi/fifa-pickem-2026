@@ -62,41 +62,43 @@ model User {
   image         String?
   totalPoints   Int       @default(0)
 
-  currentStreak Int       @default(0)   // ← streak hiện tại
-  maxStreak     Int       @default(0)   // ← streak dài nhất từ trước đến nay
-  streakPoints  Int       @default(0)   // ← điểm bonus từ streak
+  currentStreak Int @default(0) // ← streak hiện tại
+  maxStreak     Int @default(0) // ← streak dài nhất từ trước đến nay
+  streakPoints  Int @default(0) // ← điểm bonus từ streak
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  accounts Account[]
-  sessions Session[]
-  picks    Pick[]
-  achievements  UserAchievement[]
+  accounts         Account[]
+  sessions         Session[]
+  picks            Pick[]
+  achievements     UserAchievement[]
+  emailSubscribed  Boolean           @default(true)
+  unsubscribeToken String?           @unique
 }
 
 model Match {
-  id                  String    @id @default(cuid())
-  footballDataMatchId Int       @unique
+  id                  String   @id @default(cuid())
+  footballDataMatchId Int      @unique
   utcDate             DateTime
   status              String
   matchday            Int?
   stage               String?
   group               String?
 
-  homeTeamId    Int?      // ← đổi thành optional
-  homeTeamName  String?   // ← đổi thành optional
+  homeTeamId    Int? // ← đổi thành optional
+  homeTeamName  String? // ← đổi thành optional
   homeTeamCode  String?
   homeTeamCrest String?
 
-  awayTeamId    Int?      // ← đổi thành optional
-  awayTeamName  String?   // ← đổi thành optional
+  awayTeamId    Int? // ← đổi thành optional
+  awayTeamName  String? // ← đổi thành optional
   awayTeamCode  String?
   awayTeamCrest String?
 
-  homeScore   Int?
-  awayScore   Int?
-  winner      String?
+  homeScore Int?
+  awayScore Int?
+  winner    String?
 
   lastUpdated DateTime?
   createdAt   DateTime  @default(now())
@@ -106,16 +108,16 @@ model Match {
 }
 
 model Pick {
-  id                  String    @id @default(cuid())
-  userId              String
-  matchId             String
+  id      String @id @default(cuid())
+  userId  String
+  matchId String
 
-  predictedHomeScore  Int
-  predictedAwayScore  Int
-  pointsAwarded       Int       @default(0)
-  isCorrectWinner     Boolean   @default(false)
-  isExactScore        Boolean   @default(false)
-  scoredAt            DateTime? 
+  predictedHomeScore Int
+  predictedAwayScore Int
+  pointsAwarded      Int       @default(0)
+  isCorrectWinner    Boolean   @default(false)
+  isExactScore       Boolean   @default(false)
+  scoredAt           DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -127,22 +129,22 @@ model Pick {
 }
 
 model Achievement {
-  id          String  @id @default(cuid())
-  key         String  @unique   // "FIRST_BLOOD", "SNIPER", v.v.
-  icon        String            // emoji hoặc tên icon
-  rarity      String            // "COMMON" | "RARE" | "EPIC" | "LEGENDARY"
+  id     String @id @default(cuid())
+  key    String @unique // "FIRST_BLOOD", "SNIPER", v.v.
+  icon   String // emoji hoặc tên icon
+  rarity String // "COMMON" | "RARE" | "EPIC" | "LEGENDARY"
 
-  unlockedBy  UserAchievement[]
+  unlockedBy UserAchievement[]
 }
 
 model UserAchievement {
-  id            String      @id @default(cuid())
+  id            String   @id @default(cuid())
   userId        String
   achievementId String
-  unlockedAt    DateTime    @default(now())
+  unlockedAt    DateTime @default(now())
 
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement   Achievement @relation(fields: [achievementId], references: [id])
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id])
 
   @@unique([userId, achievementId])
 }
