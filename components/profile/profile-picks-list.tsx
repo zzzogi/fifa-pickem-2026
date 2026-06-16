@@ -4,16 +4,33 @@ import type { ProfilePick } from "@/lib/profile";
 
 function PickResultBadge({ pick }: { pick: ProfilePick }) {
   if (!pick.scoredAt) {
+    const config: Record<string, { label: string; bg: string; color: string }> =
+      {
+        IN_PLAY: { label: "Đang trực tiếp", bg: "var(--live)", color: "white" },
+        PAUSED: { label: "Nghỉ giữa hiệp", bg: "var(--live)", color: "white" },
+        TIMED: {
+          label: "Sắp diễn ra",
+          bg: "var(--surface-high)",
+          color: "var(--outline)",
+        },
+        SCHEDULED: {
+          label: "Sắp diễn ra",
+          bg: "var(--surface-high)",
+          color: "var(--outline)",
+        },
+      };
+    const chip = config[pick.match.status] ?? config.TIMED;
+
     return (
       <span
-        className="text-xs px-2 py-1 rounded-[4px] uppercase tracking-wide font-bold"
+        className="text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-[4px]"
         style={{
-          background: "var(--surface-high)",
-          color: "var(--outline)",
+          background: chip.bg,
+          color: chip.color,
           fontFamily: "var(--font-body)",
         }}
       >
-        Sắp diễn ra
+        {chip.label}
       </span>
     );
   }

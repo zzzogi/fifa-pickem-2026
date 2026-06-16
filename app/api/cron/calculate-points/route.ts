@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
       include: {
         match: {
           select: {
+            id: true,
             homeScore: true,
             awayScore: true,
             utcDate: true,
@@ -48,6 +49,16 @@ export async function POST(req: NextRequest) {
         usersUpdated: 0,
       });
     }
+
+    // Tất cả matchId của các trận vừa finished trong batch này
+    const finishedMatchIds = [...new Set(unscoredPicks.map((p) => p.match.id))];
+
+    // Lấy thông tin utcDate của tất cả finished matches (kể cả match không có pick của user)
+    const finishedMatchesInfo = await prisma.match.findMany({
+      where: { id: { in: finishedMatchIds } },
+      select: { id: true, utcDate: true },
+      orderBy: { utcDate: "asc" },
+    });
 
     const picksByUser = unscoredPicks.reduce<
       Record<string, typeof unscoredPicks>
@@ -72,7 +83,19 @@ export async function POST(req: NextRequest) {
       let maxStreak = user?.maxStreak ?? 0;
       let totalStreakBonus = 0;
 
-      for (const pick of userPicks) {
+      // Map picks của user theo matchId để check bỏ trận
+      const userPickByMatchId = new Map(userPicks.map((p) => [p.match.id, p]));
+
+      // Duyệt theo thứ tự thời gian của TẤT CẢ finished matches trong batch
+      for (const matchInfo of finishedMatchesInfo) {
+        const pick = userPickByMatchId.get(matchInfo.id);
+
+        if (!pick) {
+          // User bỏ trận này → streak bị đứt
+          currentStreak = 0;
+          continue;
+        }
+
         const baseResult = calculatePickScore({
           predictedHome: pick.predictedHomeScore,
           predictedAway: pick.predictedAwayScore,
@@ -124,7 +147,6 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // ── Achievement check sau khi đã update điểm & streak ──
       const ctx = await buildAchievementContext(userId);
       const newAchievements = await checkAndUnlockAchievements(ctx);
       if (newAchievements.length > 0) {
@@ -137,7 +159,7 @@ export async function POST(req: NextRequest) {
       picksScored: unscoredPicks.length,
       usersUpdated: affectedUserIds.length,
       calculatedAt: new Date().toISOString(),
-      achievements: achievementsSummary, // bonus info cho log
+      achievements: achievementsSummary,
     });
   } catch (error) {
     console.error("calculate-points failed:", error);

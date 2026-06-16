@@ -101,7 +101,7 @@ export default function FireBadge({
               fontSize: "0.85rem",
             }}
           >
-            Lập trình viên
+            Admin
           </span>
         )}
       </span>

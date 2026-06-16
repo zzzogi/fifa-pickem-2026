@@ -1,7 +1,7 @@
 // components/picks/matches-list.tsx
 import { getPickDistributions } from "@/lib/pick-distribution";
 import prisma from "@/lib/prisma";
-import MatchCard from "./match-card";
+import DayGroup from "./day-group";
 
 interface MatchesListProps {
   userId: string;
@@ -34,78 +34,68 @@ export default async function MatchesList({ userId }: MatchesListProps) {
     );
   }
 
-  // Fetch distribution cho tất cả matches 1 lần — tránh N+1 query
   const matchIds = matches.map((m) => m.id);
-  const distributions = await getPickDistributions(matchIds); // ← thêm
+  const distributions = await getPickDistributions(matchIds);
 
   // Group theo ngày
-  const grouped = matches.reduce<Record<string, typeof matches>>(
-    (acc, match) => {
-      const day = new Date(match.utcDate).toLocaleDateString("vi-VN", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        timeZone: "Asia/Ho_Chi_Minh",
-      });
-      if (!acc[day]) acc[day] = [];
-      acc[day].push(match);
-      return acc;
-    },
-    {},
-  );
+  const grouped = matches.reduce<
+    Record<string, { date: Date; matches: typeof matches }>
+  >((acc, match) => {
+    const day = new Date(match.utcDate).toLocaleDateString("vi-VN", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      timeZone: "Asia/Ho_Chi_Minh",
+    });
+    if (!acc[day]) acc[day] = { date: match.utcDate, matches: [] };
+    acc[day].matches.push(match);
+    return acc;
+  }, {});
+
+  // Trong mỗi ngày: live lên đầu, rồi scheduled, rồi finished
+  const statusOrder: Record<string, number> = {
+    IN_PLAY: 0,
+    PAUSED: 0,
+    TIMED: 1,
+    SCHEDULED: 1,
+    FINISHED: 2,
+  };
+
+  const today = new Date().toLocaleDateString("vi-VN", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "Asia/Ho_Chi_Minh",
+  });
 
   return (
     <div className="space-y-8">
-      {Object.entries(grouped).map(([day, dayMatches]) => (
-        <section key={day}>
-          <h3
-            className="text-sm uppercase tracking-widest mb-3 pb-2 border-b"
-            style={{
-              fontFamily: "var(--font-body)",
-              fontWeight: 700,
-              color: "var(--outline)",
-              borderColor: "var(--outline-variant)",
-            }}
-          >
-            {day}
-          </h3>
-          <div className="grid gap-4 md:grid-cols-2">
-            {dayMatches.map((match) => {
-              const pick = match.picks[0];
-              return (
-                <MatchCard
-                  key={match.id}
-                  matchId={match.id}
-                  homeTeam={match.homeTeamName}
-                  homeTeamCode={match.homeTeamCode}
-                  homeTeamCrest={match.homeTeamCrest}
-                  awayTeam={match.awayTeamName}
-                  awayTeamCode={match.awayTeamCode}
-                  awayTeamCrest={match.awayTeamCrest}
-                  kickoffTime={match.utcDate}
-                  status={match.status}
-                  stage={match.stage ?? ""}
-                  group={match.group}
-                  homeScore={match.homeScore}
-                  awayScore={match.awayScore}
-                  distribution={distributions.get(match.id)} // ← thêm
-                  userPick={
-                    pick
-                      ? {
-                          predictedHomeScore: pick.predictedHomeScore,
-                          predictedAwayScore: pick.predictedAwayScore,
-                          pointsAwarded: pick.pointsAwarded,
-                          isExactScore: pick.isExactScore,
-                          isCorrectWinner: pick.isCorrectWinner,
-                        }
-                      : undefined
-                  }
-                />
-              );
-            })}
-          </div>
-        </section>
-      ))}
+      {Object.entries(grouped).map(([day, { matches: dayMatches }]) => {
+        // Sort: live trước, rồi scheduled, rồi finished
+        const sorted = [...dayMatches].sort((a, b) => {
+          const orderA = statusOrder[a.status] ?? 1;
+          const orderB = statusOrder[b.status] ?? 1;
+          if (orderA !== orderB) return orderA - orderB;
+          return a.utcDate.getTime() - b.utcDate.getTime();
+        });
+
+        // Ngày hôm nay mặc định mở, ngày trước đó đóng lại
+        const isToday = day === today;
+        const hasLive = dayMatches.some(
+          (m) => m.status === "IN_PLAY" || m.status === "PAUSED",
+        );
+        const defaultOpen = isToday || hasLive;
+
+        return (
+          <DayGroup
+            key={day}
+            day={day}
+            matches={sorted}
+            distributions={distributions}
+            defaultOpen={defaultOpen}
+          />
+        );
+      })}
     </div>
   );
 }
