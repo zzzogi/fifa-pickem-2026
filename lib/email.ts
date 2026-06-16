@@ -29,7 +29,7 @@ export interface DailySummaryEmailData {
 
 function buildEmailHtml(data: DailySummaryEmailData): string {
   const appUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://fifa-pickem-2026.vercel.app";
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://fifapickem2026.com";
   const unsubscribeUrl = `${appUrl}/api/unsubscribe?token=${data.unsubscribeToken}`;
   const picksUrl = `${appUrl}/picks`;
   const leaderboardUrl = `${appUrl}/leaderboard`;
@@ -375,6 +375,8 @@ function buildEmailHtml(data: DailySummaryEmailData): string {
 export async function sendDailySummaryEmail(
   data: DailySummaryEmailData,
 ): Promise<boolean> {
+  const appUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://fifapickem2026.com";
   const apiKey = process.env.BREVO_API_KEY;
   const senderEmail =
     process.env.BREVO_SENDER_EMAIL ?? "noreply@pickem2026.com";
@@ -397,6 +399,11 @@ export async function sendDailySummaryEmail(
         to: [{ email: data.to, name: data.userName }],
         subject: `Pick'em hôm nay: +${data.pointsToday} điểm · Hạng #${data.rank}`,
         htmlContent: buildEmailHtml(data),
+        headers: {
+          "List-Unsubscribe": `<${appUrl}/api/unsubscribe?token=${data.unsubscribeToken}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+          "X-Mailer": "Pick'em World Cup 2026",
+        },
       }),
     });
 

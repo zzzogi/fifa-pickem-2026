@@ -2,17 +2,21 @@
 import prisma from "@/lib/prisma";
 import type { DailySummaryEmailData } from "@/lib/email";
 
-// Ngày hôm nay theo UTC (string YYYY-MM-DD)
-function todayUTC(): string {
-  return new Date().toISOString().split("T")[0];
+const VN_TZ = "Asia/Ho_Chi_Minh";
+
+// Ngày hôm nay theo giờ VN (string YYYY-MM-DD dùng nội bộ để query)
+function todayVN(): string {
+  // en-CA cho format YYYY-MM-DD — chỉ dùng nội bộ để build Date, không hiển thị
+  return new Date().toLocaleDateString("en-CA", { timeZone: VN_TZ });
 }
 
-function startOfDayUTC(dateStr: string): Date {
-  return new Date(`${dateStr}T00:00:00.000Z`);
+// Start/end of day theo giờ VN → UTC Date để query DB
+function startOfDayVN(dateStr: string): Date {
+  return new Date(`${dateStr}T00:00:00+07:00`);
 }
 
-function endOfDayUTC(dateStr: string): Date {
-  return new Date(`${dateStr}T23:59:59.999Z`);
+function endOfDayVN(dateStr: string): Date {
+  return new Date(`${dateStr}T23:59:59+07:00`);
 }
 
 // ─────────────────────────────────────────
@@ -20,22 +24,32 @@ function endOfDayUTC(dateStr: string): Date {
 // ─────────────────────────────────────────
 
 export async function allMatchesFinishedToday(): Promise<boolean> {
-  const today = todayUTC();
+  const today = todayVN();
 
   const matches = await prisma.match.findMany({
     where: {
       utcDate: {
-        gte: startOfDayUTC(today),
-        lte: endOfDayUTC(today),
+        gte: startOfDayVN(today),
+        lte: endOfDayVN(today),
       },
     },
     select: { status: true },
   });
 
-  // Không có trận nào hôm nay → không gửi mail
+  // Log ngày VN để debug trên Vercel
+  const displayDate = new Date().toLocaleDateString("vi-VN", {
+    timeZone: VN_TZ,
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+  console.log(
+    `[daily-summary] Ngày VN: ${displayDate}, số trận: ${matches.length}`,
+  );
+  console.log(matches.map((m) => m.status));
+
   if (matches.length === 0) return false;
 
-  // Tất cả phải FINISHED
   return matches.every((m) => m.status === "FINISHED");
 }
 
@@ -78,17 +92,16 @@ export async function buildDailySummaryForUser(
     rank: number;
   }>,
 ): Promise<DailySummaryEmailData | null> {
-  const today = todayUTC();
+  const today = todayVN();
 
-  // Picks của user trong các trận hôm nay đã được score
   const todayPicks = await prisma.pick.findMany({
     where: {
       userId,
       scoredAt: { not: null },
       match: {
         utcDate: {
-          gte: startOfDayUTC(today),
-          lte: endOfDayUTC(today),
+          gte: startOfDayVN(today),
+          lte: endOfDayVN(today),
         },
         status: "FINISHED",
       },
@@ -99,33 +112,27 @@ export async function buildDailySummaryForUser(
     },
   });
 
-  // User không có picks nào hôm nay → skip
   if (todayPicks.length === 0) return null;
 
   const correctToday = todayPicks.filter((p) => p.isCorrectWinner).length;
   const wrongToday = todayPicks.length - correctToday;
   const pointsToday = todayPicks.reduce((sum, p) => sum + p.pointsAwarded, 0);
 
-  // Lấy thông tin user từ leaderboard đã tính sẵn
   const userEntry = leaderboard.find((u) => u.id === userId);
   if (!userEntry) return null;
 
   const totalPoints = userEntry.totalPoints;
   const rank = userEntry.rank;
 
-  // Tính điểm cách top 10
   const top10Entry = leaderboard.find((u) => u.rank === 10);
   const pointsToTop10 =
     rank > 10 && top10Entry ? top10Entry.totalPoints - totalPoints + 1 : null;
 
-  // Tìm user vừa vượt qua (rank ngay trên) — nếu rank thay đổi hôm nay
-  // Lấy user có rank = (rank - 1) và totalPoints gần nhất
   let overtakenByName: string | null = null;
   let overtakenByPoints: number | null = null;
 
   const userAbove = leaderboard.find((u) => u.rank === rank - 1);
   if (userAbove && pointsToday > 0) {
-    // Chỉ mention nếu cách biệt nhỏ (≤ 20 điểm) — đủ motivating
     const gap = userAbove.totalPoints - totalPoints;
     if (gap <= 20) {
       overtakenByName = userAbove.name ?? "Một người chơi";
@@ -133,7 +140,6 @@ export async function buildDailySummaryForUser(
     }
   }
 
-  // Next match
   const nextMatch = await getNextMatch();
   const nextMatchHoursFromNow = nextMatch
     ? (nextMatch.utcDate.getTime() - Date.now()) / (1000 * 60 * 60)
@@ -141,7 +147,7 @@ export async function buildDailySummaryForUser(
 
   return {
     to: userEmail,
-    userName: userName.split(" ")[0], // chỉ lấy tên đầu
+    userName: userName.split(" ")[0],
     unsubscribeToken,
     correctToday,
     wrongToday,

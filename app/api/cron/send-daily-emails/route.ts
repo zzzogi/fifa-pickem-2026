@@ -10,6 +10,7 @@ import {
 import { getLeaderboard } from "@/lib/leaderboard";
 
 const DAILY_QUOTA = 300;
+const VN_TZ = "Asia/Ho_Chi_Minh";
 
 export async function POST(req: NextRequest) {
   const authError = verifyCronSecret(req);
@@ -39,8 +40,6 @@ export async function POST(req: NextRequest) {
         email: true,
         unsubscribeToken: true,
       },
-      // Ưu tiên users có picks — sort sau khi filter
-      // Lấy tối đa DAILY_QUOTA để không vượt quota
       take: DAILY_QUOTA,
     });
 
@@ -55,9 +54,11 @@ export async function POST(req: NextRequest) {
     // 3. Build leaderboard 1 lần, dùng cho tất cả users
     const leaderboard = await getLeaderboard();
 
-    // 4. Ưu tiên users có picks hôm nay — họ nhận được mail có nội dung
-    //    Users không có picks hôm nay → skip (không gửi mail trống)
-    const today = new Date().toISOString().split("T")[0];
+    // 4. Lấy ngày hôm nay theo giờ VN để filter picks
+    const todayVN = new Date().toLocaleDateString("en-CA", { timeZone: VN_TZ });
+    const startOfDay = new Date(`${todayVN}T00:00:00+07:00`);
+    const endOfDay = new Date(`${todayVN}T23:59:59+07:00`);
+
     const usersWithPicksToday = await prisma.user.findMany({
       where: {
         id: { in: users.map((u) => u.id) },
@@ -66,8 +67,8 @@ export async function POST(req: NextRequest) {
             scoredAt: { not: null },
             match: {
               utcDate: {
-                gte: new Date(`${today}T00:00:00.000Z`),
-                lte: new Date(`${today}T23:59:59.999Z`),
+                gte: startOfDay,
+                lte: endOfDay,
               },
             },
           },
@@ -112,18 +113,25 @@ export async function POST(req: NextRequest) {
         emailsFailed++;
       }
 
-      // Delay 100ms giữa mỗi mail để tránh burst rate limit
       if (emailsSent < eligibleUsers.length) {
         await new Promise((r) => setTimeout(r, 100));
       }
     }
 
+    const displayDate = new Date().toLocaleDateString("vi-VN", {
+      timeZone: VN_TZ,
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+
     return NextResponse.json({
       success: true,
+      date: displayDate,
       emailsSent,
       emailsFailed,
       skipped: skipped.length,
-      sentAt: new Date().toISOString(),
+      sentAt: new Date().toLocaleString("vi-VN", { timeZone: VN_TZ }),
     });
   } catch (error) {
     console.error("send-daily-emails failed:", error);
