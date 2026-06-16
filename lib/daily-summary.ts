@@ -108,7 +108,7 @@ export async function buildDailySummaryForUser(
     },
   });
 
-  if (todayPicks.length === 0) return null;
+  const hasPicksToday = todayPicks.length > 0;
 
   const correctToday = todayPicks.filter((p) => p.isCorrectWinner).length;
   const wrongToday = todayPicks.length - correctToday;
@@ -156,5 +156,6 @@ export async function buildDailySummaryForUser(
     nextMatchHome: nextMatch?.homeTeamName ?? null,
     nextMatchAway: nextMatch?.awayTeamName ?? null,
     nextMatchHoursFromNow,
+    hasPicksToday,
   };
 }

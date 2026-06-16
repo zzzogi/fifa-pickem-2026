@@ -16,6 +16,9 @@ export async function POST(req: NextRequest) {
   const authError = verifyCronSecret(req);
   if (authError) return authError;
 
+  const EMAIL_DELAY_MS = 25;
+  const startedAt = Date.now();
+
   try {
     // 1. Kiểm tra tất cả trận hôm nay đã kết thúc chưa
     const ready = await allMatchesFinishedToday();
@@ -33,6 +36,9 @@ export async function POST(req: NextRequest) {
         emailSubscribed: true,
         email: { not: null },
         unsubscribeToken: { not: null },
+      },
+      orderBy: {
+        createdAt: "asc",
       },
       select: {
         id: true,
@@ -54,31 +60,7 @@ export async function POST(req: NextRequest) {
     // 3. Build leaderboard 1 lần, dùng cho tất cả users
     const leaderboard = await getLeaderboard();
 
-    // 4. Lấy ngày hôm nay theo giờ VN để filter picks
-    const todayVN = new Date().toLocaleDateString("en-CA", { timeZone: VN_TZ });
-    const startOfDay = new Date(`${todayVN}T00:00:00+07:00`);
-    const endOfDay = new Date(`${todayVN}T23:59:59+07:00`);
-
-    const usersWithPicksToday = await prisma.user.findMany({
-      where: {
-        id: { in: users.map((u) => u.id) },
-        picks: {
-          some: {
-            scoredAt: { not: null },
-            match: {
-              utcDate: {
-                gte: startOfDay,
-                lte: endOfDay,
-              },
-            },
-          },
-        },
-      },
-      select: { id: true },
-    });
-
-    const userIdsWithPicks = new Set(usersWithPicksToday.map((u) => u.id));
-    const eligibleUsers = users.filter((u) => userIdsWithPicks.has(u.id));
+    const eligibleUsers = users;
 
     // 5. Gửi mail — có delay nhỏ để tránh rate limit Brevo
     let emailsSent = 0;
@@ -114,7 +96,7 @@ export async function POST(req: NextRequest) {
       }
 
       if (emailsSent < eligibleUsers.length) {
-        await new Promise((r) => setTimeout(r, 100));
+        await new Promise((r) => setTimeout(r, EMAIL_DELAY_MS));
       }
     }
 
@@ -132,6 +114,7 @@ export async function POST(req: NextRequest) {
       emailsFailed,
       skipped: skipped.length,
       sentAt: new Date().toLocaleString("vi-VN", { timeZone: VN_TZ }),
+      durationMs: Date.now() - startedAt,
     });
   } catch (error) {
     console.error("send-daily-emails failed:", error);
