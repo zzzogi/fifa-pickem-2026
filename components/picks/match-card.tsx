@@ -120,7 +120,7 @@ function PointsBadge({ pick, status }: { pick: UserPick; status: string }) {
           fontFamily: "var(--font-body)",
         }}
       >
-        ✓ Đoán đúng đội thắng/hòa +{pick.pointsAwarded} điểm
+        ✓ Đúng đội thắng/hòa +{pick.pointsAwarded} điểm
       </span>
     );
   }

@@ -43,10 +43,6 @@ export async function allMatchesFinishedToday(): Promise<boolean> {
     month: "2-digit",
     year: "numeric",
   });
-  console.log(
-    `[daily-summary] Ngày VN: ${displayDate}, số trận: ${matches.length}`,
-  );
-  console.log(matches.map((m) => m.status));
 
   if (matches.length === 0) return false;
 
