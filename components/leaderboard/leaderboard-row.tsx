@@ -123,6 +123,7 @@ export default async function LeaderboardRow({
                 streak={currentStreak}
                 isDev={id === "cmq8d4yva0000k004rf5rqf4m"}
                 compact={isMobile}
+                isBugCatcher={id === "cmqc3j7k8006mjr04s7y7lla0"}
               />
             </Link>
           </div>

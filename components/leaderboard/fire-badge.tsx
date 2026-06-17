@@ -4,6 +4,7 @@ interface FireBadgeProps {
   streak: number;
   compact?: boolean;
   isDev?: boolean;
+  isBugCatcher?: boolean;
 }
 
 function getFireTier(streak: number) {
@@ -95,10 +96,33 @@ function AdminBadge() {
   );
 }
 
+function BugCatcherBadge() {
+  return (
+    <span
+      className="fire-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-xs font-bold"
+      style={{
+        background: "#E9967A",
+        color: "#8B0000",
+        border: "1px solid #B22222",
+        fontFamily: "var(--font-body)",
+        boxShadow: "0 0 8px #800000",
+        animation: "fire-pulse 1.5s ease-in-out infinite",
+        whiteSpace: "nowrap",
+      }}
+    >
+      🐞
+      <span style={{ fontFamily: "var(--font-display)", fontSize: "0.85rem" }}>
+        Bug Catcher
+      </span>
+    </span>
+  );
+}
+
 export default function FireBadge({
   streak,
   compact = false,
   isDev = false,
+  isBugCatcher = false,
 }: FireBadgeProps) {
   const tier = getFireTier(streak);
 
@@ -137,6 +161,15 @@ export default function FireBadge({
       <span className="inline-flex items-center gap-1">
         {streakBadge}
         <AdminBadge />
+      </span>
+    );
+  }
+
+  if (isBugCatcher) {
+    return (
+      <span className="inline-flex items-center gap-1">
+        {streakBadge}
+        <BugCatcherBadge />
       </span>
     );
   }

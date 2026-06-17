@@ -8,6 +8,7 @@ import Image from "next/image";
 
 const navItems = [
   { href: "/picks", label: "Dự đoán" },
+  { href: "/bracket", label: "Sơ đồ giải đấu" },
   { href: "/leaderboard", label: "Bảng xếp hạng" },
   { href: "/stats", label: "Thống kê" },
   { href: "/rules", label: "Thể lệ" },
