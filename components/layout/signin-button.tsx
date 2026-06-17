@@ -2,21 +2,26 @@
 "use client";
 
 import { signIn } from "next-auth/react";
+import { analytics } from "@/lib/use-analytics";
 
 export default function LoginButton() {
+  function handleLogin() {
+    analytics.loginClicked();
+    signIn("google", { callbackUrl: "/picks" });
+  }
+
   return (
     <button
-      onClick={() => signIn("google", { callbackUrl: "/picks" })}
+      onClick={handleLogin}
       className="inline-flex items-center justify-center gap-3 w-full rounded-[4px] px-6 py-3.5 font-bold uppercase tracking-wide transition hover:opacity-90 active:scale-95"
       style={{
-        background: "oklch(0.78 0.16 52)", // gold
-        color: "oklch(0.15 0.03 240)", // dark text trên gold
+        background: "oklch(0.78 0.16 52)",
+        color: "oklch(0.15 0.03 240)",
         fontFamily: "var(--font-body)",
         fontSize: "var(--text-sm)",
         boxShadow: "0 4px 20px oklch(0.78 0.16 52 / 0.35)",
       }}
     >
-      {/* Google icon */}
       <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
         <path
           fill="#4285F4"

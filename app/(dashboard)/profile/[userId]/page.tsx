@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import ProfileLoading from "./loading";
+import ProfileTracker from "@/components/profile/profile-tracker";
 
 export default async function ProfilePage({
   params,
@@ -28,6 +29,7 @@ export default async function ProfilePage({
 
   return (
     <div>
+      <ProfileTracker isOwnProfile={isCurrentUser} profileUserId={userId} />
       {/* Back button */}
       <div className="mb-4">
         <a

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { analytics } from "@/lib/use-analytics";
 
 interface PickInputProps {
   matchId: string;
@@ -50,6 +51,7 @@ export default function PickInput({
 
     if (isNaN(h) || isNaN(a) || h < 0 || a < 0) {
       setStatus("error");
+      analytics.pickFailed(matchId);
       return;
     }
 
@@ -64,11 +66,21 @@ export default function PickInput({
         });
 
         if (!res.ok) throw new Error();
+
+        // Track: isUpdate = true nếu đã có pick trước đó
+        analytics.pickSubmitted({
+          matchId,
+          homeScore: h,
+          awayScore: a,
+          isUpdate: initialHome !== undefined && initialAway !== undefined,
+        });
+
         setHome(h.toString());
         setAway(a.toString());
         setStatus("saved");
         setTimeout(() => setStatus("idle"), 2000);
       } catch {
+        analytics.pickFailed(matchId);
         setStatus("error");
         setTimeout(() => setStatus("idle"), 2000);
       }
