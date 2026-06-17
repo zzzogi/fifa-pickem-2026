@@ -5,6 +5,8 @@ import "./globals.css";
 
 // app/layout.tsx — thêm SessionProvider
 import AuthProvider from "@/providers/AuthProvider";
+import Analytics from "@/components/analytics";
+import { headers } from "next/headers";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://fifapickem2026.com";
@@ -63,12 +65,15 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     <html lang="en">
       <head>
         <meta name="apple-mobile-web-app-title" content="FIFA Pick'em 2026" />
       </head>
       <body className={`${anton.variable} ${archivoNarrow.variable}`}>
+        <Analytics nonce={nonce} />
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

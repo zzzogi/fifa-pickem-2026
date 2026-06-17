@@ -12,14 +12,13 @@ export default withAuth(
     const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
     const csp = [
       "default-src 'self'",
-      // unsafe-eval chỉ cho dev, production vẫn strict
       isDev
-        ? `script-src 'self' 'nonce-${nonce}' 'unsafe-eval'`
-        : `script-src 'self' 'nonce-${nonce}'`,
+        ? `script-src 'self' 'nonce-${nonce}' 'unsafe-eval' https://www.googletagmanager.com`
+        : `script-src 'self' 'nonce-${nonce}' https://www.googletagmanager.com`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self'",
-      "connect-src 'self' https://accounts.google.com",
+      "connect-src 'self' https://accounts.google.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net",
       "frame-ancestors 'none'",
     ].join("; ");
 
