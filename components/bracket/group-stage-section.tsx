@@ -5,6 +5,7 @@ import { useState } from "react";
 import Image from "next/image";
 import type { BracketMatch } from "./types";
 import { GROUP_LABELS } from "./types";
+import { getCountryName } from "@/lib/team-names";
 
 function GroupTable({
   groupName,
@@ -175,7 +176,7 @@ function GroupTable({
               <td className="px-4 py-2">
                 <div className="flex items-center gap-2">
                   <span
-                    className="text-xs font-bold w-3"
+                    className="text-xs font-bold w-3 flex-shrink-0"
                     style={{
                       color: i < 2 ? "var(--primary)" : "var(--outline)",
                       fontFamily: "var(--font-body)",
@@ -193,13 +194,13 @@ function GroupTable({
                     />
                   )}
                   <span
-                    className="font-bold"
+                    className="font-bold truncate"
                     style={{
-                      fontFamily: "var(--font-display)",
-                      fontSize: "0.8rem",
+                      fontFamily: "var(--font-body)",
+                      fontSize: "0.75rem",
                     }}
                   >
-                    {team.code ?? team.name}
+                    {getCountryName(team.code, team.name)}
                   </span>
                 </div>
               </td>
@@ -269,17 +270,17 @@ function GroupTable({
               <span
                 className="flex-1 text-right font-bold truncate"
                 style={{
-                  fontFamily: "var(--font-display)",
+                  fontFamily: "var(--font-body)",
                   color:
                     m.winner === "HOME_TEAM"
                       ? "var(--primary)"
                       : "var(--foreground)",
                 }}
               >
-                {m.homeTeamCode ?? m.homeTeamName ?? "TBD"}
+                {getCountryName(m.homeTeamCode, m.homeTeamName)}
               </span>
               <span
-                className="px-2 py-0.5 rounded tabular-nums font-bold text-center"
+                className="px-2 py-0.5 rounded tabular-nums font-bold text-center flex-shrink-0"
                 style={{
                   minWidth: "56px",
                   background:
@@ -297,14 +298,14 @@ function GroupTable({
               <span
                 className="flex-1 font-bold truncate"
                 style={{
-                  fontFamily: "var(--font-display)",
+                  fontFamily: "var(--font-body)",
                   color:
                     m.winner === "AWAY_TEAM"
                       ? "var(--primary)"
                       : "var(--foreground)",
                 }}
               >
-                {m.awayTeamCode ?? m.awayTeamName ?? "TBD"}
+                {getCountryName(m.awayTeamCode, m.awayTeamName)}
               </span>
             </div>
           );

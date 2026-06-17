@@ -1,8 +1,8 @@
 // components/leaderboard/leaderboard-row.tsx
-import Image from "next/image";
-import FireBadge from "./fire-badge";
-import Link from "next/link";
 import { isMobileDevice } from "@/lib/device";
+import Image from "next/image";
+import Link from "next/link";
+import FireBadge from "./fire-badge";
 
 interface LeaderboardRowProps {
   id: string;
@@ -119,6 +119,7 @@ export default async function LeaderboardRow({
                   </span>
                 )}
               </span>
+
               <FireBadge
                 streak={currentStreak}
                 isDev={id === "cmq8d4yva0000k004rf5rqf4m"}

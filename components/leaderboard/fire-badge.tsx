@@ -1,5 +1,7 @@
 // components/leaderboard/fire-badge.tsx
 
+import { Tooltip } from "../tooltip";
+
 interface FireBadgeProps {
   streak: number;
   compact?: boolean;
@@ -76,45 +78,59 @@ function getFireTier(streak: number) {
 
 function AdminBadge() {
   return (
-    <span
-      className="fire-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-xs font-bold"
-      style={{
-        background: "#93CAED",
-        color: "#292f56",
-        border: "1px solid #1e4572",
-        fontFamily: "var(--font-body)",
-        boxShadow: "0 0 8px #005c8b",
-        animation: "fire-pulse 1.5s ease-in-out infinite",
-        whiteSpace: "nowrap",
-      }}
-    >
-      💻
-      <span style={{ fontFamily: "var(--font-display)", fontSize: "0.85rem" }}>
-        Admin
-      </span>
-    </span>
+    <Tooltip
+      children={
+        <span
+          className="fire-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-xs font-bold"
+          style={{
+            background: "#93CAED",
+            color: "#292f56",
+            border: "1px solid #1e4572",
+            fontFamily: "var(--font-body)",
+            boxShadow: "0 0 8px #005c8b",
+            animation: "fire-pulse 1.5s ease-in-out infinite",
+            whiteSpace: "nowrap",
+          }}
+        >
+          💻
+          <span
+            style={{ fontFamily: "var(--font-display)", fontSize: "0.85rem" }}
+          >
+            Admin
+          </span>
+        </span>
+      }
+      content={"Người sáng tạo ra trang web"}
+    />
   );
 }
 
 function BugCatcherBadge() {
   return (
-    <span
-      className="fire-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-xs font-bold"
-      style={{
-        background: "#E9967A",
-        color: "#8B0000",
-        border: "1px solid #B22222",
-        fontFamily: "var(--font-body)",
-        boxShadow: "0 0 8px #800000",
-        animation: "fire-pulse 1.5s ease-in-out infinite",
-        whiteSpace: "nowrap",
-      }}
-    >
-      🐞
-      <span style={{ fontFamily: "var(--font-display)", fontSize: "0.85rem" }}>
-        Bug Catcher
-      </span>
-    </span>
+    <Tooltip
+      children={
+        <span
+          className="fire-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-xs font-bold"
+          style={{
+            background: "#E9967A",
+            color: "#8B0000",
+            border: "1px solid #B22222",
+            fontFamily: "var(--font-body)",
+            boxShadow: "0 0 8px #800000",
+            animation: "fire-pulse 1.5s ease-in-out infinite",
+            whiteSpace: "nowrap",
+          }}
+        >
+          🐞
+          <span
+            style={{ fontFamily: "var(--font-display)", fontSize: "0.85rem" }}
+          >
+            Bug Catcher
+          </span>
+        </span>
+      }
+      content={"Người có đóng góp cho việc tìm bug của trang web"}
+    />
   );
 }
 
