@@ -15,7 +15,7 @@ export interface ProfileData {
   correctPicks: number;
   exactScores: number;
   accuracy: number;
-  picks: ProfilePick[];
+  pickRows: ProfilePickRow[];
   achievements: ProfileAchievement[];
 }
 
@@ -43,6 +43,14 @@ export interface ProfilePick {
     awayScore: number | null;
   };
 }
+
+// Row hiển thị trong profile — có thể là pick thật hoặc "bỏ trận"
+export type ProfilePickRow =
+  | { kind: "pick"; pick: ProfilePick }
+  | {
+      kind: "missed";
+      match: ProfilePick["match"];
+    };
 
 export interface ProfileAchievement {
   key: string;
@@ -101,6 +109,48 @@ export async function getPublicProfile(
 
   if (!user) return null;
 
+  // Query tất cả FINISHED matches để phát hiện trận user bỏ
+  const allFinishedMatches = await prisma.match.findMany({
+    where: { status: "FINISHED" },
+    select: {
+      id: true,
+      utcDate: true,
+      status: true,
+      stage: true,
+      group: true,
+      homeTeamName: true,
+      homeTeamCode: true,
+      homeTeamCrest: true,
+      awayTeamName: true,
+      awayTeamCode: true,
+      awayTeamCrest: true,
+      homeScore: true,
+      awayScore: true,
+    },
+    orderBy: { utcDate: "desc" },
+  });
+
+  const userPickByMatchId = new Map(user.picks.map((p) => [p.match.id, p]));
+
+  // Merge: với mỗi finished match, nếu user có pick → "pick", không có → "missed"
+  const pickRows: ProfilePickRow[] = allFinishedMatches.map((match) => {
+    const pick = userPickByMatchId.get(match.id);
+    if (pick) {
+      return { kind: "pick", pick };
+    }
+    return { kind: "missed", match };
+  });
+
+  // Append các picks chưa finished (upcoming/live) — không phải "missed"
+  const pendingPicks = user.picks.filter((p) => p.match.status !== "FINISHED");
+  const pendingRows: ProfilePickRow[] = pendingPicks.map((pick) => ({
+    kind: "pick",
+    pick,
+  }));
+
+  // pending trước (desc utcDate), finished sau
+  const allRows: ProfilePickRow[] = [...pendingRows, ...pickRows];
+
   const totalPicks = user.picks.length;
   const correctPicks = user.picks.filter((p) => p.isCorrectWinner).length;
   const exactScores = user.picks.filter((p) => p.isExactScore).length;
@@ -114,7 +164,6 @@ export async function getPublicProfile(
         })) + 1
       : null;
 
-  // Enrich achievements với name & description từ ACHIEVEMENT_DEFS
   const defMap = new Map(ACHIEVEMENT_DEFS.map((d) => [d.key, d]));
   const achievements: ProfileAchievement[] = user.achievements
     .map((ua) => {
@@ -144,7 +193,7 @@ export async function getPublicProfile(
     correctPicks,
     exactScores,
     accuracy,
-    picks: user.picks,
+    pickRows: allRows,
     achievements,
   };
 }

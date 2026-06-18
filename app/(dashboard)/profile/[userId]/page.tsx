@@ -85,7 +85,7 @@ export default async function ProfilePage({
           </h3>
         </div>
 
-        <ProfilePicksList picks={profile.picks} />
+        <ProfilePicksList pickRows={profile.pickRows} />
       </Suspense>
     </div>
   );

@@ -23,30 +23,23 @@ function endOfDayVN(dateStr: string): Date {
 // Check xem tất cả trận trong ngày đã FINISHED chưa
 // ─────────────────────────────────────────
 
-export async function allMatchesFinishedToday(): Promise<boolean> {
+export async function allTodayMatchesFinishedSoFar(): Promise<boolean> {
   const today = todayVN();
+  const now = new Date();
 
-  const matches = await prisma.match.findMany({
+  const unfinishedCount = await prisma.match.count({
     where: {
       utcDate: {
         gte: startOfDayVN(today),
-        lte: endOfDayVN(today),
+        lte: now,
+      },
+      status: {
+        not: "FINISHED",
       },
     },
-    select: { status: true },
   });
 
-  // Log ngày VN để debug trên Vercel
-  const displayDate = new Date().toLocaleDateString("vi-VN", {
-    timeZone: VN_TZ,
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-
-  if (matches.length === 0) return false;
-
-  return matches.every((m) => m.status === "FINISHED");
+  return unfinishedCount === 0;
 }
 
 // ─────────────────────────────────────────

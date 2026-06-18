@@ -1,121 +1,138 @@
 // components/profile/profile-picks-list.tsx
 import Image from "next/image";
-import type { ProfilePick } from "@/lib/profile";
+import type { ProfilePickRow, ProfilePick } from "@/lib/profile";
+import { getCountryName } from "@/lib/team-names";
+
+// ── Badge trạng thái ──────────────────────────────────────
 
 function PickResultBadge({ pick }: { pick: ProfilePick }) {
+  // Chưa tính điểm (trận live/upcoming)
   if (!pick.scoredAt) {
-    const config: Record<string, { label: string; bg: string; color: string }> =
-      {
-        IN_PLAY: { label: "Đang trực tiếp", bg: "var(--live)", color: "white" },
-        PAUSED: { label: "Nghỉ giữa hiệp", bg: "var(--live)", color: "white" },
-        TIMED: {
-          label: "Sắp diễn ra",
-          bg: "var(--surface-high)",
-          color: "var(--outline)",
-        },
-        SCHEDULED: {
-          label: "Sắp diễn ra",
-          bg: "var(--surface-high)",
-          color: "var(--outline)",
-        },
-      };
-    const chip = config[pick.match.status] ?? config.TIMED;
-
-    return (
-      <span
-        className="text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-[4px]"
-        style={{
-          background: chip.bg,
-          color: chip.color,
-          fontFamily: "var(--font-body)",
-        }}
-      >
-        {chip.label}
-      </span>
-    );
+    const config: Record<string, { label: string }> = {
+      IN_PLAY: { label: "Đang trực tiếp" },
+      PAUSED: { label: "Nghỉ giữa hiệp" },
+      TIMED: { label: "Sắp diễn ra" },
+      SCHEDULED: { label: "Sắp diễn ra" },
+    };
+    const label = config[pick.match.status]?.label ?? "Sắp diễn ra";
+    return <Badge variant="neutral">{label}</Badge>;
   }
 
   if (pick.isExactScore) {
     return (
-      <span
-        className="text-xs px-2 py-1 rounded-[4px] uppercase tracking-wide font-bold"
-        style={{
-          background: "var(--success)",
-          color: "white",
-          fontFamily: "var(--font-body)",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {/* Mobile: ⚡+điểm, desktop: full */}
+      <Badge variant="exact">
         <span className="sm:hidden">⚡ +{pick.pointsAwarded}</span>
         <span className="hidden sm:inline">
           ⚡ Đúng tỉ số +{pick.pointsAwarded} điểm
         </span>
-      </span>
+      </Badge>
     );
   }
 
   if (pick.isCorrectWinner) {
     return (
-      <span
-        className="text-xs px-2 py-1 rounded-[4px] uppercase tracking-wide font-bold"
-        style={{
-          background: "var(--surface-high)",
-          color: "var(--foreground)",
-          fontFamily: "var(--font-body)",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {/* Mobile: ✓+điểm, desktop: full */}
+      <Badge variant="correct">
         <span className="sm:hidden">✓ +{pick.pointsAwarded}</span>
         <span className="hidden sm:inline">
-          ✓ Dự đoán đúng +{pick.pointsAwarded} điểm
+          ✓ Đúng đội thắng +{pick.pointsAwarded} điểm
         </span>
-      </span>
+      </Badge>
     );
   }
 
   return (
-    <span
-      className="text-xs px-2 py-1 rounded-[4px] uppercase tracking-wide font-bold"
-      style={{
-        background: "var(--error)",
-        color: "white",
-        fontFamily: "var(--font-body)",
-        opacity: 0.8,
-        whiteSpace: "nowrap",
-      }}
-    >
-      {/* Mobile: icon only, desktop: full */}
+    <Badge variant="wrong">
       <span className="sm:hidden">✗</span>
       <span className="hidden sm:inline">✗ Dự đoán sai</span>
+    </Badge>
+  );
+}
+
+function MissedBadge() {
+  return (
+    <Badge variant="missed">
+      <span className="sm:hidden">— +0</span>
+      <span className="hidden sm:inline">— Không dự đoán +0 điểm</span>
+    </Badge>
+  );
+}
+
+// ── Badge primitive ───────────────────────────────────────
+
+type BadgeVariant = "exact" | "correct" | "wrong" | "missed" | "neutral";
+
+const BADGE_STYLES: Record<BadgeVariant, React.CSSProperties> = {
+  exact: {
+    background: "var(--success)",
+    color: "white",
+  },
+  correct: {
+    background: "var(--surface-high)",
+    color: "var(--foreground)",
+  },
+  wrong: {
+    background: "var(--error)",
+    color: "white",
+    opacity: 0.8,
+  },
+  missed: {
+    background: "transparent",
+    color: "var(--outline)",
+    border: "1.5px dashed var(--outline-variant)",
+  },
+  neutral: {
+    background: "var(--surface-high)",
+    color: "var(--outline)",
+  },
+};
+
+function Badge({
+  variant,
+  children,
+}: {
+  variant: BadgeVariant;
+  children: React.ReactNode;
+}) {
+  return (
+    <span
+      className="text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-[4px] whitespace-nowrap"
+      style={{ fontFamily: "var(--font-body)", ...BADGE_STYLES[variant] }}
+    >
+      {children}
     </span>
   );
 }
+
+// ── Team info ─────────────────────────────────────────────
 
 function TeamInfo({
   name,
   code,
   crest,
+  muted,
 }: {
   name: string | null;
   code: string | null;
   crest: string | null;
+  muted?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div
+      className="flex items-center gap-2"
+      style={{ opacity: muted ? 0.4 : 1 }}
+    >
       {crest ? (
         <Image
           src={crest}
-          alt={name ?? "TBD"}
-          width={24}
-          height={24}
+          alt={getCountryName(code, name)}
+          width={20}
+          height={20}
           className="object-contain flex-shrink-0"
           loading="lazy"
         />
       ) : (
         <div
-          className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs"
+          className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs"
           style={{
             background: "var(--surface-muted)",
             color: "var(--outline)",
@@ -134,16 +151,157 @@ function TeamInfo({
   );
 }
 
-export default function ProfilePicksList({ picks }: { picks: ProfilePick[] }) {
-  const scoredPicks = picks.filter(
-    (p) => p.match.status === "FINISHED" || p.scoredAt !== null,
+// ── Rows ──────────────────────────────────────────────────
+
+function PickRow({ pick }: { pick: ProfilePick }) {
+  const { match } = pick;
+  const matchDate = new Date(match.utcDate).toLocaleDateString("vi-VN", {
+    day: "numeric",
+    month: "short",
+    timeZone: "Asia/Ho_Chi_Minh",
+  });
+
+  return (
+    <div className="px-4 py-3 flex items-center gap-2">
+      {/* Teams + predicted score */}
+      <div className="flex items-center gap-1.5 flex-1 min-w-0">
+        <TeamInfo
+          name={match.homeTeamName}
+          code={match.homeTeamCode}
+          crest={match.homeTeamCrest}
+        />
+        <span
+          className="text-sm tabular-nums px-1 flex-shrink-0"
+          style={{ fontFamily: "var(--font-display)", color: "var(--outline)" }}
+        >
+          {pick.predictedHomeScore}–{pick.predictedAwayScore}
+        </span>
+        <TeamInfo
+          name={match.awayTeamName}
+          code={match.awayTeamCode}
+          crest={match.awayTeamCrest}
+        />
+      </div>
+
+      {/* Actual score */}
+      {match.status === "FINISHED" &&
+        match.homeScore !== null &&
+        match.awayScore !== null && (
+          <div
+            className="text-xs px-2 py-1 rounded-[4px] tabular-nums flex-shrink-0"
+            style={{
+              background: "var(--surface-high)",
+              color: "var(--outline)",
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            <span className="sm:hidden">
+              {match.homeScore}–{match.awayScore}
+            </span>
+            <span className="hidden sm:inline">
+              Kết quả: {match.homeScore}–{match.awayScore}
+            </span>
+          </div>
+        )}
+
+      {/* Date + badge */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <span
+          className="text-xs hidden sm:block"
+          style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
+        >
+          {matchDate}
+        </span>
+        <PickResultBadge pick={pick} />
+      </div>
+    </div>
+  );
+}
+
+function MissedRow({ match }: { match: ProfilePick["match"] }) {
+  const matchDate = new Date(match.utcDate).toLocaleDateString("vi-VN", {
+    day: "numeric",
+    month: "short",
+    timeZone: "Asia/Ho_Chi_Minh",
+  });
+
+  return (
+    <div className="px-4 py-3 flex items-center gap-2" style={{ opacity: 0.6 }}>
+      {/* Teams — muted, không có predicted score */}
+      <div className="flex items-center gap-1.5 flex-1 min-w-0">
+        <TeamInfo
+          name={match.homeTeamName}
+          code={match.homeTeamCode}
+          crest={match.homeTeamCrest}
+          muted
+        />
+        <span
+          className="text-sm tabular-nums px-1 flex-shrink-0"
+          style={{
+            fontFamily: "var(--font-display)",
+            color: "var(--outline-variant)",
+          }}
+        >
+          ?–?
+        </span>
+        <TeamInfo
+          name={match.awayTeamName}
+          code={match.awayTeamCode}
+          crest={match.awayTeamCrest}
+          muted
+        />
+      </div>
+
+      {/* Actual score */}
+      {match.homeScore !== null && match.awayScore !== null && (
+        <div
+          className="text-xs px-2 py-1 rounded-[4px] tabular-nums flex-shrink-0"
+          style={{
+            background: "var(--surface-high)",
+            color: "var(--outline)",
+            fontFamily: "var(--font-body)",
+          }}
+        >
+          <span className="sm:hidden">
+            {match.homeScore}–{match.awayScore}
+          </span>
+          <span className="hidden sm:inline">
+            Kết quả: {match.homeScore}–{match.awayScore}
+          </span>
+        </div>
+      )}
+
+      {/* Date + badge */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <span
+          className="text-xs hidden sm:block"
+          style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
+        >
+          {matchDate}
+        </span>
+        <MissedBadge />
+      </div>
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────
+
+export default function ProfilePicksList({
+  pickRows,
+}: {
+  pickRows: ProfilePickRow[];
+}) {
+  const finishedRows = pickRows.filter(
+    (r) =>
+      r.kind === "missed" ||
+      (r.kind === "pick" && r.pick.match.status === "FINISHED"),
+  );
+  const pendingRows = pickRows.filter(
+    (r) => r.kind === "pick" && r.pick.match.status !== "FINISHED",
   );
 
-  const pendingPicks = picks.filter(
-    (p) => p.match.status !== "FINISHED" && p.scoredAt === null,
-  );
-
-  if (picks.length === 0) {
+  if (pickRows.length === 0) {
     return (
       <div className="card-sports p-10 text-center">
         <p
@@ -161,7 +319,8 @@ export default function ProfilePicksList({ picks }: { picks: ProfilePick[] }) {
 
   return (
     <div className="space-y-6">
-      {pendingPicks.length > 0 && (
+      {/* Upcoming picks */}
+      {pendingRows.length > 0 && (
         <section>
           <h3
             className="text-xs uppercase tracking-widest mb-3 pb-2 border-b font-bold"
@@ -171,20 +330,22 @@ export default function ProfilePicksList({ picks }: { picks: ProfilePick[] }) {
               borderColor: "var(--outline-variant)",
             }}
           >
-            Những trận sắp diễn ra ({pendingPicks.length})
+            Những trận sắp diễn ra ({pendingRows.length})
           </h3>
           <div
             className="card-sports divide-y"
             style={{ borderColor: "var(--outline-variant)" }}
           >
-            {pendingPicks.map((pick) => (
-              <PickRow key={pick.id} pick={pick} />
-            ))}
+            {pendingRows.map(
+              (r) =>
+                r.kind === "pick" && <PickRow key={r.pick.id} pick={r.pick} />,
+            )}
           </div>
         </section>
       )}
 
-      {scoredPicks.length > 0 && (
+      {/* Finished — picks + missed xen kẽ */}
+      {finishedRows.length > 0 && (
         <section>
           <h3
             className="text-xs uppercase tracking-widest mb-3 pb-2 border-b font-bold"
@@ -194,100 +355,21 @@ export default function ProfilePicksList({ picks }: { picks: ProfilePick[] }) {
               borderColor: "var(--outline-variant)",
             }}
           >
-            Kết quả ({scoredPicks.length})
+            Kết quả ({finishedRows.length})
           </h3>
           <div
             className="card-sports divide-y"
             style={{ borderColor: "var(--outline-variant)" }}
           >
-            {scoredPicks.map((pick) => (
-              <PickRow key={pick.id} pick={pick} />
-            ))}
+            {finishedRows.map((r, i) => {
+              if (r.kind === "pick") {
+                return <PickRow key={r.pick.id} pick={r.pick} />;
+              }
+              return <MissedRow key={`missed-${r.match.id}`} match={r.match} />;
+            })}
           </div>
         </section>
       )}
-    </div>
-  );
-}
-
-function PickRow({ pick }: { pick: ProfilePick }) {
-  const { match } = pick;
-
-  const matchDate = new Date(match.utcDate).toLocaleDateString("vi-VN", {
-    day: "numeric",
-    month: "short",
-    timeZone: "Asia/Ho_Chi_Minh",
-  });
-
-  return (
-    <div
-      className="px-4 py-3 flex items-center gap-2"
-      style={{
-        background: pick.isExactScore
-          ? "rgba(67,122,34,0.05)"
-          : pick.scoredAt && !pick.isCorrectWinner
-            ? "rgba(186,26,26,0.04)"
-            : "transparent",
-      }}
-    >
-      {/* Teams + predicted score — flex-1 để chiếm không gian còn lại */}
-      <div className="flex items-center gap-1.5 flex-1 min-w-0">
-        <TeamInfo
-          name={match.homeTeamName}
-          code={match.homeTeamCode}
-          crest={match.homeTeamCrest}
-        />
-
-        <span
-          className="text-sm tabular-nums px-1 flex-shrink-0"
-          style={{
-            fontFamily: "var(--font-display)",
-            color: "var(--outline)",
-          }}
-        >
-          {pick.predictedHomeScore}-{pick.predictedAwayScore}
-        </span>
-
-        <TeamInfo
-          name={match.awayTeamName}
-          code={match.awayTeamCode}
-          crest={match.awayTeamCrest}
-        />
-      </div>
-
-      {/* Actual score — mobile: chỉ tỉ số, desktop: giữ nguyên */}
-      {match.status === "FINISHED" &&
-        match.homeScore !== null &&
-        match.awayScore !== null && (
-          <div
-            className="text-xs px-2 py-1 rounded-[4px] tabular-nums flex-shrink-0"
-            style={{
-              background: "var(--surface-high)",
-              color: "var(--outline)",
-              fontFamily: "var(--font-body)",
-            }}
-          >
-            {/* Mobile: tỉ số only */}
-            <span className="sm:hidden">
-              {match.homeScore}-{match.awayScore}
-            </span>
-            {/* Desktop: có chữ "Kết quả" */}
-            <span className="hidden sm:inline">
-              Kết quả: {match.homeScore}-{match.awayScore}
-            </span>
-          </div>
-        )}
-
-      {/* Date + badge */}
-      <div className="flex items-center gap-2 flex-shrink-0">
-        <span
-          className="text-xs hidden sm:block"
-          style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
-        >
-          {matchDate}
-        </span>
-        <PickResultBadge pick={pick} />
-      </div>
     </div>
   );
 }

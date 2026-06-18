@@ -4,7 +4,7 @@ import { verifyCronSecret } from "@/lib/cron-auth";
 import prisma from "@/lib/prisma";
 import { sendDailySummaryEmail } from "@/lib/email";
 import {
-  allMatchesFinishedToday,
+  allTodayMatchesFinishedSoFar,
   buildDailySummaryForUser,
 } from "@/lib/daily-summary";
 import { getLeaderboard } from "@/lib/leaderboard";
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
 
   try {
     // 1. Kiểm tra tất cả trận hôm nay đã kết thúc chưa
-    const ready = await allMatchesFinishedToday();
+    const ready = await allTodayMatchesFinishedSoFar();
     if (!ready) {
       return NextResponse.json({
         success: true,

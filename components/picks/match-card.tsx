@@ -28,7 +28,7 @@ interface MatchCardProps {
   homeScore?: number | null;
   awayScore?: number | null;
   userPick?: UserPick;
-  distribution?: PickDistribution; // ← thêm prop mới
+  distribution?: PickDistribution;
 }
 
 function StatusChip({ status }: { status: string }) {
@@ -63,18 +63,37 @@ function StatusChip({ status }: { status: string }) {
   );
 }
 
-function PointsBadge({ pick, status }: { pick: UserPick; status: string }) {
+// pick là undefined = user không dự đoán trận này
+function PointsBadge({
+  pick,
+  status,
+}: {
+  pick: UserPick | undefined;
+  status: string;
+}) {
   const isMatchDone = status === "FINISHED";
 
-  // Trận chưa kết thúc — không hiện gì cả
-  if (!isMatchDone) {
-    return null;
+  // Trận chưa kết thúc — không hiện gì
+  if (!isMatchDone) return null;
+
+  // Trận đã kết thúc nhưng user không dự đoán
+  if (!pick) {
+    return (
+      <span
+        className="text-xs px-2 py-1 rounded-[4px] uppercase tracking-wide font-bold"
+        style={{
+          background: "var(--surface-high)",
+          color: "var(--outline)",
+          fontFamily: "var(--font-body)",
+        }}
+      >
+        — Không dự đoán +0 điểm
+      </span>
+    );
   }
 
   // Trận đã kết thúc nhưng chưa tính điểm
-  if (pick.pointsAwarded === null) {
-    return null;
-  }
+  if (pick.pointsAwarded === null) return null;
 
   // Dự đoán sai
   if (pick.pointsAwarded === 0) {
@@ -109,7 +128,7 @@ function PointsBadge({ pick, status }: { pick: UserPick; status: string }) {
     );
   }
 
-  // Đúng đội thắng
+  // Đúng đội thắng / hòa
   if (pick.isCorrectWinner) {
     return (
       <span
@@ -128,7 +147,6 @@ function PointsBadge({ pick, status }: { pick: UserPick; status: string }) {
   return null;
 }
 
-// ← Component team mới — có thêm country name
 function TeamDisplay({
   name,
   code,
@@ -139,7 +157,7 @@ function TeamDisplay({
   crest?: string | null;
 }) {
   const isTBD = !name;
-  const countryName = getCountryName(code, name); // ← tên đầy đủ
+  const countryName = getCountryName(code, name);
 
   return (
     <div className="flex flex-col items-center gap-1.5 text-center">
@@ -166,7 +184,6 @@ function TeamDisplay({
         </div>
       )}
 
-      {/* Code ngắn — đậm */}
       <span
         className="text-base font-bold leading-none"
         style={{
@@ -178,7 +195,6 @@ function TeamDisplay({
         {isTBD ? "TBD" : (code ?? name)}
       </span>
 
-      {/* Country name đầy đủ — nhỏ hơn, muted ← mới thêm */}
       {!isTBD && (
         <span
           className="text-xs leading-none"
@@ -212,7 +228,7 @@ export default function MatchCard({
   homeScore,
   awayScore,
   userPick,
-  distribution, // ← nhận prop mới
+  distribution,
 }: MatchCardProps) {
   const kickoffLocal = new Date(kickoffTime).toLocaleString("vi-VN", {
     day: "numeric",
@@ -243,7 +259,8 @@ export default function MatchCard({
         >
           {group ?? stage} · {kickoffLocal}
         </span>
-        {userPick && <PointsBadge pick={userPick} status={status} />}
+        {/* Render PointsBadge kể cả khi không có pick, miễn là trận FINISHED */}
+        {isFinished && <PointsBadge pick={userPick} status={status} />}
       </div>
 
       {/* Teams */}
@@ -293,7 +310,7 @@ export default function MatchCard({
         isTBD={isTBD}
       />
 
-      {/* Distribution bar ← mới thêm */}
+      {/* Distribution bar */}
       {distribution && (
         <PickDistributionBar
           homeCount={distribution.homeCount}
