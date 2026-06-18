@@ -50,15 +50,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Tất cả matchId của các trận vừa finished trong batch này
+    // Tất cả matchId finished trong batch — dùng để query "bỏ trận" per user
     const finishedMatchIds = [...new Set(unscoredPicks.map((p) => p.match.id))];
-
-    // Lấy thông tin utcDate của tất cả finished matches (kể cả match không có pick của user)
-    const finishedMatchesInfo = await prisma.match.findMany({
-      where: { id: { in: finishedMatchIds } },
-      select: { id: true, utcDate: true },
-      orderBy: { utcDate: "asc" },
-    });
 
     const picksByUser = unscoredPicks.reduce<
       Record<string, typeof unscoredPicks>
@@ -76,23 +69,33 @@ export async function POST(req: NextRequest) {
 
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { currentStreak: true, maxStreak: true },
+        select: { currentStreak: true, maxStreak: true, streakPoints: true },
       });
 
       let currentStreak = user?.currentStreak ?? 0;
       let maxStreak = user?.maxStreak ?? 0;
       let totalStreakBonus = 0;
 
-      // Map picks của user theo matchId để check bỏ trận
       const userPickByMatchId = new Map(userPicks.map((p) => [p.match.id, p]));
 
-      // Duyệt theo thứ tự thời gian của TẤT CẢ finished matches trong batch
-      for (const matchInfo of finishedMatchesInfo) {
+      // FIX: query finishedMatchesInfo PER USER — chỉ lấy matches liên quan đến
+      // picks của các user khác trong batch sẽ không làm reset streak của user này
+      const finishedMatchesForUser = await prisma.match.findMany({
+        where: { id: { in: finishedMatchIds } },
+        select: { id: true, utcDate: true },
+        orderBy: { utcDate: "asc" },
+      });
+
+      for (const matchInfo of finishedMatchesForUser) {
         const pick = userPickByMatchId.get(matchInfo.id);
 
         if (!pick) {
-          // User bỏ trận này → streak bị đứt
-          currentStreak = 0;
+          // User bỏ trận này → streak đứt — chỉ reset nếu đây là trận
+          // mà user đáng lẽ phải pick (kickoff đã qua)
+          const kickoff = new Date(matchInfo.utcDate);
+          if (kickoff <= new Date()) {
+            currentStreak = 0;
+          }
           continue;
         }
 
@@ -129,13 +132,9 @@ export async function POST(req: NextRequest) {
         _sum: { pointsAwarded: true },
       });
 
-      const currentStreakPoints =
-        (
-          await prisma.user.findUnique({
-            where: { id: userId },
-            select: { streakPoints: true },
-          })
-        )?.streakPoints ?? 0;
+      // FIX: dùng streakPoints đã load cùng user query ở trên,
+      // không query lại lần 2 (tránh race condition nếu cron retry)
+      const currentStreakPoints = user?.streakPoints ?? 0;
 
       await prisma.user.update({
         where: { id: userId },
