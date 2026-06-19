@@ -1,9 +1,13 @@
+//proxy.ts
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import type { JWT } from "next-auth/jwt";
 
 const isDev = process.env.NODE_ENV === "development";
+
+// Routes Googlebot và khách chưa login cần thấy được — không bị redirect về sign-in
+const PUBLIC_PATHS = ["/", "/rules"];
 
 export default withAuth(
   function middleware(
@@ -37,7 +41,11 @@ export default withAuth(
       signIn: "/",
     },
     callbacks: {
-      authorized: ({ token }) => !!token,
+      authorized: ({ req, token }) => {
+        // Cho phép Googlebot / khách chưa login xem các trang public
+        if (PUBLIC_PATHS.includes(req.nextUrl.pathname)) return true;
+        return !!token;
+      },
     },
   },
 );
