@@ -4,7 +4,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Coffee } from "lucide-react";
+import { Coffee, Workflow } from "lucide-react";
 
 interface MobileNavProps {
   userId?: string; // ← truyền từ layout
@@ -29,6 +29,11 @@ const navItems = [
         <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
       </svg>
     ),
+  },
+  {
+    href: "/bracket",
+    label: "Sơ đồ",
+    icon: <Workflow />,
   },
   {
     href: "/leaderboard",

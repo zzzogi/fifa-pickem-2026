@@ -58,6 +58,7 @@ export default function HomeHero() {
                 height={96}
                 priority
                 className="object-contain"
+                fetchPriority="high"
               />
             </div>
 
