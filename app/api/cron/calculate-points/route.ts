@@ -17,6 +17,13 @@ export async function POST(req: NextRequest) {
   if (authError) return authError;
 
   try {
+    // 1. Tìm TẤT CẢ finished matches mà có ít nhất 1 user liên quan chưa
+    //    được "settle" streak cho match đó. Ta dùng mốc: match finished
+    //    nhưng chưa có pick nào của batch hiện tại được scoredAt set.
+    //
+    // Quan trọng: không chỉ lấy match có pick chưa scored — phải lấy
+    // TẤT CẢ finished match kể từ lần cron trước, để bắt được cả những
+    // user hoàn toàn không pick trận đó (mới gây ra bug đứt streak).
     const unscoredPicks = await prisma.pick.findMany({
       where: {
         scoredAt: null,
@@ -41,7 +48,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    if (unscoredPicks.length === 0) {
+    // 2. Lấy mốc thời gian: trận finished sớm nhất chưa được xử lý lần này.
+    //    Tất cả user active (có >=1 pick từng đặt) cần được kiểm tra streak
+    //    cho MỌI finished match kể từ mốc đó — không chỉ user có pick
+    //    trong batch.
+    const earliestUnprocessed = unscoredPicks[0]?.match.utcDate ?? null;
+
+    if (!earliestUnprocessed) {
       return NextResponse.json({
         success: true,
         message: "No unscored picks found",
@@ -50,8 +63,28 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Tất cả matchId finished trong batch — dùng để query "bỏ trận" per user
-    const finishedMatchIds = [...new Set(unscoredPicks.map((p) => p.match.id))];
+    // Tất cả finished matches từ mốc đó trở đi — dùng chung cho mọi user
+    const finishedMatchesSinceCutoff = await prisma.match.findMany({
+      where: {
+        status: "FINISHED",
+        homeScore: { not: null },
+        awayScore: { not: null },
+        utcDate: { gte: earliestUnprocessed },
+      },
+      select: { id: true, utcDate: true },
+      orderBy: { utcDate: "asc" },
+    });
+
+    const finishedMatchIds = finishedMatchesSinceCutoff.map((m) => m.id);
+
+    // 3. FIX BUG CHÍNH: affectedUserIds không chỉ là user có pick trong
+    //    batch — phải là TẤT CẢ user đã từng pick ít nhất 1 trận trước đó
+    //    (tức là user "active"), vì user bỏ hẳn 1 trận (không pick gì)
+    //    vẫn cần bị reset streak, dù họ không xuất hiện trong unscoredPicks.
+    const activeUserIds = await prisma.pick.findMany({
+      distinct: ["userId"],
+      select: { userId: true },
+    });
 
     const picksByUser = unscoredPicks.reduce<
       Record<string, typeof unscoredPicks>
@@ -61,11 +94,11 @@ export async function POST(req: NextRequest) {
       return acc;
     }, {});
 
-    const affectedUserIds = Object.keys(picksByUser);
+    const affectedUserIds = activeUserIds.map((u) => u.userId);
     const achievementsSummary: Record<string, string[]> = {};
 
     for (const userId of affectedUserIds) {
-      const userPicks = picksByUser[userId];
+      const userPicks = picksByUser[userId] ?? [];
 
       const user = await prisma.user.findUnique({
         where: { id: userId },
@@ -78,24 +111,15 @@ export async function POST(req: NextRequest) {
 
       const userPickByMatchId = new Map(userPicks.map((p) => [p.match.id, p]));
 
-      // FIX: query finishedMatchesInfo PER USER — chỉ lấy matches liên quan đến
-      // picks của các user khác trong batch sẽ không làm reset streak của user này
-      const finishedMatchesForUser = await prisma.match.findMany({
-        where: { id: { in: finishedMatchIds } },
-        select: { id: true, utcDate: true },
-        orderBy: { utcDate: "asc" },
-      });
-
-      for (const matchInfo of finishedMatchesForUser) {
+      // Duyệt TẤT CẢ finished matches từ cutoff — kể cả khi user này
+      // không có pick nào trong toàn bộ batch (sẽ bị reset hết)
+      for (const matchInfo of finishedMatchesSinceCutoff) {
         const pick = userPickByMatchId.get(matchInfo.id);
 
         if (!pick) {
-          // User bỏ trận này → streak đứt — chỉ reset nếu đây là trận
-          // mà user đáng lẽ phải pick (kickoff đã qua)
-          const kickoff = new Date(matchInfo.utcDate);
-          if (kickoff <= new Date()) {
-            currentStreak = 0;
-          }
+          // User bỏ trận này → streak đứt, vì kickoff chắc chắn đã qua
+          // (match đã FINISHED)
+          currentStreak = 0;
           continue;
         }
 
@@ -132,8 +156,6 @@ export async function POST(req: NextRequest) {
         _sum: { pointsAwarded: true },
       });
 
-      // FIX: dùng streakPoints đã load cùng user query ở trên,
-      // không query lại lần 2 (tránh race condition nếu cron retry)
       const currentStreakPoints = user?.streakPoints ?? 0;
 
       await prisma.user.update({
