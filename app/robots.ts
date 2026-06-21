@@ -17,6 +17,7 @@ export default function robots(): MetadataRoute.Robots {
         "/stats",
         "/support",
         "/api/",
+        "/_next/image",
       ],
     },
     sitemap: `${siteUrl}/sitemap.xml`,

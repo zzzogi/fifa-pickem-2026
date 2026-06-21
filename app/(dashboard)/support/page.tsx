@@ -1,6 +1,5 @@
 // app/(dashboard)/support/page.tsx
 import type { Metadata } from "next";
-import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Ủng hộ tôi | FIFA Pick'em 2026",
@@ -46,7 +45,7 @@ export default function SupportPage() {
               background: "white",
             }}
           >
-            <Image
+            <img
               src="/qr-vcb.png"
               alt="QR VCB ủng hộ"
               width={220}
