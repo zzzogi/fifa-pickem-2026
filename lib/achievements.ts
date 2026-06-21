@@ -9,8 +9,8 @@ export type AchievementRarity = "COMMON" | "RARE" | "EPIC" | "LEGENDARY";
 
 export interface AchievementDef {
   key: string;
-  name: string; // Tên hiển thị khi unlock
-  description: string; // Mô tả ngắn khi unlock (không tiết lộ điều kiện)
+  name: string;
+  description: string;
   icon: string;
   rarity: AchievementRarity;
 }
@@ -23,11 +23,9 @@ export interface UserAchievementWithDef {
 
 // ─────────────────────────────────────────
 // ACHIEVEMENT DEFINITIONS
-// Điều kiện bí mật — không expose ra ngoài
 // ─────────────────────────────────────────
 
 export const ACHIEVEMENT_DEFS: AchievementDef[] = [
-  // ── COMMON ───────────────────────────────
   {
     key: "FIRST_BLOOD",
     name: "Bước Khởi Đầu",
@@ -56,8 +54,6 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     icon: "🥶",
     rarity: "COMMON",
   },
-
-  // ── RARE ─────────────────────────────────
   {
     key: "SNIPER",
     name: "Bắn Tỉa",
@@ -93,8 +89,6 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     icon: "🦁",
     rarity: "RARE",
   },
-
-  // ── EPIC ─────────────────────────────────
   {
     key: "TRIPLE_SNIPER",
     name: "Xạ Thủ Tinh Nhuệ",
@@ -137,8 +131,6 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
     icon: "🏅",
     rarity: "EPIC",
   },
-
-  // ── LEGENDARY ────────────────────────────
   {
     key: "LUCKY_SEVEN",
     name: "Số May Mắn",
@@ -163,7 +155,7 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
 ];
 
 // ─────────────────────────────────────────
-// CHECK CONTEXT — data cần thiết để check achievements
+// CHECK CONTEXT
 // ─────────────────────────────────────────
 
 export interface AchievementCheckContext {
@@ -175,7 +167,6 @@ export interface AchievementCheckContext {
   maxStreak: number;
   totalPoints: number;
   rank: number | null;
-  // Picks đã được score trong lần này (để check matchday, comeback, v.v.)
   recentScoredPicks: {
     isCorrectWinner: boolean;
     isExactScore: boolean;
@@ -186,66 +177,34 @@ export interface AchievementCheckContext {
       awayScore: number | null;
       utcDate: Date;
     };
-    createdAt: Date; // thời điểm submit pick
+    createdAt: Date;
   }[];
 }
-
-// ─────────────────────────────────────────
-// CHECK FUNCTIONS — mỗi achievement một function
-// ─────────────────────────────────────────
 
 type CheckFn = (ctx: AchievementCheckContext) => boolean;
 
 const achievementChecks: Record<string, CheckFn> = {
-  // Dự đoán đầu tiên
   FIRST_BLOOD: (ctx) => ctx.totalPicks >= 1,
-
-  // Submit 20 picks tổng
   DEDICATED: (ctx) => ctx.totalPicks >= 20,
-
-  // Submit 50 picks tổng
   MARATHONER: (ctx) => ctx.totalPicks >= 50,
-
-  // Đúng tỉ số chính xác lần đầu
   SNIPER: (ctx) => ctx.exactScores >= 1,
-
-  // Đúng tỉ số chính xác 3 lần
   TRIPLE_SNIPER: (ctx) => ctx.exactScores >= 3,
-
-  // Đúng tỉ số chính xác 7 lần
   LUCKY_SEVEN: (ctx) => ctx.exactScores >= 7,
-
-  // Đúng tỉ số chính xác 10 lần
   ALL_KNOWING: (ctx) => ctx.exactScores >= 10,
-
-  // Streak 5 đúng liên tiếp
   ON_FIRE: (ctx) => ctx.maxStreak >= 5,
-
-  // Streak 8+ đúng liên tiếp
   UNSTOPPABLE: (ctx) => ctx.maxStreak >= 8,
-
-  // Đạt 100 điểm tổng
   CENTURY: (ctx) => ctx.totalPoints >= 100,
-
-  // Top 10 leaderboard
   TOP_TEN: (ctx) => ctx.rank !== null && ctx.rank <= 10,
-
-  // Top 3 leaderboard
   PODIUM: (ctx) => ctx.rank !== null && ctx.rank <= 3,
-
-  // 5 sai liên tiếp — check trong recent picks
   COLD_STREAK: (ctx) => {
     const picks = ctx.recentScoredPicks;
     if (picks.length < 5) return false;
-    // Check xem có đoạn 5 picks sai liên tiếp không
     for (let i = 0; i <= picks.length - 5; i++) {
       const window = picks.slice(i, i + 5);
       if (window.every((p) => !p.isCorrectWinner)) return true;
     }
     return false;
   },
-
-  // Predict 0-0 và đúng
   ZERO_ZERO: (ctx) => {
     return ctx.recentScoredPicks.some(
       (p) =>
@@ -254,8 +213,6 @@ const achievementChecks: Record<string, CheckFn> = {
         p.isExactScore,
     );
   },
-
-  // Predict thắng đội underdog (thua >= 2 bàn so với kết quả thực) mà lại đúng
   GUTSY: (ctx) => {
     return ctx.recentScoredPicks.some((p) => {
       if (!p.isCorrectWinner) return false;
@@ -263,7 +220,6 @@ const achievementChecks: Record<string, CheckFn> = {
       if (homeScore == null || awayScore == null) return false;
       const diff = Math.abs(homeScore - awayScore);
       if (diff < 2) return false;
-      // Kiểm tra user predict đúng đội thắng với cách biệt lớn
       const predictedWinner =
         p.predictedHomeScore > p.predictedAwayScore
           ? "HOME"
@@ -279,8 +235,6 @@ const achievementChecks: Record<string, CheckFn> = {
       return predictedWinner === actualWinner;
     });
   },
-
-  // Submit pick trước 24h kick-off
   EARLY_BIRD: (ctx) => {
     return ctx.recentScoredPicks.some((p) => {
       const hoursBeforeKickoff =
@@ -288,8 +242,6 @@ const achievementChecks: Record<string, CheckFn> = {
       return hoursBeforeKickoff >= 24;
     });
   },
-
-  // Sau 3 sai liên tiếp, đúng 3 liên tiếp
   COMEBACK_KID: (ctx) => {
     const picks = ctx.recentScoredPicks;
     if (picks.length < 6) return false;
@@ -300,68 +252,52 @@ const achievementChecks: Record<string, CheckFn> = {
     }
     return false;
   },
-
-  // Tất cả picks trong 1 ngày đều đúng (tối thiểu 3 picks)
   PERFECT_MATCHDAY: (ctx) => {
     const picks = ctx.recentScoredPicks;
     if (picks.length < 3) return false;
-
-    // Group picks theo ngày UTC của trận đấu
     const byDay = new Map<string, typeof picks>();
     for (const p of picks) {
       const day = p.match.utcDate.toISOString().split("T")[0];
       if (!byDay.has(day)) byDay.set(day, []);
       byDay.get(day)!.push(p);
     }
-
     for (const [, dayPicks] of byDay) {
-      if (dayPicks.length >= 3 && dayPicks.every((p) => p.isCorrectWinner)) {
+      if (dayPicks.length >= 3 && dayPicks.every((p) => p.isCorrectWinner))
         return true;
-      }
     }
     return false;
   },
 };
 
 // ─────────────────────────────────────────
-// MAIN: Check & unlock achievements cho 1 user
-// Trả về danh sách keys vừa unlock (để notify)
+// SINGLE-USER API — vẫn giữ để dùng ở chỗ khác (vd: trigger ngay sau khi
+// user submit pick), nhưng KHÔNG dùng trong cron batch vì quá chậm
 // ─────────────────────────────────────────
 
 export async function checkAndUnlockAchievements(
   ctx: AchievementCheckContext,
 ): Promise<string[]> {
-  // Lấy achievements user đã có
   const existing = await prisma.userAchievement.findMany({
     where: { userId: ctx.userId },
     select: { achievement: { select: { key: true } } },
   });
   const existingKeys = new Set(existing.map((e) => e.achievement.key));
 
-  // Lấy tất cả achievement records từ DB
   const allAchievements = await prisma.achievement.findMany();
   const achievementByKey = new Map(allAchievements.map((a) => [a.key, a]));
 
   const newlyUnlocked: string[] = [];
 
   for (const def of ACHIEVEMENT_DEFS) {
-    // Bỏ qua nếu đã có
     if (existingKeys.has(def.key)) continue;
-
-    // Bỏ qua nếu chưa có trong DB (chưa seed)
     const dbRecord = achievementByKey.get(def.key);
     if (!dbRecord) continue;
-
-    // Check điều kiện
     const checkFn = achievementChecks[def.key];
     if (!checkFn) continue;
 
     if (checkFn(ctx)) {
       await prisma.userAchievement.create({
-        data: {
-          userId: ctx.userId,
-          achievementId: dbRecord.id,
-        },
+        data: { userId: ctx.userId, achievementId: dbRecord.id },
       });
       newlyUnlocked.push(def.key);
     }
@@ -370,24 +306,14 @@ export async function checkAndUnlockAchievements(
   return newlyUnlocked;
 }
 
-// ─────────────────────────────────────────
-// HELPER: Build context từ userId
-// Dùng trong cron sau khi đã score xong
-// ─────────────────────────────────────────
-
 export async function buildAchievementContext(
   userId: string,
 ): Promise<AchievementCheckContext> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: {
-      totalPoints: true,
-      currentStreak: true,
-      maxStreak: true,
-    },
+    select: { totalPoints: true, currentStreak: true, maxStreak: true },
   });
 
-  // Tất cả picks đã được score (có scoredAt)
   const allScoredPicks = await prisma.pick.findMany({
     where: { userId, scoredAt: { not: null } },
     select: {
@@ -396,13 +322,7 @@ export async function buildAchievementContext(
       predictedHomeScore: true,
       predictedAwayScore: true,
       createdAt: true,
-      match: {
-        select: {
-          homeScore: true,
-          awayScore: true,
-          utcDate: true,
-        },
-      },
+      match: { select: { homeScore: true, awayScore: true, utcDate: true } },
     },
     orderBy: { match: { utcDate: "asc" } },
   });
@@ -411,7 +331,6 @@ export async function buildAchievementContext(
   const correctPicks = allScoredPicks.filter((p) => p.isCorrectWinner).length;
   const exactScores = allScoredPicks.filter((p) => p.isExactScore).length;
 
-  // Tính rank
   const rank =
     (user?.totalPoints ?? 0) > 0
       ? (await prisma.user.count({
@@ -430,4 +349,139 @@ export async function buildAchievementContext(
     rank,
     recentScoredPicks: allScoredPicks,
   };
+}
+
+// ─────────────────────────────────────────
+// BATCH API — dùng trong cron job để check achievements cho NHIỀU user
+// chỉ với O(1) query lớn thay vì O(N) query nhỏ
+// ─────────────────────────────────────────
+
+export async function buildAchievementContextsBatch(
+  userIds: string[],
+): Promise<Map<string, AchievementCheckContext>> {
+  if (userIds.length === 0) return new Map();
+
+  // 1. Tất cả user info — 1 query
+  const users = await prisma.user.findMany({
+    where: { id: { in: userIds } },
+    select: {
+      id: true,
+      totalPoints: true,
+      currentStreak: true,
+      maxStreak: true,
+    },
+  });
+  const userMap = new Map(users.map((u) => [u.id, u]));
+
+  // 2. Tất cả scored picks của TẤT CẢ user liên quan — 1 query
+  const allScoredPicks = await prisma.pick.findMany({
+    where: { userId: { in: userIds }, scoredAt: { not: null } },
+    select: {
+      userId: true,
+      isCorrectWinner: true,
+      isExactScore: true,
+      predictedHomeScore: true,
+      predictedAwayScore: true,
+      createdAt: true,
+      match: { select: { homeScore: true, awayScore: true, utcDate: true } },
+    },
+    orderBy: { match: { utcDate: "asc" } },
+  });
+
+  const picksByUser = new Map<string, typeof allScoredPicks>();
+  for (const p of allScoredPicks) {
+    if (!picksByUser.has(p.userId)) picksByUser.set(p.userId, []);
+    picksByUser.get(p.userId)!.push(p);
+  }
+
+  // 3. Rank cho TẤT CẢ user — tính 1 lần dựa trên toàn bộ bảng totalPoints,
+  //    thay vì N query count() riêng lẻ
+  const allUsersForRank = await prisma.user.findMany({
+    select: { id: true, totalPoints: true },
+    orderBy: { totalPoints: "desc" },
+  });
+  const rankMap = new Map<string, number>();
+  allUsersForRank.forEach((u, idx) => {
+    if (u.totalPoints > 0) rankMap.set(u.id, idx + 1);
+  });
+
+  const contexts = new Map<string, AchievementCheckContext>();
+  for (const userId of userIds) {
+    const user = userMap.get(userId);
+    const picks = picksByUser.get(userId) ?? [];
+    const totalPicks = picks.length;
+    const correctPicks = picks.filter((p) => p.isCorrectWinner).length;
+    const exactScores = picks.filter((p) => p.isExactScore).length;
+
+    contexts.set(userId, {
+      userId,
+      totalPicks,
+      correctPicks,
+      exactScores,
+      currentStreak: user?.currentStreak ?? 0,
+      maxStreak: user?.maxStreak ?? 0,
+      totalPoints: user?.totalPoints ?? 0,
+      rank: rankMap.get(userId) ?? null,
+      recentScoredPicks: picks,
+    });
+  }
+
+  return contexts;
+}
+
+export async function checkAndUnlockAchievementsBatch(
+  contexts: Map<string, AchievementCheckContext>,
+): Promise<Record<string, string[]>> {
+  const userIds = [...contexts.keys()];
+  if (userIds.length === 0) return {};
+
+  // 1. Tất cả achievements user đã có — 1 query cho TẤT CẢ user
+  const existingAll = await prisma.userAchievement.findMany({
+    where: { userId: { in: userIds } },
+    select: { userId: true, achievement: { select: { key: true } } },
+  });
+  const existingByUser = new Map<string, Set<string>>();
+  for (const e of existingAll) {
+    if (!existingByUser.has(e.userId)) existingByUser.set(e.userId, new Set());
+    existingByUser.get(e.userId)!.add(e.achievement.key);
+  }
+
+  // 2. Toàn bộ achievement records — 1 query
+  const allAchievements = await prisma.achievement.findMany();
+  const achievementByKey = new Map(allAchievements.map((a) => [a.key, a]));
+
+  // 3. Tính toán newly-unlocked trong memory, rồi ghi 1 lần bằng createMany
+  const summary: Record<string, string[]> = {};
+  const toCreate: { userId: string; achievementId: string }[] = [];
+
+  for (const userId of userIds) {
+    const ctx = contexts.get(userId)!;
+    const existingKeys = existingByUser.get(userId) ?? new Set();
+    const newlyUnlocked: string[] = [];
+
+    for (const def of ACHIEVEMENT_DEFS) {
+      if (existingKeys.has(def.key)) continue;
+      const dbRecord = achievementByKey.get(def.key);
+      if (!dbRecord) continue;
+      const checkFn = achievementChecks[def.key];
+      if (!checkFn) continue;
+
+      if (checkFn(ctx)) {
+        newlyUnlocked.push(def.key);
+        toCreate.push({ userId, achievementId: dbRecord.id });
+      }
+    }
+
+    if (newlyUnlocked.length > 0) summary[userId] = newlyUnlocked;
+  }
+
+  // Ghi tất cả achievement mới trong 1 lần — createMany (Postgres hỗ trợ tốt)
+  if (toCreate.length > 0) {
+    await prisma.userAchievement.createMany({
+      data: toCreate,
+      skipDuplicates: true,
+    });
+  }
+
+  return summary;
 }
