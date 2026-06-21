@@ -93,19 +93,24 @@ export async function POST(req: NextRequest) {
             orderBy: { match: { utcDate: "asc" } },
           });
 
-      const userCutoff =
-        lastScoredPick?.match.utcDate ?? firstPick?.match.utcDate ?? null;
+      // Nếu user đã từng được score → cutoff là trận ĐÃ XỬ LÝ, nên lấy
+      // các trận SAU nó (gt). Nếu user chưa từng được score → cutoff là
+      // trận pick ĐẦU TIÊN của họ, nên phải lấy CẢ trận đó (gte), vì nó
+      // chưa được tính điểm lần nào.
+      const userCutoff = lastScoredPick
+        ? lastScoredPick.match.utcDate
+        : (firstPick?.match.utcDate ?? null);
 
       if (!userCutoff) continue; // user chưa từng pick gì — bỏ qua
 
-      // Tất cả finished matches SAU mốc riêng của user này — không liên
+      // Tất cả finished matches từ mốc riêng của user này — không liên
       // quan đến cutoff của user khác
       const finishedMatchesForUser = await prisma.match.findMany({
         where: {
           status: "FINISHED",
           homeScore: { not: null },
           awayScore: { not: null },
-          utcDate: { gt: userCutoff },
+          utcDate: lastScoredPick ? { gt: userCutoff } : { gte: userCutoff },
         },
         select: { id: true, utcDate: true },
         orderBy: { utcDate: "asc" },
