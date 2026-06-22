@@ -100,7 +100,10 @@ export default function ProfileHeader({
             <FireBadge
               streak={profile.currentStreak}
               isDev={profile.id === "cmq8d4yva0000k004rf5rqf4m"}
-              isBugCatcher={profile.id === "cmqc3j7k8006mjr04s7y7lla0"}
+              isBugCatcher={
+                profile.id === "cmqc3j7k8006mjr04s7y7lla0" ||
+                profile.id === "cmq9nnrc1000mkz04v0x7hhor"
+              }
             />
           </div>
         </div>
