@@ -141,7 +141,7 @@ function PointsBadge({
           fontFamily: "var(--font-body)",
         }}
       >
-        ⭐⚡ x2 +{pick.pointsAwarded} điểm
+        ⭐⚡ +{pick.pointsAwarded} điểm
       </span>
     );
   }
@@ -157,7 +157,7 @@ function PointsBadge({
           fontFamily: "var(--font-body)",
         }}
       >
-        ⭐ x2 +{pick.pointsAwarded} điểm
+        ⭐ +{pick.pointsAwarded} điểm
       </span>
     );
   }

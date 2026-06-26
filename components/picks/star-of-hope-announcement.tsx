@@ -77,7 +77,7 @@ export default function StarOfHopeAnnouncement() {
               <span className="text-base flex-shrink-0">✅</span>
               <span>
                 Dự đoán <strong>đúng</strong> với Ngôi Sao Hy Vọng →{" "}
-                <strong style={{ color: "var(--success)" }}>nhân đôi điểm</strong>
+                <strong style={{ color: "var(--success)" }}>+2 điểm thưởng</strong>
               </span>
             </div>
             <div className="flex items-start gap-3">

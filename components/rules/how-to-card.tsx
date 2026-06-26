@@ -27,7 +27,7 @@ const steps = [
   {
     number: "05",
     title: "Đặt Ngôi Sao Hy Vọng ⭐ (từ vòng 1/32)",
-    desc: "Từ vòng knock-out, nhấn ☆ trên bất kỳ trận nào để gắn Ngôi Sao Hy Vọng. Đúng → nhân đôi điểm; Sai → trừ 2 điểm. Hãy cân nhắc kỹ!",
+    desc: "Từ vòng knock-out, nhấn ☆ trên bất kỳ trận nào để gắn Ngôi Sao Hy Vọng. Đúng → +2 điểm thưởng; Sai → trừ 2 điểm. Hãy cân nhắc kỹ!",
     isNew: true,
   },
   {

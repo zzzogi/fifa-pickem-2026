@@ -307,8 +307,8 @@ export default function ScoringTable() {
             {
               icon: "✅",
               condition: "Dự đoán đúng với Ngôi Sao",
-              result: "Nhân đôi toàn bộ điểm của trận đó (bao gồm cả thưởng chuỗi)",
-              points: "×2",
+              result: "+2 điểm thưởng cộng thêm vào điểm thường của trận đó",
+              points: "+2",
               color: "var(--success)",
               bg: "rgba(67,122,34,0.06)",
             },

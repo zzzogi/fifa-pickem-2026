@@ -32,9 +32,9 @@ function PickResultBadge({ pick }: { pick: ProfilePick }) {
   if (pick.isStarOfHope && pick.isCorrectWinner) {
     return (
       <Badge variant="exact">
-        <span className="sm:hidden">⭐ x2 +{pick.pointsAwarded}</span>
+        <span className="sm:hidden">{pick.isExactScore ? "⭐⚡" : "⭐"} +{pick.pointsAwarded}</span>
         <span className="hidden sm:inline">
-          {pick.isExactScore ? "⭐⚡" : "⭐"} x2 +{pick.pointsAwarded} điểm
+          {pick.isExactScore ? "⭐⚡" : "⭐"} +{pick.pointsAwarded} điểm
         </span>
       </Badge>
     );

@@ -139,11 +139,11 @@ export default function MobileNav({
           href={`/profile/${userId}`}
           className="flex-1 flex flex-col items-center gap-1 py-3 transition"
           style={{
-            color: pathname.startsWith("/profile")
-              ? "var(--primary)"
+            color: pathname === `/profile/${userId}`
+              ? "var(--primary-soft)"
               : "rgba(255,255,255,0.5)",
-            borderTop: pathname.startsWith("/profile")
-              ? "2px solid var(--primary)"
+            borderTop: pathname === `/profile/${userId}`
+              ? "2px solid var(--primary-soft)"
               : "2px solid transparent",
           }}
         >

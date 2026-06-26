@@ -203,14 +203,13 @@ export async function POST(req: NextRequest) {
 
         if (pick.isStarOfHope) {
           if (baseResult.isCorrectWinner) {
-            // Star correct: double everything (base pts + streak bonus)
-            totalPoints = (baseResult.pointsAwarded + streakBonus) * 2;
-            earnedStreakBonus = streakBonus * 2;
+            // Star correct: flat +2 bonus on top of normal points
+            totalPoints = baseResult.pointsAwarded + streakBonus + 2;
           } else {
             // Star wrong: lose 2 points
             totalPoints = -2;
-            earnedStreakBonus = 0;
           }
+          earnedStreakBonus = streakBonus;
         } else {
           totalPoints = baseResult.pointsAwarded + streakBonus;
           earnedStreakBonus = streakBonus;
