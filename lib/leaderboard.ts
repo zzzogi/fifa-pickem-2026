@@ -26,6 +26,7 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
       currentStreak: true, // ← thêm
       maxStreak: true, // ← thêm
       streakPoints: true, // ← thêm
+      createdAt: true,
       picks: {
         select: {
           isCorrectWinner: true,
@@ -50,6 +51,7 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
       currentStreak: user.currentStreak,
       maxStreak: user.maxStreak,
       streakPoints: user.streakPoints,
+      createdAt: user.createdAt,
       correctPicks,
       exactScores,
       totalPicks,
@@ -61,11 +63,12 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
     if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
     if (b.correctPicks !== a.correctPicks)
       return b.correctPicks - a.correctPicks;
-    return b.exactScores - a.exactScores;
+    if (b.exactScores !== a.exactScores) return b.exactScores - a.exactScores;
+    return a.createdAt.getTime() - b.createdAt.getTime();
   });
 
   let currentRank = 1;
-  return computed.map((user, index) => {
+  return computed.map(({ createdAt: _createdAt, ...user }, index) => {
     if (
       index > 0 &&
       (user.totalPoints !== computed[index - 1].totalPoints ||

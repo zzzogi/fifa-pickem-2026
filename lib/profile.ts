@@ -21,6 +21,7 @@ export interface ProfileData {
 
 export interface ProfilePick {
   id: string;
+  createdAt: Date;
   predictedHomeScore: number;
   predictedAwayScore: number;
   pointsAwarded: number;
@@ -77,7 +78,16 @@ export async function getPublicProfile(
       maxStreak: true,
       streakPoints: true,
       picks: {
-        include: {
+        select: {
+          id: true,
+          createdAt: true,
+          predictedHomeScore: true,
+          predictedAwayScore: true,
+          pointsAwarded: true,
+          isExactScore: true,
+          isCorrectWinner: true,
+          isStarOfHope: true,
+          scoredAt: true,
           match: {
             select: {
               id: true,
@@ -97,7 +107,7 @@ export async function getPublicProfile(
             },
           },
         },
-        orderBy: { match: { utcDate: "desc" } },
+        orderBy: { match: { createdAt: "desc" } },
       },
       achievements: {
         include: {
@@ -145,18 +155,18 @@ export async function getPublicProfile(
     return { kind: "missed", match };
   });
 
-  // Primary: utcDate desc. Tiebreaker: createdAt asc (DB insertion order),
-  // which is the same ordering used by the scoring engine.
+  // Sort by match.createdAt desc — seeded in tournament schedule order, so this
+  // gives a stable, consistent ordering regardless of when the user submitted.
   pickRows.sort((a, b) => {
     const aMatch = a.kind === "pick" ? a.pick.match : a.match;
     const bMatch = b.kind === "pick" ? b.pick.match : b.match;
-    const timeDiff = bMatch.utcDate.getTime() - aMatch.utcDate.getTime();
-    if (timeDiff !== 0) return timeDiff;
-    return aMatch.createdAt.getTime() - bMatch.createdAt.getTime();
+    return bMatch.createdAt.getTime() - aMatch.createdAt.getTime();
   });
 
   // Append các picks chưa finished (upcoming/live) — không phải "missed"
-  const pendingPicks = user.picks.filter((p) => p.match.status !== "FINISHED");
+  const pendingPicks = user.picks
+    .filter((p) => p.match.status !== "FINISHED")
+    .sort((a, b) => a.match.createdAt.getTime() - b.match.createdAt.getTime());
   const pendingRows: ProfilePickRow[] = pendingPicks.map((pick) => ({
     kind: "pick",
     pick,
