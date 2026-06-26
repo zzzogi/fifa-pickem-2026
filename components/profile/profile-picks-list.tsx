@@ -18,6 +18,28 @@ function PickResultBadge({ pick }: { pick: ProfilePick }) {
     return <Badge variant="neutral">{label}</Badge>;
   }
 
+  // Sao Hy Vọng — sai
+  if (pick.isStarOfHope && !pick.isCorrectWinner) {
+    return (
+      <Badge variant="wrong">
+        <span className="sm:hidden">⭐ {pick.pointsAwarded}</span>
+        <span className="hidden sm:inline">⭐ Sao sai {pick.pointsAwarded} điểm</span>
+      </Badge>
+    );
+  }
+
+  // Sao Hy Vọng — đúng
+  if (pick.isStarOfHope && pick.isCorrectWinner) {
+    return (
+      <Badge variant="exact">
+        <span className="sm:hidden">⭐ x2 +{pick.pointsAwarded}</span>
+        <span className="hidden sm:inline">
+          {pick.isExactScore ? "⭐⚡" : "⭐"} x2 +{pick.pointsAwarded} điểm
+        </span>
+      </Badge>
+    );
+  }
+
   if (pick.isExactScore) {
     return (
       <Badge variant="exact">

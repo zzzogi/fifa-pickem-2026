@@ -24,6 +24,7 @@ interface DayMatch {
     pointsAwarded: number;
     isExactScore: boolean;
     isCorrectWinner: boolean;
+    isStarOfHope: boolean;
   }[];
 }
 
@@ -145,6 +146,7 @@ export default function DayGroup({
                         pointsAwarded: pick.pointsAwarded,
                         isExactScore: pick.isExactScore,
                         isCorrectWinner: pick.isCorrectWinner,
+                        isStarOfHope: pick.isStarOfHope,
                       }
                     : undefined
                 }

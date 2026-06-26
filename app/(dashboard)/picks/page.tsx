@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getUserSummary } from "@/lib/picks";
 import UserSummary from "@/components/picks/user-summary";
 import MatchesList from "@/components/picks/matches-list";
+import StarOfHopeAnnouncement from "@/components/picks/star-of-hope-announcement";
 import { Suspense } from "react";
 import PicksLoading from "./loading";
 import { getServerSession } from "next-auth";
@@ -16,6 +17,7 @@ export default async function PicksPage() {
 
   return (
     <div>
+      <StarOfHopeAnnouncement />
       <div className="mb-6">
         <p
           className="text-xs uppercase tracking-widest mb-1"

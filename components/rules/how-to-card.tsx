@@ -4,31 +4,43 @@ const steps = [
     number: "01",
     title: "Đăng nhập",
     desc: "Đăng nhập bằng tài khoản Google của bạn. Bắt đầu ngay với chỉ một cú nhấp.",
+    isNew: false,
   },
   {
     number: "02",
     title: "Chọn trận đấu",
     desc: 'Truy cập mục "Dự đoán của tôi" và xem lịch thi đấu World Cup. Tất cả 104 trận đấu đều được hiển thị tại đây.',
+    isNew: false,
   },
   {
     number: "03",
     title: "Gửi dự đoán",
     desc: "Nhập tỷ số mà bạn dự đoán sẽ xảy ra — số bàn thắng của đội chủ nhà và đội khách. Sau đó nhấn Lưu dự đoán.",
+    isNew: false,
   },
   {
     number: "04",
     title: "Chốt dự đoán trước giờ bóng lăn",
     desc: "Bạn có thể chỉnh sửa dự đoán bất kỳ lúc nào trước khi trận đấu bắt đầu. Khi trọng tài thổi còi khai cuộc, dự đoán sẽ bị khóa.",
+    isNew: false,
   },
   {
     number: "05",
-    title: "Nhận điểm tự động",
-    desc: "Sau khi trận đấu kết thúc, điểm số sẽ được tính tự động. Bạn không cần thực hiện thêm thao tác nào.",
+    title: "Đặt Ngôi Sao Hy Vọng ⭐ (từ vòng 1/32)",
+    desc: "Từ vòng knock-out, nhấn ☆ trên bất kỳ trận nào để gắn Ngôi Sao Hy Vọng. Đúng → nhân đôi điểm; Sai → trừ 2 điểm. Hãy cân nhắc kỹ!",
+    isNew: true,
   },
   {
     number: "06",
+    title: "Nhận điểm tự động",
+    desc: "Sau khi trận đấu kết thúc, điểm số sẽ được tính tự động. Bạn không cần thực hiện thêm thao tác nào.",
+    isNew: false,
+  },
+  {
+    number: "07",
     title: "Leo bảng xếp hạng",
     desc: "Theo dõi bảng xếp hạng để xem vị trí của bạn so với những người chơi khác. Chúc bạn trở thành nhà dự đoán xuất sắc nhất.",
+    isNew: false,
   },
 ];
 
@@ -66,14 +78,20 @@ export default function HowToCard() {
                 left: -16,
                 top: 0,
                 background:
-                  index === 0 ? "var(--primary)" : "var(--surface-high)",
-                color: index === 0 ? "white" : "var(--outline)",
+                  index === 0
+                    ? "var(--primary)"
+                    : step.isNew
+                      ? "var(--success)"
+                      : "var(--surface-high)",
+                color: index === 0 || step.isNew ? "white" : "var(--outline)",
                 fontFamily: "var(--font-display)",
                 fontSize: "0.9rem",
                 boxShadow:
                   index === 0
                     ? "0 0 0 4px oklch(from var(--primary) l c h / 0.2)"
-                    : "none",
+                    : step.isNew
+                      ? "0 0 0 4px oklch(from var(--success) l c h / 0.2)"
+                      : "none",
               }}
             >
               {step.number}
@@ -103,6 +121,20 @@ export default function HowToCard() {
                     }}
                   >
                     Bắt đầu tại đây
+                  </span>
+                )}
+
+                {/* Nhãn "Mới" cho bước Ngôi Sao Hy Vọng */}
+                {step.isNew && (
+                  <span
+                    className="text-xs px-2 py-0.5 rounded-[4px] font-bold uppercase tracking-wide"
+                    style={{
+                      background: "var(--success)",
+                      color: "white",
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    Mới
                   </span>
                 )}
               </div>

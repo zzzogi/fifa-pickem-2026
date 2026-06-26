@@ -1,6 +1,5 @@
-// components/picks/pick-input.tsx
 "use client";
-
+// components/picks/pick-input.tsx
 import { useState, useTransition } from "react";
 import { analytics } from "@/lib/use-analytics";
 
@@ -9,6 +8,8 @@ interface PickInputProps {
   kickoffTime: Date;
   initialHome?: number;
   initialAway?: number;
+  initialIsStarOfHope?: boolean;
+  isKnockout?: boolean;
   isTBD?: boolean;
 }
 
@@ -17,16 +18,21 @@ export default function PickInput({
   kickoffTime,
   initialHome,
   initialAway,
+  initialIsStarOfHope = false,
+  isKnockout = false,
   isTBD = false,
 }: PickInputProps) {
   const [home, setHome] = useState<string>(initialHome?.toString() ?? "");
   const [away, setAway] = useState<string>(initialAway?.toString() ?? "");
+  const [isStarOfHope, setIsStarOfHope] = useState(initialIsStarOfHope);
+  const [isStarring, setIsStarring] = useState(false);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
     "idle",
   );
   const [isPending, startTransition] = useTransition();
 
   const isLocked = new Date() >= kickoffTime;
+  const hasPick = initialHome !== undefined && initialAway !== undefined;
 
   if (isTBD) {
     return (
@@ -62,17 +68,22 @@ export default function PickInput({
         const res = await fetch("/api/picks", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ matchId, homeScore: h, awayScore: a }),
+          body: JSON.stringify({
+            matchId,
+            homeScore: h,
+            awayScore: a,
+            // Only send isStarOfHope for new picks; existing picks use PATCH
+            ...(!hasPick && { isStarOfHope }),
+          }),
         });
 
         if (!res.ok) throw new Error();
 
-        // Track: isUpdate = true nếu đã có pick trước đó
         analytics.pickSubmitted({
           matchId,
           homeScore: h,
           awayScore: a,
-          isUpdate: initialHome !== undefined && initialAway !== undefined,
+          isUpdate: hasPick,
         });
 
         setHome(h.toString());
@@ -87,9 +98,29 @@ export default function PickInput({
     });
   }
 
+  // Immediate star toggle for existing picks — no need to click Save
+  async function handleStarToggle() {
+    if (!hasPick || isStarring) return;
+    const newStar = !isStarOfHope;
+    setIsStarOfHope(newStar); // optimistic
+    setIsStarring(true);
+    try {
+      const res = await fetch("/api/picks", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ matchId, isStarOfHope: newStar }),
+      });
+      if (!res.ok) setIsStarOfHope(!newStar); // revert
+    } catch {
+      setIsStarOfHope(!newStar); // revert
+    } finally {
+      setIsStarring(false);
+    }
+  }
+
   if (isLocked) {
     return (
-      <div className="flex items-center gap-2 mt-4">
+      <div className="flex items-center gap-2 mt-4 flex-wrap">
         <div
           className="px-3 py-1.5 text-sm rounded-[4px]"
           style={{
@@ -99,7 +130,7 @@ export default function PickInput({
             fontWeight: 600,
           }}
         >
-          {initialHome !== undefined && initialAway !== undefined
+          {hasPick
             ? `Dự đoán của bạn: ${initialHome} – ${initialAway}`
             : "Chưa có dự đoán nào"}
         </div>
@@ -109,6 +140,18 @@ export default function PickInput({
         >
           Khoá dự đoán
         </span>
+        {isKnockout && isStarOfHope && (
+          <span
+            className="text-xs font-bold px-2 py-1 rounded-[4px]"
+            style={{
+              background: "var(--primary-soft)",
+              color: "var(--primary)",
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            ⭐ Ngôi Sao Hy Vọng
+          </span>
+        )}
       </div>
     );
   }
@@ -176,6 +219,24 @@ export default function PickInput({
               ? "Lỗi"
               : "Lưu"}
       </button>
+
+      {/* Star of Hope toggle — only for knockout rounds */}
+      {isKnockout && (
+        <button
+          onClick={hasPick ? handleStarToggle : () => setIsStarOfHope((s) => !s)}
+          disabled={isStarring}
+          title={isStarOfHope ? "Bỏ Ngôi Sao Hy Vọng" : "Đặt Ngôi Sao Hy Vọng"}
+          className="rounded-[4px] px-2 py-2 text-base transition"
+          style={{
+            background: isStarOfHope ? "var(--primary-soft)" : "var(--surface-high)",
+            color: isStarOfHope ? "var(--primary)" : "var(--outline)",
+            border: `1.5px solid ${isStarOfHope ? "var(--primary)" : "var(--outline-variant)"}`,
+            opacity: isStarring ? 0.5 : 1,
+          }}
+        >
+          {isStarOfHope ? "⭐" : "☆"}
+        </button>
+      )}
     </div>
   );
 }

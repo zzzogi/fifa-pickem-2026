@@ -11,6 +11,7 @@ interface UserPick {
   pointsAwarded: number;
   isExactScore: boolean;
   isCorrectWinner: boolean;
+  isStarOfHope: boolean;
 }
 
 interface MatchCardProps {
@@ -95,8 +96,25 @@ function PointsBadge({
   // Trận đã kết thúc nhưng chưa tính điểm
   if (pick.pointsAwarded === null) return null;
 
-  // Dự đoán sai
-  if (pick.pointsAwarded === 0) {
+  // Sao Hy Vọng — sai
+  if (pick.isStarOfHope && !pick.isCorrectWinner) {
+    return (
+      <span
+        className="text-xs px-2 py-1 rounded-[4px] uppercase tracking-wide font-bold"
+        style={{
+          background: "var(--error)",
+          color: "white",
+          fontFamily: "var(--font-body)",
+          opacity: 0.9,
+        }}
+      >
+        ⭐ Sao sai {pick.pointsAwarded} điểm
+      </span>
+    );
+  }
+
+  // Dự đoán sai (không sao)
+  if (!pick.isCorrectWinner) {
     return (
       <span
         className="text-xs px-2 py-1 rounded-[4px] uppercase tracking-wide font-bold"
@@ -108,6 +126,38 @@ function PointsBadge({
         }}
       >
         ✗ Dự đoán sai
+      </span>
+    );
+  }
+
+  // Sao Hy Vọng — đúng tỉ số
+  if (pick.isStarOfHope && pick.isExactScore) {
+    return (
+      <span
+        className="text-xs px-2 py-1 rounded-[4px] uppercase tracking-wide font-bold"
+        style={{
+          background: "var(--success)",
+          color: "white",
+          fontFamily: "var(--font-body)",
+        }}
+      >
+        ⭐⚡ x2 +{pick.pointsAwarded} điểm
+      </span>
+    );
+  }
+
+  // Sao Hy Vọng — đúng đội thắng
+  if (pick.isStarOfHope && pick.isCorrectWinner) {
+    return (
+      <span
+        className="text-xs px-2 py-1 rounded-[4px] uppercase tracking-wide font-bold"
+        style={{
+          background: "var(--success)",
+          color: "white",
+          fontFamily: "var(--font-body)",
+        }}
+      >
+        ⭐ x2 +{pick.pointsAwarded} điểm
       </span>
     );
   }
@@ -307,6 +357,8 @@ export default function MatchCard({
         kickoffTime={kickoffTime}
         initialHome={userPick?.predictedHomeScore}
         initialAway={userPick?.predictedAwayScore}
+        initialIsStarOfHope={userPick?.isStarOfHope}
+        isKnockout={stage !== "GROUP_STAGE"}
         isTBD={isTBD}
       />
 

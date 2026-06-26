@@ -198,8 +198,25 @@ export async function POST(req: NextRequest) {
           ? calculateStreakBonus(currentStreak)
           : 0;
 
-        const totalPoints = baseResult.pointsAwarded + streakBonus;
-        totalStreakBonus += streakBonus;
+        let totalPoints: number;
+        let earnedStreakBonus: number;
+
+        if (pick.isStarOfHope) {
+          if (baseResult.isCorrectWinner) {
+            // Star correct: double everything (base pts + streak bonus)
+            totalPoints = (baseResult.pointsAwarded + streakBonus) * 2;
+            earnedStreakBonus = streakBonus * 2;
+          } else {
+            // Star wrong: lose 2 points
+            totalPoints = -2;
+            earnedStreakBonus = 0;
+          }
+        } else {
+          totalPoints = baseResult.pointsAwarded + streakBonus;
+          earnedStreakBonus = streakBonus;
+        }
+
+        totalStreakBonus += earnedStreakBonus;
         pointsDelta += totalPoints;
 
         pickUpdates.push({

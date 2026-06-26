@@ -26,6 +26,7 @@ export interface ProfilePick {
   pointsAwarded: number;
   isExactScore: boolean;
   isCorrectWinner: boolean;
+  isStarOfHope: boolean;
   scoredAt: Date | null;
   match: {
     id: string;
