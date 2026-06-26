@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
             awayScore: { not: null },
             utcDate: { gte: earliestPossibleCutoff },
           },
-          select: { id: true, utcDate: true },
+          select: { id: true, utcDate: true, createdAt: true },
           orderBy: { utcDate: "asc" },
         })
       : [];
@@ -168,7 +168,15 @@ export async function POST(req: NextRequest) {
       const userPickByMatchId = new Map(userPicks.map((p) => [p.match.id, p]));
       let pointsDelta = 0;
 
-      for (const matchInfo of finishedMatchesForUser) {
+      // Sort: utcDate asc, then createdAt asc as tiebreaker for simultaneous matches.
+      // Matches the UI display order so scoring and display are always consistent.
+      const orderedMatches = [...finishedMatchesForUser].sort((a, b) => {
+        const timeDiff = a.utcDate.getTime() - b.utcDate.getTime();
+        if (timeDiff !== 0) return timeDiff;
+        return a.createdAt.getTime() - b.createdAt.getTime();
+      });
+
+      for (const matchInfo of orderedMatches) {
         const pick = userPickByMatchId.get(matchInfo.id);
 
         if (!pick) {

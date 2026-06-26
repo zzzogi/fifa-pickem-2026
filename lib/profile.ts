@@ -41,6 +41,7 @@ export interface ProfilePick {
     awayTeamCrest: string | null;
     homeScore: number | null;
     awayScore: number | null;
+    createdAt: Date;
   };
 }
 
@@ -80,6 +81,7 @@ export async function getPublicProfile(
             select: {
               id: true,
               utcDate: true,
+              createdAt: true,
               status: true,
               stage: true,
               group: true,
@@ -115,6 +117,7 @@ export async function getPublicProfile(
     select: {
       id: true,
       utcDate: true,
+      createdAt: true,
       status: true,
       stage: true,
       group: true,
@@ -139,6 +142,16 @@ export async function getPublicProfile(
       return { kind: "pick", pick };
     }
     return { kind: "missed", match };
+  });
+
+  // Primary: utcDate desc. Tiebreaker: createdAt asc (DB insertion order),
+  // which is the same ordering used by the scoring engine.
+  pickRows.sort((a, b) => {
+    const aMatch = a.kind === "pick" ? a.pick.match : a.match;
+    const bMatch = b.kind === "pick" ? b.pick.match : b.match;
+    const timeDiff = bMatch.utcDate.getTime() - aMatch.utcDate.getTime();
+    if (timeDiff !== 0) return timeDiff;
+    return aMatch.createdAt.getTime() - bMatch.createdAt.getTime();
   });
 
   // Append các picks chưa finished (upcoming/live) — không phải "missed"
