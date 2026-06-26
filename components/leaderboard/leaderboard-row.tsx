@@ -1,5 +1,4 @@
 // components/leaderboard/leaderboard-row.tsx
-import { isMobileDevice } from "@/lib/device";
 import Image from "next/image";
 import Link from "next/link";
 import FireBadge from "./fire-badge";
@@ -13,7 +12,8 @@ interface LeaderboardRowProps {
   correctPicks: number;
   accuracy: number;
   totalPicks: number;
-  currentStreak: number; // ← thêm
+  currentStreak: number;
+  isMobile: boolean;
   isCurrentUser: boolean;
   isEven: boolean;
 }
@@ -40,7 +40,7 @@ function RankBadge({ rank }: { rank: number }) {
   );
 }
 
-export default async function LeaderboardRow({
+export default function LeaderboardRow({
   id,
   rank,
   name,
@@ -50,10 +50,10 @@ export default async function LeaderboardRow({
   accuracy,
   totalPicks,
   currentStreak,
+  isMobile,
   isCurrentUser,
   isEven,
 }: LeaderboardRowProps) {
-  const isMobile = await isMobileDevice();
   return (
     <tr
       style={{

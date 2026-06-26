@@ -21,8 +21,8 @@ FIFA World Cup 2026 pick'em game built with Next.js App Router. Users predict ma
 
 ### Data flow
 
-1. **Cron: `sync-matches`** — fetches live match data from Football Data API → updates `Match` table
-2. **Cron: `calculate-points`** — scores finished `Pick` rows (3 pts exact, 1 pt correct winner), updates streaks, unlocks achievements
+1. **Cron: `sync-matches`** — fetches live match data from Football Data API → upserts `Match` rows; team fields are nullable for knockout rounds where opponents aren't yet determined
+2. **Cron: `calculate-points`** — scores finished `Pick` rows (where `scoredAt IS NULL`), updates streaks, unlocks achievements. Uses `$executeRawUnsafe` bulk `UPDATE … FROM (VALUES …)` to stay within Vercel Hobby's 300s limit (`maxDuration = 300`)
 3. **Cron: `send-daily-emails`** — sends daily summaries via Brevo (300/day cap) after all day's matches finish
 4. **User picks** — `POST /api/picks` saves/upserts predictions; only allowed before match kickoff
 
@@ -32,15 +32,18 @@ All cron routes (`/api/cron/*`) require `Authorization: Bearer <CRON_SECRET>` he
 
 | Path | Purpose |
 |------|---------|
-| `lib/scoring.ts` | Point calculation logic |
-| `lib/achievements.ts` | 15 achievement types with unlock conditions |
-| `lib/leaderboard.ts` | Leaderboard ranking queries |
+| `lib/scoring.ts` | Point calculation logic (`calculatePickScore`, `calculateStreakBonus`, `updateStreak`) |
+| `lib/achievements.ts` | 18 achievement types; exposes both single-user (`buildAchievementContext` / `checkAndUnlockAchievements`) and batch APIs (`buildAchievementContextsBatch` / `checkAndUnlockAchievementsBatch`) — cron always uses batch |
+| `lib/leaderboard.ts` | Fetches all users, computes stats in memory, sorts with tie-breaking: totalPoints → correctPicks → exactScores |
+| `lib/pick-distribution.ts` | Per-match home/away/draw vote counts shown on the picks page |
+| `lib/stats.ts` | Aggregated pick statistics for the `/stats` page |
+| `lib/tournament-stats.ts` | Tournament-wide stats (goals, top scorers, etc.) |
+| `lib/team-names.ts` | Vietnamese team name overrides |
 | `lib/football-api.ts` | Football Data API wrapper (5-min cache) |
 | `lib/email.ts` | Brevo integration + HTML template rendering |
 | `lib/daily-summary.ts` | Builds per-user email content with smart subject lines |
 | `lib/cron-auth.ts` | Verifies `CRON_SECRET` on cron routes |
 | `auth.ts` | NextAuth config (Google provider, Prisma adapter) |
-| `middleware.ts` | Auth protection + CSP headers; public paths: `/` and `/rules` |
 
 ### Route groups
 
@@ -49,15 +52,20 @@ All cron routes (`/api/cron/*`) require `Authorization: Bearer <CRON_SECRET>` he
 - `app/api/picks/` — upsert user prediction
 - `app/api/unsubscribe/` — email opt-out via token
 
+Public paths (no auth): `/` and `/rules` (configured in middleware CSP headers).
+
 ### Scoring rules
 
 - Exact score: **3 pts**
 - Correct winner/draw: **1 pt**
 - Streak bonuses on consecutive correct picks: +1 (streak 3–4), +2 (streak 5–7), +3 (streak 8+)
+- **Star of Hope** (`Pick.isStarOfHope`): user can mark one pick as a "star"; if correct winner → flat +2 bonus on top of normal points + streak; if wrong → −2 points
 
 ### Database
 
 Two `DATABASE_URL` / `DIRECT_URL` env vars are required: pooled connection for runtime, direct for migrations (`prisma migrate`). Key models: `User`, `Match`, `Pick`, `Achievement`, `UserAchievement`, plus NextAuth tables (`Account`, `Session`).
+
+`Pick.scoredAt` is null until `calculate-points` processes it — this is the idempotency guard: the cron only scores picks where `scoredAt IS NULL` and the match is `FINISHED`.
 
 ### Environment variables
 

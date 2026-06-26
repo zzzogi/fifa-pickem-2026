@@ -94,6 +94,7 @@ function AdminBadge() {
         >
           💻
           <span
+            className="hidden sm:inline"
             style={{ fontFamily: "var(--font-display)", fontSize: "0.85rem" }}
           >
             Admin
@@ -123,6 +124,7 @@ function BugCatcherBadge() {
         >
           🐞
           <span
+            className="hidden sm:inline"
             style={{ fontFamily: "var(--font-display)", fontSize: "0.85rem" }}
           >
             Bug Catcher

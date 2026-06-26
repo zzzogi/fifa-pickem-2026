@@ -5,9 +5,16 @@ import LeaderboardTracker from "@/components/leaderboard/leaderboard-tracker";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
-export default async function LeaderboardPage() {
+export default async function LeaderboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/");
+
+  const { page } = await searchParams;
+  const pageNumber = Math.max(1, parseInt(page ?? "1", 10) || 1);
 
   return (
     <div>
@@ -26,7 +33,7 @@ export default async function LeaderboardPage() {
           BẢNG XẾP HẠNG
         </h1>
       </div>
-      <LeaderboardTable currentUserId={session.user.id} />
+      <LeaderboardTable currentUserId={session.user.id} page={pageNumber} />
     </div>
   );
 }
