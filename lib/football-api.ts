@@ -1,5 +1,23 @@
 // lib/football-api.ts
 
+// Real API responses have used both "home"/"away" and "homeTeam"/"awayTeam" naming
+// depending on match type. Always check both to be safe.
+export interface ScoreValues {
+  home?: number | null;
+  away?: number | null;
+  homeTeam?: number | null;
+  awayTeam?: number | null;
+  [key: string]: unknown;
+}
+
+export function scoreHome(s: ScoreValues | null | undefined): number | null {
+  return s?.homeTeam ?? s?.home ?? null;
+}
+
+export function scoreAway(s: ScoreValues | null | undefined): number | null {
+  return s?.awayTeam ?? s?.away ?? null;
+}
+
 export type MatchStatus =
   | "TIMED"
   | "IN_PLAY"
@@ -28,13 +46,19 @@ export interface FootballMatch {
     tla: string | null;
     crest: string | null;
   } | null;
-  score: {
-    winner: string | null;
-    duration: string | null; // "REGULAR_TIME" | "EXTRA_TIME" | "PENALTY_SHOOTOUT"
-    fullTime: { home: number | null; away: number | null };
-    regularTime?: { home: number | null; away: number | null };
-    extraTime?: { home: number | null; away: number | null };
-    penalties?: { home: number | null; away: number | null };
+  // score shape varies by match status, stage, and competition — treat ALL sub-fields
+  // as optional. Real API responses have used both "home"/"away" AND "homeTeam"/"awayTeam"
+  // field names depending on the match type, so both are typed and callers must handle both.
+  score?: {
+    winner?: string | null;
+    // Known values: "REGULAR" | "EXTRA_TIME" | "PENALTY_SHOOTOUT" — but treat as unknown string
+    duration?: string | null;
+    fullTime?: ScoreValues | null;
+    halfTime?: ScoreValues | null;
+    regularTime?: ScoreValues | null;
+    extraTime?: ScoreValues | null;
+    penalties?: ScoreValues | null;
+    [key: string]: unknown; // preserve fields we don't know about yet
   };
   lastUpdated: string;
 }

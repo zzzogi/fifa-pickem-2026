@@ -1,7 +1,7 @@
 // app/api/cron/sync-matches/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { verifyCronSecret } from "@/lib/cron-auth";
-import { fetchWorldCupMatches } from "@/lib/football-api";
+import { fetchWorldCupMatches, scoreHome, scoreAway } from "@/lib/football-api";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
@@ -40,26 +40,55 @@ export async function POST(req: NextRequest) {
         const homeTeam = match.homeTeam;
         const awayTeam = match.awayTeam;
 
-        const duration = match.score?.duration ?? null;
+        const score = match.score;
+        const duration = score?.duration ?? null;
+
+        // Log unexpected score shapes for finished ET/PSO matches so we can
+        // inspect the real payload if the API changes its response structure.
+        if (
+          match.status === "FINISHED" &&
+          (duration === "PENALTY_SHOOTOUT" || duration === "EXTRA_TIME") &&
+          (!score?.regularTime || !score?.extraTime)
+        ) {
+          console.warn(
+            `[sync-matches] Match ${match.id} (${duration}): regularTime/extraTime missing or null. Raw score:`,
+            JSON.stringify(score),
+          );
+        }
+
         // For knockout matches that went to ET or penalties, store the 120-min score
         // (regularTime + extraTime) so pick comparisons work correctly.
-        // Penalty scores are stored separately.
+        // Only sum if BOTH breakdown fields have non-null values — otherwise fall
+        // back to fullTime to avoid silently storing 0+0=0 for an unknown shape.
         let homeScore: number | null = null;
         let awayScore: number | null = null;
         let penaltyHomeScore: number | null = null;
         let penaltyAwayScore: number | null = null;
 
-        if (duration === "PENALTY_SHOOTOUT") {
-          homeScore = (match.score.regularTime?.home ?? 0) + (match.score.extraTime?.home ?? 0);
-          awayScore = (match.score.regularTime?.away ?? 0) + (match.score.extraTime?.away ?? 0);
-          penaltyHomeScore = match.score.penalties?.home ?? null;
-          penaltyAwayScore = match.score.penalties?.away ?? null;
-        } else if (duration === "EXTRA_TIME") {
-          homeScore = (match.score.regularTime?.home ?? 0) + (match.score.extraTime?.home ?? 0);
-          awayScore = (match.score.regularTime?.away ?? 0) + (match.score.extraTime?.away ?? 0);
+        if (duration === "PENALTY_SHOOTOUT" || duration === "EXTRA_TIME") {
+          // Use scoreHome/scoreAway helpers — handles both "home" and "homeTeam" field names
+          const rtHome = scoreHome(score?.regularTime);
+          const rtAway = scoreAway(score?.regularTime);
+          const etHome = scoreHome(score?.extraTime);
+          const etAway = scoreAway(score?.extraTime);
+
+          if (rtHome !== null && etHome !== null) {
+            // Both halves of the breakdown are available — sum for 120-min score
+            homeScore = rtHome + etHome;
+            awayScore = (rtAway ?? 0) + (etAway ?? 0);
+          } else {
+            // Breakdown unavailable — fall back to fullTime rather than storing 0
+            homeScore = scoreHome(score?.fullTime);
+            awayScore = scoreAway(score?.fullTime);
+          }
+
+          if (duration === "PENALTY_SHOOTOUT") {
+            penaltyHomeScore = scoreHome(score?.penalties);
+            penaltyAwayScore = scoreAway(score?.penalties);
+          }
         } else {
-          homeScore = match.score.fullTime?.home ?? null;
-          awayScore = match.score.fullTime?.away ?? null;
+          homeScore = scoreHome(score?.fullTime);
+          awayScore = scoreAway(score?.fullTime);
         }
 
         const matchData = {
@@ -81,7 +110,7 @@ export async function POST(req: NextRequest) {
 
           homeScore,
           awayScore,
-          winner: match.score.winner,
+          winner: score?.winner ?? null,
           duration,
           penaltyHomeScore,
           penaltyAwayScore,

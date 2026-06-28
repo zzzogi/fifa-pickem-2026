@@ -65,7 +65,9 @@ Public paths (no auth): `/` (home/sign-in page) and `/rules`.
 
 Missed matches (no pick submitted) reset the streak to 0 — handled in `calculate-points` cron by iterating all finished matches in chronological order, not just the ones that have picks.
 
-**Knockout match scores**: For matches that go to extra time or penalties, `Match.homeScore`/`awayScore` stores the **120-min score** (regularTime + extraTime), NOT the fullTime score. Penalty scores are stored separately in `Match.penaltyHomeScore`/`penaltyAwayScore`. The `Match.duration` field (`REGULAR_TIME` | `EXTRA_TIME` | `PENALTY_SHOOTOUT`) reflects how the match was decided.
+**Knockout match scores**: For matches that go to extra time or penalties, `Match.homeScore`/`awayScore` stores the **120-min score** (regularTime + extraTime), NOT the fullTime score. Penalty scores are stored separately in `Match.penaltyHomeScore`/`penaltyAwayScore`. The `Match.duration` field (`"REGULAR"` | `"EXTRA_TIME"` | `"PENALTY_SHOOTOUT"`) reflects how the match was decided (stored verbatim from the API).
+
+**Football Data API score fields**: Real responses use `homeTeam`/`awayTeam` keys inside score sub-objects (confirmed for ET/PSO matches), not `home`/`away`. Use the `scoreHome()`/`scoreAway()` helpers from `lib/football-api.ts` — they handle both naming conventions. Never access `.home` or `.homeTeam` directly. The `score` object and all its sub-fields are fully optional; always use `?.` access.
 
 ### Database
 

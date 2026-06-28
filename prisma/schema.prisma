@@ -101,7 +101,7 @@ model Match {
   winner    String?
 
   // Knockout-only fields (null for group stage matches)
-  duration         String? // "REGULAR_TIME" | "EXTRA_TIME" | "PENALTY_SHOOTOUT"
+  duration         String? // "REGULAR" | "EXTRA_TIME" | "PENALTY_SHOOTOUT" (as returned by API)
   penaltyHomeScore Int?
   penaltyAwayScore Int?
 
