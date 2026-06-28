@@ -40,6 +40,28 @@ export async function POST(req: NextRequest) {
         const homeTeam = match.homeTeam;
         const awayTeam = match.awayTeam;
 
+        const duration = match.score?.duration ?? null;
+        // For knockout matches that went to ET or penalties, store the 120-min score
+        // (regularTime + extraTime) so pick comparisons work correctly.
+        // Penalty scores are stored separately.
+        let homeScore: number | null = null;
+        let awayScore: number | null = null;
+        let penaltyHomeScore: number | null = null;
+        let penaltyAwayScore: number | null = null;
+
+        if (duration === "PENALTY_SHOOTOUT") {
+          homeScore = (match.score.regularTime?.home ?? 0) + (match.score.extraTime?.home ?? 0);
+          awayScore = (match.score.regularTime?.away ?? 0) + (match.score.extraTime?.away ?? 0);
+          penaltyHomeScore = match.score.penalties?.home ?? null;
+          penaltyAwayScore = match.score.penalties?.away ?? null;
+        } else if (duration === "EXTRA_TIME") {
+          homeScore = (match.score.regularTime?.home ?? 0) + (match.score.extraTime?.home ?? 0);
+          awayScore = (match.score.regularTime?.away ?? 0) + (match.score.extraTime?.away ?? 0);
+        } else {
+          homeScore = match.score.fullTime?.home ?? null;
+          awayScore = match.score.fullTime?.away ?? null;
+        }
+
         const matchData = {
           utcDate: new Date(match.utcDate),
           status: match.status,
@@ -57,9 +79,12 @@ export async function POST(req: NextRequest) {
           awayTeamCode: awayTeam?.tla ?? null,
           awayTeamCrest: awayTeam?.crest ?? null,
 
-          homeScore: match.score.fullTime.home,
-          awayScore: match.score.fullTime.away,
+          homeScore,
+          awayScore,
           winner: match.score.winner,
+          duration,
+          penaltyHomeScore,
+          penaltyAwayScore,
           lastUpdated: new Date(match.lastUpdated),
         };
 
@@ -87,6 +112,9 @@ export async function POST(req: NextRequest) {
             homeScore: matchData.homeScore,
             awayScore: matchData.awayScore,
             winner: matchData.winner,
+            duration: matchData.duration,
+            penaltyHomeScore: matchData.penaltyHomeScore,
+            penaltyAwayScore: matchData.penaltyAwayScore,
             lastUpdated: matchData.lastUpdated,
           },
         });

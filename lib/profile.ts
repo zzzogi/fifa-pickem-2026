@@ -29,6 +29,11 @@ export interface ProfilePick {
   isCorrectWinner: boolean;
   isStarOfHope: boolean;
   scoredAt: Date | null;
+  predictedPenaltyHomeScore: number | null;
+  predictedPenaltyAwayScore: number | null;
+  isPenaltyWinnerCorrect: boolean;
+  isPenaltyExactScore: boolean;
+  penaltyPointsAwarded: number;
   match: {
     id: string;
     utcDate: Date;
@@ -43,6 +48,8 @@ export interface ProfilePick {
     awayTeamCrest: string | null;
     homeScore: number | null;
     awayScore: number | null;
+    penaltyHomeScore: number | null;
+    penaltyAwayScore: number | null;
     createdAt: Date;
   };
 }
@@ -88,6 +95,11 @@ export async function getPublicProfile(
           isCorrectWinner: true,
           isStarOfHope: true,
           scoredAt: true,
+          predictedPenaltyHomeScore: true,
+          predictedPenaltyAwayScore: true,
+          isPenaltyWinnerCorrect: true,
+          isPenaltyExactScore: true,
+          penaltyPointsAwarded: true,
           match: {
             select: {
               id: true,
@@ -104,6 +116,8 @@ export async function getPublicProfile(
               awayTeamCrest: true,
               homeScore: true,
               awayScore: true,
+              penaltyHomeScore: true,
+              penaltyAwayScore: true,
             },
           },
         },
@@ -140,6 +154,8 @@ export async function getPublicProfile(
       awayTeamCrest: true,
       homeScore: true,
       awayScore: true,
+      penaltyHomeScore: true,
+      penaltyAwayScore: true,
     },
     orderBy: { utcDate: "desc" },
   });

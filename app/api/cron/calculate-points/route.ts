@@ -6,6 +6,7 @@ import { Prisma } from "@prisma/client";
 import {
   calculatePickScore,
   calculateStreakBonus,
+  calculatePenaltyScore,
   updateStreak,
 } from "@/lib/scoring";
 import {
@@ -36,6 +37,8 @@ export async function POST(req: NextRequest) {
             id: true,
             homeScore: true,
             awayScore: true,
+            penaltyHomeScore: true,
+            penaltyAwayScore: true,
             utcDate: true,
           },
         },
@@ -136,6 +139,9 @@ export async function POST(req: NextRequest) {
       pointsAwarded: number;
       isExactScore: boolean;
       isCorrectWinner: boolean;
+      isPenaltyWinnerCorrect: boolean;
+      isPenaltyExactScore: boolean;
+      penaltyPointsAwarded: number;
     }[] = [];
     const userUpdates: {
       id: string;
@@ -215,6 +221,23 @@ export async function POST(req: NextRequest) {
           earnedStreakBonus = streakBonus;
         }
 
+        // Penalty bonus: separate flat bonus, unaffected by star/streak
+        let penaltyResult = { penaltyPointsAwarded: 0, isPenaltyWinnerCorrect: false, isPenaltyExactScore: false };
+        if (
+          pick.predictedPenaltyHomeScore !== null &&
+          pick.predictedPenaltyAwayScore !== null &&
+          pick.match.penaltyHomeScore !== null &&
+          pick.match.penaltyAwayScore !== null
+        ) {
+          penaltyResult = calculatePenaltyScore({
+            predictedPenaltyHome: pick.predictedPenaltyHomeScore,
+            predictedPenaltyAway: pick.predictedPenaltyAwayScore,
+            actualPenaltyHome: pick.match.penaltyHomeScore,
+            actualPenaltyAway: pick.match.penaltyAwayScore,
+          });
+          totalPoints += penaltyResult.penaltyPointsAwarded;
+        }
+
         totalStreakBonus += earnedStreakBonus;
         pointsDelta += totalPoints;
 
@@ -223,6 +246,9 @@ export async function POST(req: NextRequest) {
           pointsAwarded: totalPoints,
           isExactScore: baseResult.isExactScore,
           isCorrectWinner: baseResult.isCorrectWinner,
+          isPenaltyWinnerCorrect: penaltyResult.isPenaltyWinnerCorrect,
+          isPenaltyExactScore: penaltyResult.isPenaltyExactScore,
+          penaltyPointsAwarded: penaltyResult.penaltyPointsAwarded,
         });
       }
 
@@ -245,7 +271,7 @@ export async function POST(req: NextRequest) {
       const values = pickUpdates
         .map(
           (u) =>
-            `('${u.id}', ${u.pointsAwarded}, ${u.isExactScore}, ${u.isCorrectWinner})`,
+            `('${u.id}', ${u.pointsAwarded}, ${u.isExactScore}, ${u.isCorrectWinner}, ${u.isPenaltyWinnerCorrect}, ${u.isPenaltyExactScore}, ${u.penaltyPointsAwarded})`,
         )
         .join(",");
 
@@ -255,8 +281,11 @@ export async function POST(req: NextRequest) {
           "pointsAwarded" = v.points_awarded,
           "isExactScore" = v.is_exact_score,
           "isCorrectWinner" = v.is_correct_winner,
+          "isPenaltyWinnerCorrect" = v.is_penalty_winner_correct,
+          "isPenaltyExactScore" = v.is_penalty_exact_score,
+          "penaltyPointsAwarded" = v.penalty_points_awarded,
           "scoredAt" = NOW()
-        FROM (VALUES ${values}) AS v(id, points_awarded, is_exact_score, is_correct_winner)
+        FROM (VALUES ${values}) AS v(id, points_awarded, is_exact_score, is_correct_winner, is_penalty_winner_correct, is_penalty_exact_score, penalty_points_awarded)
         WHERE p.id = v.id
       `);
     }

@@ -205,6 +205,20 @@ function PickRow({ pick }: { pick: ProfilePick }) {
         />
       </div>
 
+      {/* Penalty prediction (if any) */}
+      {pick.predictedPenaltyHomeScore !== null &&
+        pick.predictedPenaltyAwayScore !== null && (
+          <span
+            className="text-xs tabular-nums flex-shrink-0 hidden sm:inline"
+            style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
+          >
+            🥅 {pick.predictedPenaltyHomeScore}–{pick.predictedPenaltyAwayScore}
+            {pick.scoredAt && (
+              <> {pick.isPenaltyWinnerCorrect ? (pick.isPenaltyExactScore ? " ⚡+2" : " ✓+1") : " ✗"}</>
+            )}
+          </span>
+        )}
+
       {/* Actual score */}
       {match.status === "FINISHED" &&
         match.homeScore !== null &&
@@ -219,9 +233,11 @@ function PickRow({ pick }: { pick: ProfilePick }) {
           >
             <span className="sm:hidden">
               {match.homeScore}–{match.awayScore}
+              {match.penaltyHomeScore !== null && ` (${match.penaltyHomeScore}–${match.penaltyAwayScore})`}
             </span>
             <span className="hidden sm:inline">
               Kết quả: {match.homeScore}–{match.awayScore}
+              {match.penaltyHomeScore !== null && ` (llc: ${match.penaltyHomeScore}–${match.penaltyAwayScore})`}
             </span>
           </div>
         )}
@@ -286,9 +302,11 @@ function MissedRow({ match }: { match: ProfilePick["match"] }) {
         >
           <span className="sm:hidden">
             {match.homeScore}–{match.awayScore}
+            {match.penaltyHomeScore !== null && ` (${match.penaltyHomeScore}–${match.penaltyAwayScore})`}
           </span>
           <span className="hidden sm:inline">
             Kết quả: {match.homeScore}–{match.awayScore}
+            {match.penaltyHomeScore !== null && ` (llc: ${match.penaltyHomeScore}–${match.penaltyAwayScore})`}
           </span>
         </div>
       )}

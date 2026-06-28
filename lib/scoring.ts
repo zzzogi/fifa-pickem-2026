@@ -47,6 +47,45 @@ export function calculatePickScore({
   };
 }
 
+// ── Penalty shootout scoring ──────────────────────────────
+// +1 for correct winner, +2 for exact penalty score, 0 if wrong
+
+export interface PenaltyScoringInput {
+  predictedPenaltyHome: number;
+  predictedPenaltyAway: number;
+  actualPenaltyHome: number;
+  actualPenaltyAway: number;
+}
+
+export interface PenaltyScoringResult {
+  penaltyPointsAwarded: number;
+  isPenaltyWinnerCorrect: boolean;
+  isPenaltyExactScore: boolean;
+}
+
+export function calculatePenaltyScore({
+  predictedPenaltyHome,
+  predictedPenaltyAway,
+  actualPenaltyHome,
+  actualPenaltyAway,
+}: PenaltyScoringInput): PenaltyScoringResult {
+  const isExact =
+    predictedPenaltyHome === actualPenaltyHome &&
+    predictedPenaltyAway === actualPenaltyAway;
+
+  const actualWinner =
+    actualPenaltyHome > actualPenaltyAway ? "HOME" : "AWAY";
+  const predictedWinner =
+    predictedPenaltyHome > predictedPenaltyAway ? "HOME" : "AWAY";
+  const isWinnerCorrect = predictedWinner === actualWinner;
+
+  return {
+    penaltyPointsAwarded: isExact ? 2 : isWinnerCorrect ? 1 : 0,
+    isPenaltyWinnerCorrect: isWinnerCorrect,
+    isPenaltyExactScore: isExact,
+  };
+}
+
 // ── Streak bonus ──────────────────────────────────────────
 // Streak 3–4:  +1 bonus mỗi pick đúng
 // Streak 5–7:  +2 bonus mỗi pick đúng

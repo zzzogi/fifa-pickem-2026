@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { matchId, homeScore, awayScore, isStarOfHope } = body;
+  const { matchId, homeScore, awayScore, isStarOfHope, penaltyHomeScore, penaltyAwayScore } = body;
 
   if (
     typeof homeScore !== "number" ||
@@ -23,6 +23,17 @@ export async function POST(req: Request) {
   ) {
     return NextResponse.json({ error: "Invalid scores" }, { status: 400 });
   }
+
+  // Penalty scores are only valid when predicting a draw in a knockout match
+  const hasPenaltyPrediction =
+    typeof penaltyHomeScore === "number" &&
+    typeof penaltyAwayScore === "number" &&
+    Number.isInteger(penaltyHomeScore) &&
+    Number.isInteger(penaltyAwayScore) &&
+    penaltyHomeScore >= 0 &&
+    penaltyAwayScore >= 0;
+
+  const isPredictedDraw = homeScore === awayScore;
 
   const match = await prisma.match.findUnique({ where: { id: matchId } });
   if (!match) {
@@ -38,6 +49,14 @@ export async function POST(req: Request) {
     );
   }
 
+  const isKnockout = match.stage !== "GROUP_STAGE";
+
+  // Only store penalty prediction when the player predicts a draw in a knockout match
+  const penaltyData =
+    hasPenaltyPrediction && isPredictedDraw && isKnockout
+      ? { predictedPenaltyHomeScore: penaltyHomeScore, predictedPenaltyAwayScore: penaltyAwayScore }
+      : { predictedPenaltyHomeScore: null, predictedPenaltyAwayScore: null };
+
   const pick = await prisma.pick.upsert({
     where: {
       userId_matchId: {
@@ -51,12 +70,14 @@ export async function POST(req: Request) {
       predictedHomeScore: homeScore,
       predictedAwayScore: awayScore,
       isStarOfHope: typeof isStarOfHope === "boolean" ? isStarOfHope : false,
+      ...penaltyData,
     },
     update: {
       predictedHomeScore: homeScore,
       predictedAwayScore: awayScore,
       // Only update isStarOfHope if explicitly provided; otherwise preserve existing
       ...(typeof isStarOfHope === "boolean" && { isStarOfHope }),
+      ...penaltyData,
     },
   });
 
@@ -74,7 +95,10 @@ export async function PATCH(req: Request) {
   const { matchId, isStarOfHope } = body;
 
   if (typeof isStarOfHope !== "boolean") {
-    return NextResponse.json({ error: "Invalid isStarOfHope" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid isStarOfHope" },
+      { status: 400 },
+    );
   }
 
   const match = await prisma.match.findUnique({ where: { id: matchId } });

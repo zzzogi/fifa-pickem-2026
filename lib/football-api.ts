@@ -30,7 +30,11 @@ export interface FootballMatch {
   } | null;
   score: {
     winner: string | null;
+    duration: string | null; // "REGULAR_TIME" | "EXTRA_TIME" | "PENALTY_SHOOTOUT"
     fullTime: { home: number | null; away: number | null };
+    regularTime?: { home: number | null; away: number | null };
+    extraTime?: { home: number | null; away: number | null };
+    penalties?: { home: number | null; away: number | null };
   };
   lastUpdated: string;
 }

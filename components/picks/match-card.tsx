@@ -12,6 +12,11 @@ interface UserPick {
   isExactScore: boolean;
   isCorrectWinner: boolean;
   isStarOfHope: boolean;
+  predictedPenaltyHomeScore?: number | null;
+  predictedPenaltyAwayScore?: number | null;
+  isPenaltyWinnerCorrect?: boolean;
+  isPenaltyExactScore?: boolean;
+  penaltyPointsAwarded?: number;
 }
 
 interface MatchCardProps {
@@ -28,6 +33,8 @@ interface MatchCardProps {
   group?: string | null;
   homeScore?: number | null;
   awayScore?: number | null;
+  penaltyHomeScore?: number | null;
+  penaltyAwayScore?: number | null;
   userPick?: UserPick;
   distribution?: PickDistribution;
 }
@@ -277,6 +284,8 @@ export default function MatchCard({
   group,
   homeScore,
   awayScore,
+  penaltyHomeScore,
+  penaltyAwayScore,
   userPick,
   distribution,
 }: MatchCardProps) {
@@ -324,12 +333,22 @@ export default function MatchCard({
         {/* Score / VS */}
         <div className="text-center min-w-[60px]">
           {isFinished || isLive ? (
-            <span
-              className="text-3xl"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              {homeScore ?? 0} – {awayScore ?? 0}
-            </span>
+            <div className="flex flex-col items-center gap-0.5">
+              <span
+                className="text-3xl"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                {homeScore ?? 0} – {awayScore ?? 0}
+              </span>
+              {penaltyHomeScore !== null && penaltyHomeScore !== undefined && (
+                <span
+                  className="text-xs font-bold uppercase tracking-wide"
+                  style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
+                >
+                  ({penaltyHomeScore}–{penaltyAwayScore} luân lưu)
+                </span>
+              )}
+            </div>
           ) : (
             <span
               className="text-sm uppercase tracking-widest"
@@ -358,6 +377,8 @@ export default function MatchCard({
         initialHome={userPick?.predictedHomeScore}
         initialAway={userPick?.predictedAwayScore}
         initialIsStarOfHope={userPick?.isStarOfHope}
+        initialPenaltyHome={userPick?.predictedPenaltyHomeScore ?? undefined}
+        initialPenaltyAway={userPick?.predictedPenaltyAwayScore ?? undefined}
         isKnockout={stage !== "GROUP_STAGE"}
         isTBD={isTBD}
       />

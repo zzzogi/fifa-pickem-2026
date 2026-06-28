@@ -18,6 +18,8 @@ interface DayMatch {
   group: string | null;
   homeScore: number | null;
   awayScore: number | null;
+  penaltyHomeScore: number | null;
+  penaltyAwayScore: number | null;
   picks: {
     predictedHomeScore: number;
     predictedAwayScore: number;
@@ -25,6 +27,11 @@ interface DayMatch {
     isExactScore: boolean;
     isCorrectWinner: boolean;
     isStarOfHope: boolean;
+    predictedPenaltyHomeScore: number | null;
+    predictedPenaltyAwayScore: number | null;
+    isPenaltyWinnerCorrect: boolean;
+    isPenaltyExactScore: boolean;
+    penaltyPointsAwarded: number;
   }[];
 }
 
@@ -137,6 +144,8 @@ export default function DayGroup({
                 group={match.group}
                 homeScore={match.homeScore}
                 awayScore={match.awayScore}
+                penaltyHomeScore={match.penaltyHomeScore}
+                penaltyAwayScore={match.penaltyAwayScore}
                 distribution={distributions.get(match.id)}
                 userPick={
                   pick
@@ -147,6 +156,11 @@ export default function DayGroup({
                         isExactScore: pick.isExactScore,
                         isCorrectWinner: pick.isCorrectWinner,
                         isStarOfHope: pick.isStarOfHope,
+                        predictedPenaltyHomeScore: pick.predictedPenaltyHomeScore,
+                        predictedPenaltyAwayScore: pick.predictedPenaltyAwayScore,
+                        isPenaltyWinnerCorrect: pick.isPenaltyWinnerCorrect,
+                        isPenaltyExactScore: pick.isPenaltyExactScore,
+                        penaltyPointsAwarded: pick.penaltyPointsAwarded,
                       }
                     : undefined
                 }

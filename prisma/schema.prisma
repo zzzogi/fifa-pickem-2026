@@ -100,6 +100,11 @@ model Match {
   awayScore Int?
   winner    String?
 
+  // Knockout-only fields (null for group stage matches)
+  duration         String? // "REGULAR_TIME" | "EXTRA_TIME" | "PENALTY_SHOOTOUT"
+  penaltyHomeScore Int?
+  penaltyAwayScore Int?
+
   lastUpdated DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -119,6 +124,13 @@ model Pick {
   isExactScore       Boolean   @default(false)
   isStarOfHope       Boolean   @default(false)
   scoredAt           DateTime?
+
+  // Knockout penalty prediction (only set when player predicts a draw in knockout)
+  predictedPenaltyHomeScore Int?
+  predictedPenaltyAwayScore Int?
+  isPenaltyWinnerCorrect    Boolean @default(false)
+  isPenaltyExactScore       Boolean @default(false)
+  penaltyPointsAwarded      Int     @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
