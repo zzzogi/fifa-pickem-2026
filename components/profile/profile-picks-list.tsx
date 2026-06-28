@@ -209,7 +209,7 @@ function PickRow({ pick }: { pick: ProfilePick }) {
       {pick.predictedPenaltyHomeScore !== null &&
         pick.predictedPenaltyAwayScore !== null && (
           <span
-            className="text-xs tabular-nums flex-shrink-0 hidden sm:inline"
+            className="text-xs tabular-nums flex-shrink-0"
             style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
           >
             🥅 {pick.predictedPenaltyHomeScore}–{pick.predictedPenaltyAwayScore}
@@ -250,6 +250,19 @@ function PickRow({ pick }: { pick: ProfilePick }) {
         >
           {matchDate}
         </span>
+        {pick.isStarOfHope && !pick.scoredAt && (
+          <span
+            className="text-xs font-bold px-2 py-1 rounded-[4px]"
+            style={{
+              background: "var(--primary-soft)",
+              color: "var(--primary)",
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            <span className="sm:hidden">⭐</span>
+            <span className="hidden sm:inline">⭐ Sao Hy Vọng</span>
+          </span>
+        )}
         <PickResultBadge pick={pick} />
       </div>
     </div>

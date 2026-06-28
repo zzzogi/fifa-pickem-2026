@@ -36,6 +36,7 @@ All cron routes (`/api/cron/*`) require `Authorization: Bearer <CRON_SECRET>` he
 | `lib/achievements.ts` | 18 achievement types; exposes both single-user (`buildAchievementContext` / `checkAndUnlockAchievements`) and batch APIs (`buildAchievementContextsBatch` / `checkAndUnlockAchievementsBatch`) — cron always uses batch |
 | `lib/leaderboard.ts` | Fetches all users, computes stats in memory, sorts with tie-breaking: totalPoints → correctPicks → exactScores → earliest `createdAt` |
 | `lib/picks.ts` | `getUserPicks` (returns a matchId→pick Map for O(1) lookup) and `getUserSummary` (aggregated stats + rank for a user) |
+| `lib/profile.ts` | `getPublicProfile()` — full profile data including `ProfilePickRow[]`, a union of `{kind:"pick"}` and `{kind:"missed"}` rows (one "missed" entry per finished match where the user submitted no pick) |
 | `lib/pick-distribution.ts` | Per-match home/away/draw vote counts shown on the picks page |
 | `lib/stats.ts` | Aggregated pick statistics for the `/stats` page |
 | `lib/tournament-stats.ts` | Tournament-wide stats (goals, top scorers, etc.) |
@@ -48,7 +49,7 @@ All cron routes (`/api/cron/*`) require `Authorization: Bearer <CRON_SECRET>` he
 
 ### Route groups
 
-- `app/(dashboard)/` — authenticated pages: `/picks`, `/leaderboard`, `/bracket`, `/profile/[userId]`, `/stats`, `/rules`, `/support`. Auth is enforced in `app/(dashboard)/layout.tsx` via `getServerSession` — unauthenticated users are redirected to `/`.
+- `app/(dashboard)/` — authenticated pages: `/picks`, `/leaderboard`, `/bracket` (ISR `revalidate=300`), `/profile` (redirects to `/profile/[userId]` for current user), `/profile/[userId]` (public profile), `/stats`, `/rules`, `/support`. Auth is enforced in `app/(dashboard)/layout.tsx` via `getServerSession` — unauthenticated users are redirected to `/`.
 - `app/api/cron/` — sync-matches, calculate-points, send-daily-emails
 - `app/api/picks/` — upsert prediction (POST), toggle Star of Hope (PATCH)
 - `app/api/unsubscribe/` — email opt-out via token
@@ -61,9 +62,15 @@ Public paths (no auth): `/` (home/sign-in page) and `/rules`.
 - Correct winner/draw: **1 pt**
 - Streak bonuses on consecutive correct picks: +1 (streak 3–4), +2 (streak 5–7), +3 (streak 8+)
 - **Star of Hope** (`Pick.isStarOfHope`): user can mark one pick as a "star"; if correct winner → flat +2 bonus on top of normal points + streak; if wrong → −2 points (replaces normal scoring entirely)
-- **Penalty shootout** (knockout rounds only): if user predicts a draw, they may also predict the penalty score. Correct winner → +1; exact penalty score → +2. Wrong prediction → 0 (no penalty). Penalty bonus is always a flat addition on top and does not affect streak or Star of Hope.
+- **Penalty shootout** (knockout rounds only): if user predicts a draw, they may also predict the penalty score. Correct winner → +1; exact penalty score → +2. Wrong prediction → 0 (no penalty). Penalty bonus is always a flat addition on top and does not affect streak or Star of Hope. The penalty score input is shown in `PickInput` based on the user's live score input (`isDraw && isKnockout`), not on match data.
 
 Missed matches (no pick submitted) reset the streak to 0 — handled in `calculate-points` cron by iterating all finished matches in chronological order, not just the ones that have picks.
+
+**Knockout detection**: `match.stage !== "GROUP_STAGE"` is the canonical check used everywhere (picks API, PickInput, scoring). Stage values are stored verbatim from the Football Data API (`"GROUP_STAGE"`, `"LAST_32"`, `"LAST_16"`, `"QUARTER_FINALS"`, `"SEMI_FINALS"`, `"FINAL"`, etc.).
+
+**TBD knockout matches**: When `homeTeamName` or `awayTeamName` is null (opponents not yet determined), `PickInput` receives `isTBD=true` and renders a placeholder — picks are blocked until teams are known.
+
+**UI timezone**: The picks page groups matches by day using `Asia/Ho_Chi_Minh` locale. Today's group is expanded by default; days with live matches also expand automatically.
 
 **Knockout match scores**: For matches that go to extra time or penalties, `Match.homeScore`/`awayScore` stores the **120-min score** (regularTime + extraTime), NOT the fullTime score. Penalty scores are stored separately in `Match.penaltyHomeScore`/`penaltyAwayScore`. The `Match.duration` field (`"REGULAR"` | `"EXTRA_TIME"` | `"PENALTY_SHOOTOUT"`) reflects how the match was decided (stored verbatim from the API).
 
