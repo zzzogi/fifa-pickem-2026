@@ -1,12 +1,172 @@
 // components/profile/profile-picks-list.tsx
+"use client";
 import Image from "next/image";
+import { useState, useRef, useEffect } from "react";
 import type { ProfilePickRow, ProfilePick } from "@/lib/profile";
 import { getCountryName } from "@/lib/team-names";
+
+// ── Tooltip primitive ─────────────────────────────────────
+
+function Tooltip({
+  content,
+  children,
+}: {
+  content: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent | TouchEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    document.addEventListener("touchstart", close);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("touchstart", close);
+    };
+  }, [open]);
+
+  const visible = open || hovered;
+
+  return (
+    <div ref={ref} className="relative inline-flex">
+      <div
+        onClick={() => setOpen((o) => !o)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{ cursor: "pointer" }}
+      >
+        {children}
+      </div>
+      {/* pointer-events-none keeps the invisible area from triggering hover */}
+      <div
+        className="absolute bottom-full right-0 mb-1 z-50 pointer-events-none transition-opacity duration-150"
+        style={{ opacity: visible ? 1 : 0 }}
+      >
+        {content}
+      </div>
+    </div>
+  );
+}
+
+// ── Score breakdown tooltip ───────────────────────────────
+
+function TooltipCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="rounded-lg px-3 py-2 text-xs shadow-lg"
+      style={{
+        background: "var(--surface)",
+        border: "1px solid var(--outline-variant)",
+        color: "var(--foreground)",
+        fontFamily: "var(--font-body)",
+        minWidth: "160px",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function TooltipRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: string;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 leading-relaxed">
+      <span style={{ color: "var(--outline)" }}>
+        {icon} {label}
+      </span>
+      <span
+        className="font-bold tabular-nums"
+        style={{ color: "var(--foreground)" }}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function TooltipTotal({ points }: { points: number }) {
+  const display = points > 0 ? `+${points}` : String(points);
+  return (
+    <div
+      className="flex items-center justify-between gap-4 mt-1.5 pt-1.5 font-bold"
+      style={{ borderTop: "1px solid var(--outline-variant)" }}
+    >
+      <span>Tổng cộng</span>
+      <span className="tabular-nums">{display} điểm</span>
+    </div>
+  );
+}
+
+// pointsAwarded = base + streakBonus + starBonus + penaltyPointsAwarded
+// so: streakBonus = pointsAwarded − base − starBonus − penaltyPointsAwarded
+function ScoreBreakdownContent({ pick }: { pick: ProfilePick }) {
+  if (pick.isStarOfHope && !pick.isCorrectWinner) {
+    return (
+      <TooltipCard>
+        <TooltipRow icon="⭐" label="Sao Hy Vọng sai" value="−2" />
+      </TooltipCard>
+    );
+  }
+
+  if (!pick.isCorrectWinner) {
+    return (
+      <TooltipCard>
+        <TooltipRow icon="✗" label="Dự đoán sai" value="0" />
+      </TooltipCard>
+    );
+  }
+
+  const basePoints = pick.isExactScore ? 3 : 1;
+  const starBonus = pick.isStarOfHope ? 2 : 0;
+  const penaltyBonus = pick.penaltyPointsAwarded;
+  const streakBonus = pick.pointsAwarded - basePoints - starBonus - penaltyBonus;
+  const hasBreakdown = streakBonus > 0 || starBonus > 0 || penaltyBonus > 0;
+
+  return (
+    <TooltipCard>
+      {pick.isExactScore ? (
+        <TooltipRow icon="⚡" label="Đúng tỉ số" value="+3" />
+      ) : (
+        <TooltipRow icon="✓" label="Đúng kết quả" value="+1" />
+      )}
+      {streakBonus > 0 && (
+        <TooltipRow icon="🔥" label="Chuỗi liên tiếp" value={`+${streakBonus}`} />
+      )}
+      {starBonus > 0 && (
+        <TooltipRow icon="⭐" label="Sao Hy Vọng" value="+2" />
+      )}
+      {penaltyBonus > 0 && (
+        <TooltipRow
+          icon="🥅"
+          label={
+            pick.isPenaltyExactScore ? "Tỉ số luân lưu" : "Đúng đội luân lưu"
+          }
+          value={`+${penaltyBonus}`}
+        />
+      )}
+      {hasBreakdown && <TooltipTotal points={pick.pointsAwarded} />}
+    </TooltipCard>
+  );
+}
 
 // ── Badge trạng thái ──────────────────────────────────────
 
 function PickResultBadge({ pick }: { pick: ProfilePick }) {
-  // Chưa tính điểm (trận live/upcoming)
+  // Chưa tính điểm (trận live/upcoming) — no tooltip
   if (!pick.scoredAt) {
     const config: Record<string, { label: string }> = {
       IN_PLAY: { label: "Đang trực tiếp" },
@@ -18,55 +178,69 @@ function PickResultBadge({ pick }: { pick: ProfilePick }) {
     return <Badge variant="neutral">{label}</Badge>;
   }
 
+  const tooltipContent = <ScoreBreakdownContent pick={pick} />;
+
   // Sao Hy Vọng — sai
   if (pick.isStarOfHope && !pick.isCorrectWinner) {
     return (
-      <Badge variant="wrong">
-        <span className="sm:hidden">⭐ {pick.pointsAwarded}</span>
-        <span className="hidden sm:inline">⭐ Sao sai {pick.pointsAwarded} điểm</span>
-      </Badge>
+      <Tooltip content={tooltipContent}>
+        <Badge variant="wrong">
+          <span className="sm:hidden">⭐ {pick.pointsAwarded}</span>
+          <span className="hidden sm:inline">⭐ Sao sai {pick.pointsAwarded} điểm</span>
+        </Badge>
+      </Tooltip>
     );
   }
 
   // Sao Hy Vọng — đúng
   if (pick.isStarOfHope && pick.isCorrectWinner) {
     return (
-      <Badge variant="exact">
-        <span className="sm:hidden">{pick.isExactScore ? "⭐⚡" : "⭐"} +{pick.pointsAwarded}</span>
-        <span className="hidden sm:inline">
-          {pick.isExactScore ? "⭐⚡" : "⭐"} +{pick.pointsAwarded} điểm
-        </span>
-      </Badge>
+      <Tooltip content={tooltipContent}>
+        <Badge variant="exact">
+          <span className="sm:hidden">
+            {pick.isExactScore ? "⭐⚡" : "⭐"} +{pick.pointsAwarded}
+          </span>
+          <span className="hidden sm:inline">
+            {pick.isExactScore ? "⭐⚡" : "⭐"} +{pick.pointsAwarded} điểm
+          </span>
+        </Badge>
+      </Tooltip>
     );
   }
 
   if (pick.isExactScore) {
     return (
-      <Badge variant="exact">
-        <span className="sm:hidden">⚡ +{pick.pointsAwarded}</span>
-        <span className="hidden sm:inline">
-          ⚡ Đúng tỉ số +{pick.pointsAwarded} điểm
-        </span>
-      </Badge>
+      <Tooltip content={tooltipContent}>
+        <Badge variant="exact">
+          <span className="sm:hidden">⚡ +{pick.pointsAwarded}</span>
+          <span className="hidden sm:inline">
+            ⚡ Đúng tỉ số +{pick.pointsAwarded} điểm
+          </span>
+        </Badge>
+      </Tooltip>
     );
   }
 
   if (pick.isCorrectWinner) {
     return (
-      <Badge variant="correct">
-        <span className="sm:hidden">✓ +{pick.pointsAwarded}</span>
-        <span className="hidden sm:inline">
-          ✓ Đúng đội thắng +{pick.pointsAwarded} điểm
-        </span>
-      </Badge>
+      <Tooltip content={tooltipContent}>
+        <Badge variant="correct">
+          <span className="sm:hidden">✓ +{pick.pointsAwarded}</span>
+          <span className="hidden sm:inline">
+            ✓ Đúng đội thắng +{pick.pointsAwarded} điểm
+          </span>
+        </Badge>
+      </Tooltip>
     );
   }
 
   return (
-    <Badge variant="wrong">
-      <span className="sm:hidden">✗</span>
-      <span className="hidden sm:inline">✗ Dự đoán sai</span>
-    </Badge>
+    <Tooltip content={tooltipContent}>
+      <Badge variant="wrong">
+        <span className="sm:hidden">✗</span>
+        <span className="hidden sm:inline">✗ Dự đoán sai</span>
+      </Badge>
+    </Tooltip>
   );
 }
 
@@ -214,7 +388,14 @@ function PickRow({ pick }: { pick: ProfilePick }) {
           >
             🥅 {pick.predictedPenaltyHomeScore}–{pick.predictedPenaltyAwayScore}
             {pick.scoredAt && (
-              <> {pick.isPenaltyWinnerCorrect ? (pick.isPenaltyExactScore ? " ⚡+2" : " ✓+1") : " ✗"}</>
+              <>
+                {" "}
+                {pick.isPenaltyWinnerCorrect
+                  ? pick.isPenaltyExactScore
+                    ? " ⚡+2"
+                    : " ✓+1"
+                  : " ✗"}
+              </>
             )}
           </span>
         )}
@@ -233,11 +414,13 @@ function PickRow({ pick }: { pick: ProfilePick }) {
           >
             <span className="sm:hidden">
               {match.homeScore}–{match.awayScore}
-              {match.penaltyHomeScore !== null && ` (${match.penaltyHomeScore}–${match.penaltyAwayScore})`}
+              {match.penaltyHomeScore !== null &&
+                ` (${match.penaltyHomeScore}–${match.penaltyAwayScore})`}
             </span>
             <span className="hidden sm:inline">
               Kết quả: {match.homeScore}–{match.awayScore}
-              {match.penaltyHomeScore !== null && ` (llc: ${match.penaltyHomeScore}–${match.penaltyAwayScore})`}
+              {match.penaltyHomeScore !== null &&
+                ` (llc: ${match.penaltyHomeScore}–${match.penaltyAwayScore})`}
             </span>
           </div>
         )}
@@ -315,11 +498,13 @@ function MissedRow({ match }: { match: ProfilePick["match"] }) {
         >
           <span className="sm:hidden">
             {match.homeScore}–{match.awayScore}
-            {match.penaltyHomeScore !== null && ` (${match.penaltyHomeScore}–${match.penaltyAwayScore})`}
+            {match.penaltyHomeScore !== null &&
+              ` (${match.penaltyHomeScore}–${match.penaltyAwayScore})`}
           </span>
           <span className="hidden sm:inline">
             Kết quả: {match.homeScore}–{match.awayScore}
-            {match.penaltyHomeScore !== null && ` (llc: ${match.penaltyHomeScore}–${match.penaltyAwayScore})`}
+            {match.penaltyHomeScore !== null &&
+              ` (llc: ${match.penaltyHomeScore}–${match.penaltyAwayScore})`}
           </span>
         </div>
       )}

@@ -32,7 +32,7 @@ All cron routes (`/api/cron/*`) require `Authorization: Bearer <CRON_SECRET>` he
 
 | Path | Purpose |
 |------|---------|
-| `lib/scoring.ts` | Point calculation logic (`calculatePickScore`, `calculateStreakBonus`, `updateStreak`) |
+| `lib/scoring.ts` | Point calculation logic (`calculatePickScore`, `calculatePenaltyScore`, `calculateStreakBonus`, `updateStreak`) |
 | `lib/achievements.ts` | 18 achievement types; exposes both single-user (`buildAchievementContext` / `checkAndUnlockAchievements`) and batch APIs (`buildAchievementContextsBatch` / `checkAndUnlockAchievementsBatch`) — cron always uses batch |
 | `lib/leaderboard.ts` | Fetches all users, computes stats in memory, sorts with tie-breaking: totalPoints → correctPicks → exactScores → earliest `createdAt` |
 | `lib/picks.ts` | `getUserPicks` (returns a matchId→pick Map for O(1) lookup) and `getUserSummary` (aggregated stats + rank for a user) |
@@ -46,6 +46,7 @@ All cron routes (`/api/cron/*`) require `Authorization: Bearer <CRON_SECRET>` he
 | `lib/daily-summary.ts` | Builds per-user email content with smart subject lines |
 | `lib/cron-auth.ts` | Verifies `CRON_SECRET` on cron routes |
 | `auth.ts` | NextAuth config (Google provider, Prisma adapter, JWT strategy, 24h session) |
+| `components/bracket/types.ts` | Defines `STAGE_ORDER` (rendering order), `STAGE_LABELS` (Vietnamese display names), and `GROUP_LABELS`; update here when adding new knockout stages |
 
 ### Route groups
 
@@ -61,7 +62,7 @@ Public paths (no auth): `/` (home/sign-in page) and `/rules`.
 - Exact score: **3 pts**
 - Correct winner/draw: **1 pt**
 - Streak bonuses on consecutive correct picks: +1 (streak 3–4), +2 (streak 5–7), +3 (streak 8+)
-- **Star of Hope** (`Pick.isStarOfHope`): user can mark one pick as a "star"; if correct winner → flat +2 bonus on top of normal points + streak; if wrong → −2 points (replaces normal scoring entirely)
+- **Star of Hope** (`Pick.isStarOfHope`): knockout rounds only — user can mark one pick as a "star"; if correct winner → flat +2 bonus on top of normal points + streak; if wrong → −2 points (replaces normal scoring entirely). The star toggle is hidden for group stage matches in `PickInput`.
 - **Penalty shootout** (knockout rounds only): if user predicts a draw, they may also predict the penalty score. Correct winner → +1; exact penalty score → +2. Wrong prediction → 0 (no penalty). Penalty bonus is always a flat addition on top and does not affect streak or Star of Hope. The penalty score input is shown in `PickInput` based on the user's live score input (`isDraw && isKnockout`), not on match data.
 
 Missed matches (no pick submitted) reset the streak to 0 — handled in `calculate-points` cron by iterating all finished matches in chronological order, not just the ones that have picks.
@@ -73,6 +74,8 @@ Missed matches (no pick submitted) reset the streak to 0 — handled in `calcula
 **UI timezone**: The picks page groups matches by day using `Asia/Ho_Chi_Minh` locale. Today's group is expanded by default; days with live matches also expand automatically.
 
 **Knockout match scores**: For matches that go to extra time or penalties, `Match.homeScore`/`awayScore` stores the **120-min score** (regularTime + extraTime), NOT the fullTime score. Penalty scores are stored separately in `Match.penaltyHomeScore`/`penaltyAwayScore`. The `Match.duration` field (`"REGULAR"` | `"EXTRA_TIME"` | `"PENALTY_SHOOTOUT"`) reflects how the match was decided (stored verbatim from the API).
+
+**Penalty kick tally**: Do NOT use the API's `score.penalties` field — it is unreliable and does not consistently represent just the kicks. Instead, `sync-matches` derives the tally as `fullTime − (regularTime + extraTime)`, because the API adds penalty kicks as extra goals in the `fullTime` score.
 
 **Football Data API score fields**: Real responses use `homeTeam`/`awayTeam` keys inside score sub-objects (confirmed for ET/PSO matches), not `home`/`away`. Use the `scoreHome()`/`scoreAway()` helpers from `lib/football-api.ts` — they handle both naming conventions. Never access `.home` or `.homeTeam` directly. The `score` object and all its sub-fields are fully optional; always use `?.` access.
 
