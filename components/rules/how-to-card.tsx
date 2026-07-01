@@ -32,12 +32,18 @@ const steps = [
   },
   {
     number: "06",
+    title: "Dự đoán luân lưu 11m 🥅 (vòng knock-out)",
+    desc: "Nếu bạn dự đoán hòa ở vòng knock-out, một ô nhập tỷ số luân lưu sẽ hiện ra. Đúng đội thắng luân lưu → +1 điểm; đúng tỷ số chính xác → +2 điểm. Sai → không bị trừ điểm.",
+    isNew: true,
+  },
+  {
+    number: "07",
     title: "Nhận điểm tự động",
     desc: "Sau khi trận đấu kết thúc, điểm số sẽ được tính tự động. Bạn không cần thực hiện thêm thao tác nào.",
     isNew: false,
   },
   {
-    number: "07",
+    number: "08",
     title: "Leo bảng xếp hạng",
     desc: "Theo dõi bảng xếp hạng để xem vị trí của bạn so với những người chơi khác. Chúc bạn trở thành nhà dự đoán xuất sắc nhất.",
     isNew: false,

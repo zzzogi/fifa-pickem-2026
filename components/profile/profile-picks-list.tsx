@@ -46,8 +46,13 @@ function Tooltip({
       </div>
       {/* pointer-events-none keeps the invisible area from triggering hover */}
       <div
-        className="absolute bottom-full right-0 mb-1 z-50 pointer-events-none transition-opacity duration-150"
-        style={{ opacity: visible ? 1 : 0 }}
+        className="absolute bottom-full right-0 mb-1 z-50 pointer-events-none"
+        style={{
+          opacity: visible ? 1 : 0,
+          transform: visible ? "scale(1) translateY(0)" : "scale(0.95) translateY(4px)",
+          transition: "opacity 150ms ease, transform 150ms ease",
+          transformOrigin: "bottom right",
+        }}
       >
         {content}
       </div>

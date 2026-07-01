@@ -366,6 +366,122 @@ export default function ScoringTable() {
           </div>
         </div>
       </div>
+
+      {/* Luân Lưu 11m */}
+      <div className="mt-6">
+        <div className="flex items-center gap-2 mb-3">
+          <h3
+            className="text-xs uppercase tracking-widest font-bold"
+            style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
+          >
+            Dự Đoán Luân Lưu 11m
+          </h3>
+          <span
+            className="text-xs px-2 py-0.5 rounded-[4px] font-bold uppercase tracking-wide"
+            style={{
+              background: "var(--success)",
+              color: "white",
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            Mới · Vòng knock-out
+          </span>
+        </div>
+
+        <div
+          className="rounded-[4px] border overflow-hidden"
+          style={{ borderColor: "var(--outline-variant)" }}
+        >
+          <div
+            className="px-4 py-3 flex items-center gap-3"
+            style={{
+              background: "var(--surface-high)",
+              borderBottom: "1px solid var(--outline-variant)",
+            }}
+          >
+            <span style={{ fontSize: "1.5rem", lineHeight: 1 }}>🥅</span>
+            <p
+              className="text-sm"
+              style={{ fontFamily: "var(--font-body)", color: "var(--foreground)", lineHeight: 1.5 }}
+            >
+              Khi bạn dự đoán <strong>hòa</strong> ở vòng knock-out, một ô nhập
+              tỷ số luân lưu sẽ xuất hiện. Điểm luân lưu là{" "}
+              <strong>thưởng thêm</strong> — không ảnh hưởng đến chuỗi hay Ngôi
+              Sao Hy Vọng.
+            </p>
+          </div>
+
+          {[
+            {
+              icon: "⚡",
+              condition: "Đúng tỷ số luân lưu chính xác",
+              example: "Dự đoán 4-3, kết quả 4-3",
+              points: "+2",
+              color: "var(--success)",
+              bg: "rgba(67,122,34,0.06)",
+            },
+            {
+              icon: "✅",
+              condition: "Đúng đội thắng luân lưu",
+              example: "Dự đoán 4-3, kết quả 5-3",
+              points: "+1",
+              color: "var(--foreground)",
+              bg: "var(--surface)",
+            },
+            {
+              icon: "❌",
+              condition: "Sai đội thắng luân lưu",
+              example: "Dự đoán 4-3, kết quả 3-4",
+              points: "0",
+              color: "var(--outline)",
+              bg: "var(--surface-soft)",
+            },
+          ].map((row) => (
+            <div
+              key={row.condition}
+              className="flex items-center gap-3 px-4 py-3"
+              style={{
+                background: row.bg,
+                borderBottom: "1px solid var(--outline-variant)",
+              }}
+            >
+              <span className="text-base flex-shrink-0">{row.icon}</span>
+              <div className="flex-1 min-w-0">
+                <p
+                  className="text-sm font-bold"
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
+                  {row.condition}
+                </p>
+                <p
+                  className="text-xs mt-0.5"
+                  style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
+                >
+                  {row.example}
+                </p>
+              </div>
+              <span
+                className="text-xl font-bold tabular-nums flex-shrink-0"
+                style={{ fontFamily: "var(--font-display)", color: row.color }}
+              >
+                {row.points}
+              </span>
+            </div>
+          ))}
+
+          <div
+            className="px-4 py-2.5"
+            style={{ background: "var(--surface-soft)" }}
+          >
+            <p
+              className="text-xs"
+              style={{ color: "var(--outline)", fontFamily: "var(--font-body)" }}
+            >
+              ⚠️ Dự đoán luân lưu sai không bị trừ điểm. Nếu trận không đi vào luân lưu, điểm này không được tính.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
