@@ -3,10 +3,11 @@ import BracketMatchCard from "./bracket-match-card";
 import type { BracketMatch } from "./types";
 import { STAGE_ORDER, STAGE_LABELS } from "./types";
 
-
 const CARD_W = 180;
 const CONNECTOR_W = 32;
-const SLOT_H = 96; // vertical space per match in the first (widest) round
+// Must exceed actual card height (~116 px) so every slot has positive free
+// space and each card's center lands exactly at (i + 0.5) * slotH.
+const SLOT_H = 128;
 const LABEL_H = 36;
 
 export default function BracketTree({ matches }: { matches: BracketMatch[] }) {
@@ -66,21 +67,39 @@ export default function BracketTree({ matches }: { matches: BracketMatch[] }) {
             {mainStages.map((stage, colIdx) => {
               const stageMatches = byStage[stage];
               const matchCount = stageMatches.length;
+              // Vertical space per match in this column.
+              // Because totalH is fixed, later rounds have proportionally
+              // larger slots — cards spread out as rounds advance.
+              const slotH = totalH / matchCount;
 
               return (
                 <React.Fragment key={stage}>
-                  {/* Match column */}
+                  {/* Match column — absolute positioning guarantees each
+                      card's vertical center is exactly (i + 0.5) * slotH,
+                      which the connector column relies on. */}
                   <div
                     style={{
                       width: CARD_W,
                       height: totalH,
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-around",
+                      position: "relative",
+                      flexShrink: 0,
                     }}
                   >
-                    {stageMatches.map((match) => (
-                      <div key={match.id} className="flex justify-center">
+                    {stageMatches.map((match, i) => (
+                      <div
+                        key={match.id}
+                        style={{
+                          position: "absolute",
+                          top: (i + 0.5) * slotH,
+                          left: 0,
+                          right: 0,
+                          // Center the card on that Y coordinate regardless
+                          // of actual card height.
+                          transform: "translateY(-50%)",
+                          display: "flex",
+                          justifyContent: "center",
+                        }}
+                      >
                         <BracketMatchCard match={match} />
                       </div>
                     ))}
@@ -119,9 +138,13 @@ export default function BracketTree({ matches }: { matches: BracketMatch[] }) {
   );
 }
 
-// Draws bracket connector lines between two adjacent round columns.
-// Uses absolute-positioned divs for the top arm, bottom arm, vertical bar,
-// and center arm — one set per pair of matches.
+// Draws the ├─┤ style connector between two adjacent round columns.
+//
+// Each pair of left-column matches (indices 2j, 2j+1) feeds into one
+// right-column match (index j).  All Y coordinates are computed from
+// slotH = totalH / matchCount, which is the same formula used by the
+// match column's absolute-positioned cards, so the lines land exactly
+// on each card's vertical center.
 function ConnectorColumn({
   matchCount,
   totalH,
@@ -130,7 +153,6 @@ function ConnectorColumn({
   totalH: number;
 }) {
   const pairCount = Math.floor(matchCount / 2);
-  // slotH is the height allocated per match in this round under justify-around
   const slotH = totalH / matchCount;
   const pairH = slotH * 2;
   const midX = CONNECTOR_W / 2;
@@ -145,14 +167,16 @@ function ConnectorColumn({
       }}
     >
       {Array.from({ length: pairCount }).map((_, j) => {
-        // Center Y of the two source matches and the destination match
-        const topY = j * pairH + slotH / 2;
-        const botY = j * pairH + slotH + slotH / 2;
-        const midY = j * pairH + pairH / 2;
+        // Y centers of the two source matches in the left column
+        const topY = j * pairH + slotH / 2;       // = (2j + 0.5) * slotH
+        const botY = j * pairH + slotH + slotH / 2; // = (2j + 1.5) * slotH
+        // Y center of the destination match in the right column
+        // slotH_right = 2 * slotH, so center_j = (j + 0.5) * 2 * slotH
+        const midY = j * pairH + pairH / 2;       // = (2j + 1) * slotH
 
         return (
           <React.Fragment key={j}>
-            {/* Arm from top match */}
+            {/* Horizontal arm — top source match → vertical bar */}
             <div
               style={{
                 position: "absolute",
@@ -163,7 +187,7 @@ function ConnectorColumn({
                 background: "var(--outline-variant)",
               }}
             />
-            {/* Arm from bottom match */}
+            {/* Horizontal arm — bottom source match → vertical bar */}
             <div
               style={{
                 position: "absolute",
@@ -174,7 +198,7 @@ function ConnectorColumn({
                 background: "var(--outline-variant)",
               }}
             />
-            {/* Vertical bar joining the two arms */}
+            {/* Vertical bar joining the two horizontal arms */}
             <div
               style={{
                 position: "absolute",
@@ -185,7 +209,7 @@ function ConnectorColumn({
                 background: "var(--outline-variant)",
               }}
             />
-            {/* Arm pointing right to next-round match */}
+            {/* Horizontal arm — vertical bar → destination match */}
             <div
               style={{
                 position: "absolute",
